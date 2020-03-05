@@ -1,5 +1,5 @@
 functions {
-#include ./multilvlr/util.stan
+#include /multilvlr/util.stan
   
   int num_gt_zero(vector v) {
     int num_found = 0;
