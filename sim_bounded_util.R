@@ -737,7 +737,7 @@ setGeneric("create_sampler", function(r,
 })
 
 create_sampler_creator <- function() {
-  compiled_model <- stan_model(file.path("stan_models", "bounded.stan"))
+  compiled_model <- stan_model(file.path("boundr", "bounded.stan"))
   
   function(r, 
            estimands = NULL, rep_estimands = NULL, 
