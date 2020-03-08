@@ -432,7 +432,7 @@ setGeneric("create_simulation_analysis_data", function(r) standardGeneric("creat
 
 setMethod("create_simulation_analysis_data", "StructuralCausalModelSimulation", function(r) {
   discretized_response_names <- names(r@discretized_responses)
-  discrete_response_names <- names(discard(r@responses, ~ is(., "DiscretizedResponse")))
+  discrete_response_names <- names(purrr::discard(r@responses, ~ is(., "DiscretizedResponse")))
   
   r@types_data %>% 
     unnest(outcomes) %>% 
@@ -620,7 +620,7 @@ setMethod("set_obs_outcomes", "StructuralCausalModel", function (r, ..., cond = 
   leaf_responses <- r@responses
   
   leaf_responses %>% 
-    discard(~ get_output_variable_name(.x) %in% names(intervention)) %>% 
+    purrr::discard(~ get_output_variable_name(.x) %in% names(intervention)) %>% 
     iwalk(function(response, r_type_name) { 
       input_arg <- get_input_variable_names(response)
        
@@ -762,11 +762,11 @@ create_sampler_creator <- function() {
     
     level_ids <- model_levels %>% set_names(seq_along(.), .)
     
-    stopifnot(all(estimand_levels %in% discard(model_levels, is.na)))
-    stopifnot(all(between_entity_diff_levels %in% discard(model_levels, is.na)))
+    stopifnot(all(estimand_levels %in% purrr::discard(model_levels, is.na)))
+    stopifnot(all(between_entity_diff_levels %in% purrr::discard(model_levels, is.na)))
     
     discretized_response_names <- names(r@discretized_responses)
-    discrete_response_names <- names(discard(r@responses, ~ is(., "DiscretizedResponse")))
+    discrete_response_names <- names(purrr::discard(r@responses, ~ is(., "DiscretizedResponse")))
    
     discrete_rename_list <- enquos(...) %>% 
       magrittr::extract(intersect(names(.), discrete_response_names))
@@ -789,13 +789,13 @@ create_sampler_creator <- function() {
     
     if (nrow(new_sampler@analysis_data) > 0) {
       new_sampler@analysis_data %<>%  
-        mutate_at(vars(all_of(discard(model_levels, is.na))), ~ if (!is.factor(.x)) factor(.x) else .x) %>% 
-        mutate(unique_entity_id = group_indices(., !!!syms(discard(model_levels, is.na)))) %>% 
+        mutate_at(vars(all_of(purrr::discard(model_levels, is.na))), ~ if (!is.factor(.x)) factor(.x) else .x) %>% 
+        mutate(unique_entity_id = group_indices(., !!!syms(purrr::discard(model_levels, is.na)))) %>% 
         left_join(select(r@candidate_groups, -candidate_group), by = setdiff(names(r@candidate_groups), c("candidate_group", "candidate_group_id"))) %>% 
         left_join(select(r@exogenous_prob, -ex_prob), by = r@exogenous_variables) 
     
       new_sampler@unique_entity_ids <- new_sampler@analysis_data %>% 
-        select(unique_entity_id, discard(model_levels, is.na)) %>% 
+        select(unique_entity_id, purrr::discard(model_levels, is.na)) %>% 
         arrange(unique_entity_id) %>% 
         select(-unique_entity_id) %>% 
         distinct() %>% 
@@ -1085,8 +1085,8 @@ define_structural_causal_model <- function(..., exogenous_prob, exogenous_variab
       set_names(map_chr(., get_output_variable_name)),
     discretized_responses = discretized_responses,
     types_data = leaf_responses %>% {
-        # if (prune_discretized) discard(., ~ is(., "DiscretizedResponse")) else . 
-        discard(., ~ is(., "DiscretizedResponse")) 
+        # if (prune_discretized) purrr::discard(., ~ is(., "DiscretizedResponse")) else . 
+        purrr::discard(., ~ is(., "DiscretizedResponse")) 
       } %>% 
       set_names(map_chr(., get_output_variable_name) %>% str_c("r_", .)) %>%
       map(get_response_type_names) %>% 
@@ -1115,7 +1115,7 @@ define_structural_causal_model <- function(..., exogenous_prob, exogenous_variab
     nest(outcomes = c(str_c("r_", exogenous_variables), map_chr(leaf_responses, get_output_variable_name), ex_prob)) 
   
   discrete_r_type_col <- comb@responses %>% 
-    discard(is, "DiscretizedResponse") %>% 
+    purrr::discard(is, "DiscretizedResponse") %>% 
     names() %>% 
     str_c("r_", .) %>% 
     intersect(names(comb@types_data))
