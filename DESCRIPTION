@@ -1,0 +1,28 @@
+Package: boundr
+Title: Bounded Effects and Counterfactuals for Imperfect Experiments 
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Karim",
+           family = "Naguib",
+           role = c("aut", "cre"),
+           email = "karimn2.0@gmail.com",
+           comment = c(ORCID = "https://orcid.org/0000-0002-9965-130X"))
+Description: This package is used to build and analyze structural graphical models as proposed by Pearl in "Causality: Models, Reasoning, and Inference" (Chapter 8). This approach allows for bounded estimation of counterfactuals by modeling the correlated background variables determining all observable variables.  
+License: GPL-3 
+Encoding: UTF-8
+LazyData: true
+Biarch: true
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    methods,
+    Rcpp (>= 0.12.0),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.0.0)
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make
