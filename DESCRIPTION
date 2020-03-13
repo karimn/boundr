@@ -17,13 +17,25 @@ Depends:
 Imports: 
     methods,
     Rcpp (>= 0.12.0),
-    rstan (>= 2.18.1),
-    rstantools (>= 2.0.0)
+    rstan (>= 2.19.3),
+    rstantools (>= 2.0.0),
+    magrittr,
+    purrr (>= 0.3.3),
+    rlang (>= 0.4.5)
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
     RcppEigen (>= 0.3.3.3.0),
-    rstan (>= 2.18.1),
-    StanHeaders (>= 2.18.0)
+    rstan (>= 2.19.3),
+    StanHeaders (>= 2.19.2)
 SystemRequirements: GNU make
 RoxygenNote: 7.1.0
+Collate: 
+    'base_model.R'
+    'boundr-package.R'
+    'structural_model.R'
+    'estimation.R'
+    'response.R'
+    'sampler.R'
+    'stanmodels.R'
+    'util.R'

@@ -8,13 +8,10 @@
 #' @useDynLib boundr, .registration = TRUE
 #' @import methods
 #' @import Rcpp
-#' @import magrittr
-#' @import tidyverse
-#' @import tibble
-#' @importFrom tidyverse %>%
-#' @importFrom tibble lst
-#'
-#' @importFrom rstan sampling
+#' @importFrom rlang list2
+#' @importFrom purrr map map_chr flatten keep compact
+#' @importFrom magrittr %>% %<>%
+#' @importFrom rstan sampling vb
 #'
 #' @references
 #' Chickering, D. M., & Pearl, J. (1996). A clinician’s tool for analyzing non-compliance. Proceedings of the National Conference on Artificial Intelligence, 2, 1269–1276.
