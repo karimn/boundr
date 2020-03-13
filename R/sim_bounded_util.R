@@ -737,7 +737,7 @@ setGeneric("create_sampler", function(r,
 })
 
 create_sampler_creator <- function() {
-  compiled_model <- stanmodels$bounded # stan_model(file.path("boundr", "bounded.stan"))
+  # compiled_model <- stanmodels$bounded # stan_model(file.path("boundr", "bounded.stan"))
 
   function(r,
            estimands = NULL, rep_estimands = NULL,
@@ -750,7 +750,8 @@ create_sampler_creator <- function() {
            num_sim_unique_entities = 0,
            alternative_model_file = NULL) {
     new_sampler <- if (is_null(alternative_model_file)) {
-      compiled_model %>% as("Sampler")
+      # compiled_model %>% as("Sampler")
+      stanmodels$bounded %>% as("Sampler")
     } else {
       stan_model(alternative_model_file) %>% as("Sampler")
     }
@@ -1063,10 +1064,10 @@ define_discretized_response_group <- function(output, cutpoints, direction = c("
 #' Defined the structural model's directed acyclic graph and each variable's response function
 #'
 #' @param ...
-#' @param exogenous_prob data.frame with the experiment's assignment mechanism's probabilities.
+#' @param exogenous_prob \code{data.frame} with the experiment's assignment mechanism's probabilities.
 #' @param exogenous_variables Names of exogenous variables.
 #'
-#' @return A `StructuralCausalModel` S3 object
+#' @return A \code{StructuralCausalModel} S3 object
 #' @export
 #'
 #' @examples
