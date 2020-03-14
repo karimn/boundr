@@ -1,6 +1,6 @@
 #' The 'boundr' package.
 #'
-#' @description A DESCRIPTION OF THE PACKAGE XYZ
+#' @description This package is used to build and analyze structural graphical models as proposed by Pearl in "Causality: Models, Reasoning, and Inference" (Chapter 8). This approach allows for bounded estimation of counterfactuals by modeling the correlated background variables determining all observable variables.
 #'
 #' @docType package
 #' @name boundr-package
