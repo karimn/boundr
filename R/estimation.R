@@ -63,29 +63,29 @@ setClass(
 )
 
 setClass(
-  "DiscretizedAtomEstimatorCollection",
+  "DiscretizedAtomEstimandCollection",
   contains = c("DiscretizedEstimand", "AtomEstimand")
 )
 
 setClass(
-  "DiscretizedDiffEstimatorCollection",
+  "DiscretizedDiffEstimandCollection",
   contains = c("DiscretizedEstimand", "DiscreteDiffEstimand")
 )
 
 setClass(
-  "DiscretizedMeanEstimator",
+  "DiscretizedMeanEstimand",
   contains = "Estimand",
-  slots = c("group" = "DiscretizedAtomEstimatorCollection")
+  slots = c("group" = "DiscretizedAtomEstimandCollection")
 )
 
 setClass(
   "DiscretizedUtilityEstimand",
   contains = "Estimand",
-  slots = c("group" = "DiscretizedAtomEstimatorCollection")
+  slots = c("group" = "DiscretizedAtomEstimandCollection")
 )
 
 setClass(
-  "DiscretizedMeanDiffEstimator",
+  "DiscretizedMeanDiffEstimand",
   contains = "DiffEstimand"
 )
 
@@ -94,6 +94,12 @@ setClass(
   contains = "DiffEstimand"
 )
 
+#' Collection of S4 estimands
+#'
+#' @slot estimands \code{data.frame} for internal storage of estimands.
+#' @slot est_stan_info list used in Stan model.
+#'
+#' @export
 setClass(
   "EstimandCollection",
   contains = "EstimationBase",
@@ -106,7 +112,7 @@ EstimandResults <- setClass(
   contains = "tbl_df"
 )
 
-setMethod("initialize", "DiscretizedMeanDiffEstimator", function(.Object, ...) {
+setMethod("initialize", "DiscretizedMeanDiffEstimand", function(.Object, ...) {
   .Object <- callNextMethod(.Object, ...)
 
   left_right <- list2(...)
@@ -607,7 +613,7 @@ setMethod("set_model", "DiffEstimand", function(est, model) {
   return(est)
 })
 
-setMethod("set_model", "DiscretizedAtomEstimatorCollection", function(est, model) {
+setMethod("set_model", "DiscretizedAtomEstimandCollection", function(est, model) {
   est <- callNextMethod()
 
   discretized_type <- model@discretized_responses[[est@outcome_group]]
@@ -656,7 +662,7 @@ setMethod("get_component_estimands", "DiscreteDiffEstimand", function(est, next_
     bind_rows(left_est_data, right_est_data)
 })
 
-setMethod("get_component_estimands", "DiscretizedAtomEstimatorCollection", function(est, next_estimand_id, next_estimand_group_id) {
+setMethod("get_component_estimands", "DiscretizedAtomEstimandCollection", function(est, next_estimand_id, next_estimand_group_id) {
   discretized_atoms <- est@cutpoint %>%
     imap(function(cutpoint, outcome) {
       new(
@@ -690,7 +696,7 @@ setMethod("get_component_estimands", "DiscretizedAtomEstimatorCollection", funct
     estimand_id = next_estimand_id,
     mean_estimand_group_id = next_estimand_group_id,
     est_obj = list(new(
-      "DiscretizedMeanEstimator",
+      "DiscretizedMeanEstimand",
       name = estimand_name,
       outcome_group = outcome_group,
       group = est
@@ -718,7 +724,7 @@ setMethod("get_component_estimands", "DiscretizedAtomEstimatorCollection", funct
   bind_rows(discretized_atoms, atom_mean_est, utility_est)
 })
 
-setMethod("get_component_estimands", "DiscretizedDiffEstimatorCollection", function(est, next_estimand_id, next_estimand_group_id) {
+setMethod("get_component_estimands", "DiscretizedDiffEstimandCollection", function(est, next_estimand_id, next_estimand_group_id) {
   left_est_data <- est@left %>% get_component_estimands(next_estimand_id, next_estimand_group_id)
   next_estimand_id <- left_est_data %>% pull(estimand_id) %>% max() %>% add(1)
   next_estimand_group_id <- left_est_data %>% pull(estimand_group_id) %>% max(na.rm = TRUE) %>% add(1)
@@ -728,10 +734,10 @@ setMethod("get_component_estimands", "DiscretizedDiffEstimatorCollection", funct
   next_estimand_group_id <- right_est_data %>% pull(estimand_group_id) %>% max(na.rm = TRUE) %>% add(1)
 
   mean_diff_data <- list(left_est_data, right_est_data) %>%
-    map(filter, map_lgl(est_obj, is, "DiscretizedMeanEstimator")) %>%
+    map(filter, map_lgl(est_obj, is, "DiscretizedMeanEstimand")) %>%
     map_df(select, estimand_id, est_obj) %>% {
       left_right_list <- set_names(.$est_obj, c("left", "right"))
-      mean_diff_est_obj <- exec(new, "DiscretizedMeanDiffEstimator", !!!left_right_list)
+      mean_diff_est_obj <- exec(new, "DiscretizedMeanDiffEstimand", !!!left_right_list)
 
       transmute(., estimand_id, name = c("left", "right")) %>%
         pivot_wider(values_from = estimand_id, names_prefix = "estimand_id_") %>%
@@ -845,6 +851,15 @@ setMethod("add_between_level_entity_diff_estimands", "EstimandCollection", funct
   # Do nothing
 })
 
+#' Create S4 instance of estimand for a discrete variable
+#'
+#' @param outcome Variable name
+#' @param ... Intervention
+#' @param cond Conditional
+#' @param cond_desc Description of conditional
+#'
+#' @return \code{AtomEstimand} S4 object
+#' @export
 build_atom_estimand <- function(outcome, ..., cond, cond_desc) {
   intervention <- list2(...)
   intervention_string <- if (!is_empty(intervention)) {
@@ -908,6 +923,13 @@ build_replication_correlation_estimand <- function(outcome1, outcome2, cond = NA
   )
 }
 
+#' Create an S4 instance of difference estimand for discrete variables
+#'
+#' @param left Left estimand to difference from
+#' @param right  Right estimand to difference out
+#'
+#' @return \code{DiscreteDiffEstimand} S4 object
+#' @export
 build_diff_estimand <- function(left, right) {
   diff_outcome_group <- union(left@outcome_group, right@outcome_group)
 
@@ -916,9 +938,18 @@ build_diff_estimand <- function(left, right) {
   new("DiscreteDiffEstimand", name = str_interp("${left@name[1]} - ${right@name[1]}"), outcome_group = diff_outcome_group, left = left, right = right)
 }
 
+#' Create an S4 instance for an estimand of a discretized variable
+#'
+#' @param outcome_group Name of discretized variable group .
+#' @param ... Intervention.
+#' @param cond Conditional.
+#' @param cond_desc String description of conditional.
+#'
+#' @return \code{DiscretizedAtomEstimandCollection} S4 object
+#' @export
 build_discretized_atom_estimand <- function(outcome_group, ..., cond, cond_desc) {
   new(
-    "DiscretizedAtomEstimatorCollection",
+    "DiscretizedAtomEstimandCollection",
     outcome_group = outcome_group,
     intervention = list(...),
     cond = if (!missing(cond)) enquo(cond) else TRUE,
@@ -936,9 +967,16 @@ build_discretized_atom_estimand <- function(outcome_group, ..., cond, cond_desc)
   )
 }
 
+#' Create an S4 instance for a different estimand for a discretized variable
+#'
+#' @param left Left estimand, to difference from
+#' @param right  Right estimand, to difference out
+#'
+#' @return \code{DiscretizedDiffEstimandCollection} S4 object
+#' @export
 build_discretized_diff_estimand <- function(left, right) {
   new(
-    "DiscretizedDiffEstimatorCollection",
+    "DiscretizedDiffEstimandCollection",
     name = str_interp("${left@name[1]} - ${right@name[1]}"),
     left = left,
     right = right,
@@ -946,122 +984,10 @@ build_discretized_diff_estimand <- function(left, right) {
 }
 
 
-build_estimand_collection <- function (model, ..., utility = NA_real_, cores = 1) {
-  estimand_data_builder <- function(accum_data, next_est) {
-    next_estimand_id <- if (is_null(accum_data)) 1 else pull(accum_data, estimand_id) %>% max() %>% add(1)
-    next_estimand_group_id <- if (is_null(accum_data)) 1 else pull(accum_data, estimand_group_id) %>% c(0) %>% max(na.rm = TRUE) %>% add(1)
-
-    next_est %>%
-      set_model(model) %>%
-      get_component_estimands(next_estimand_id, next_estimand_group_id) %>%
-      bind_rows(accum_data)
-  }
-
-  new_est_collection <- new(
-    "EstimandCollection",
-    model = model,
-    estimands = rlang::list2(...) %>%
-      compact() %>%
-      reduce(estimand_data_builder, .init = NULL) %>%
-      mutate(
-        est_type = case_when(
-          map_lgl(est_obj, is, "AtomEstimand") ~ "atom",
-          map_lgl(est_obj, is, "DiscreteDiffEstimand") ~ "diff",
-          map_lgl(est_obj, is, "DiscretizedMeanEstimator") ~ "mean",
-          map_lgl(est_obj, is, "DiscretizedUtilityEstimand") ~ "utility",
-          map_lgl(est_obj, is, "DiscretizedMeanDiffEstimator") ~ "mean-diff",
-          map_lgl(est_obj, is, "DiscretizedUtilityDiffEstimand") ~ "utility-diff",
-        ) %>% factor(levels = c("atom", "diff", "mean", "utility", "mean-diff", "utility-diff"))
-      ) %>% {
-        if ("cutpoint" %in% names(.)) . else mutate(., cutpoint = NA_real_)
-      }
-  )
-
-  new_est_collection@estimands %<>%
-    arrange(est_type, estimand_id) %>%
-    mutate(new_estimand_id = seq(n())) %>% {
-      if (any(str_detect(names(.), "estimand_id_(left|right)"))) {
-        left_join(., select(., estimand_id, new_estimand_id), by = c("estimand_id_left" = "estimand_id"), suffix = c("", "_left")) %>%
-        left_join(select(., estimand_id, new_estimand_id), by = c("estimand_id_right" = "estimand_id"), suffix = c("", "_right"))
-      } else .
-    } %>%
-    select(-starts_with("estimand_id")) %>%
-    rename_at(vars(starts_with("new_estimand")), str_remove, "new_") %>%
-    group_by(est_type) %>%
-    mutate(within_est_type_index = seq(n())) %>%
-    ungroup() %>%
-    mutate(
-      atom_index = if_else(fct_match(est_type, "atom"), within_est_type_index, NA_integer_),
-      diff_index = if_else(fct_match(est_type, "diff"), within_est_type_index, NA_integer_),
-      mean_index = if_else(fct_match(est_type, "mean"), within_est_type_index, NA_integer_),
-      utility_index = if_else(fct_match(est_type, "utility"), within_est_type_index, NA_integer_),
-    ) %>%
-    select(-within_est_type_index) %>% {
-      if (any(str_detect(names(.), "estimand_id_(left|right)"))) {
-        left_join(., filter(., fct_match(est_type, "mean")) %>% select(estimand_id, mean_index), by = c("estimand_id_left" = "estimand_id"), suffix = c("", "_left")) %>%
-          left_join(filter(., fct_match(est_type, "mean")) %>% select(estimand_id, mean_index), by = c("estimand_id_right" = "estimand_id"), suffix = c("", "_right")) %>%
-          left_join(filter(., fct_match(est_type, "utility")) %>% select(estimand_id, utility_index), by = c("estimand_id_left" = "estimand_id"), suffix = c("", "_left")) %>%
-          left_join(filter(., fct_match(est_type, "utility")) %>% select(estimand_id, utility_index), by = c("estimand_id_right" = "estimand_id"), suffix = c("", "_right"))
-      } else .
-    }
-
-  if (any(!is.na(utility))) {
-    stopifnot(length(utility) == (length(get_discretized_cutpoints(model)) + 1))
-  } else {
-    stopifnot(filter(new_est_collection@estimands, fct_match(est_type, "utility")) %>% nrow() %>% equals(0))
-  }
-
-  num_diff_estimands <- num_estimands(new_est_collection, "diff")
-
-  discretized_group_ids <- if (any(fct_match(new_est_collection@estimands$est_type, "mean"))) new_est_collection@estimands %>%
-    filter(fct_match(est_type, "mean")) %>%
-    semi_join(new_est_collection@estimands, ., by = c("estimand_group_id" = "mean_estimand_group_id")) %>%
-    select(estimand_group_id, estimand_id)
-
-  new_est_collection@est_stan_info <- new_est_collection %>%
-    get_stan_data_structures(cores = cores) %>%
-    list_modify(!!!lst(
-      num_discrete_estimands = num_estimands(new_est_collection, c("atom", "diff")),
-      num_atom_estimands = num_estimands(new_est_collection, "atom"),
-      num_diff_estimands,
-      num_mean_diff_estimands = num_estimands(new_est_collection, "mean-diff"),
-      num_utility_diff_estimands = num_estimands(new_est_collection, "utility-diff"),
-
-      utility = if (all(!is.na(utility))) as.array(utility) else array(0, dim = 0),
-      num_discrete_utility_values = length(utility),
-
-      diff_estimand_atoms = new_est_collection@estimands %>%
-        filter(fct_match(est_type, "diff")) %>%
-        arrange(estimand_id) %>%
-        select(matches("^estimand_id_(left|right)$")) %>% {
-          if (nrow(.) > 0) as.matrix(.) %>% t() %>% c() else array(0, dim = 0)
-        },
-
-      mean_diff_estimand_atoms = new_est_collection@estimands %>%
-        filter(fct_match(est_type, "mean-diff")) %>%
-        arrange(estimand_id) %>%
-        select(matches("mean_index_(left|right)")) %>% {
-          if (nrow(.) > 0) as.matrix(.) %>% t() %>% c() else array(0, dim = 0)
-        },
-
-      utility_diff_estimand_atoms = new_est_collection@estimands %>%
-        filter(fct_match(est_type, "utility-diff")) %>%
-        arrange(estimand_id) %>%
-        select(matches("utility_index_(left|right)")) %>% {
-          if (nrow(.) > 0) as.matrix(.) %>% t() %>% c() else array(0, dim = 0)
-        },
-
-      num_discretized_groups = if (!is_empty(discretized_group_ids)) n_distinct(discretized_group_ids$estimand_group_id) else 0,
-      discretized_group_ids = if (!is_empty(discretized_group_ids)) discretized_group_ids %>% pull(estimand_id) else array(0, dim = 0),
-    ))
-
-  return(new_est_collection)
-}
-
-build_discretized_estimands <- function(types, outcome, fun) {
-  types %>%
-    get_discretized_response_info(outcome) %>% {
-      pmap(.[c("cutpoint", "outcome")], fun, outcome_group = outcome, direction = .$direction)
-    } %>%
-    flatten()
-}
+# build_discretized_estimands <- function(types, outcome, fun) {
+#   types %>%
+#     get_discretized_response_info(outcome) %>% {
+#       pmap(.[c("cutpoint", "outcome")], fun, outcome_group = outcome, direction = .$direction)
+#     } %>%
+#     flatten()
+# }

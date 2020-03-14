@@ -472,6 +472,26 @@ create_sampler_creator <- function() {
 }
 
 
+#' Create S4 sampler object for given model and estimands
+#'
+#' @param estimands estimands to calculate
+#' @param rep_estimands
+#' @param model_levels Model level names
+#' @param cv_level Cross validation level
+#' @param estimand_levels Which model levels to calculate estimands for
+#' @param between_entity_diff_levels Which model levels to calculate difference between estimands for
+#' @param analysis_data Dataset to use for analysis
+#' @param ... specify names of model variables in data
+#' @param tau_level_sigma hyperparameter
+#' @param discrete_beta_hyper_sd hyperparameter
+#' @param discretized_beta_hyper_sd hyperparameter
+#' @param calculate_marginal_prob Calculate latent type marginal probabilities
+#' @param use_random_binpoint
+#' @param num_sim_unique_entities
+#' @param alternative_model_file
+#'
+#' @return \code{Sampler} S4 object
+#' @export
 setMethod("create_sampler", "StructuralCausalModel", create_sampler_creator())
 
 setGeneric("get_known_estimands", function(r, estimands) {
@@ -480,6 +500,129 @@ setGeneric("get_known_estimands", function(r, estimands) {
 
 setMethod("get_known_estimands", "StructuralCausalModel", function(r, estimands) {
   estimands %>% calculate_from_known_dgp(r)
+})
+
+setGeneric("build_estimand_collection", function(model, ...) standardGeneric("build_estimand_collection"))
+
+#' Create collection of estimands
+#'
+#' @param model current model
+#' @param ... estimands
+#' @param utility utility values for discretized cutpoints
+#' @param cores Number of cores to use in preparing estimands
+#'
+#' @return \code{EstimandCollection} S4 object
+#' @export
+setMethod("build_estimand_collection", "StructuralCausalModel", function (model, ..., utility = NA_real_, cores = 1) {
+  estimand_data_builder <- function(accum_data, next_est) {
+    next_estimand_id <- if (is_null(accum_data)) 1 else pull(accum_data, estimand_id) %>% max() %>% add(1)
+    next_estimand_group_id <- if (is_null(accum_data)) 1 else pull(accum_data, estimand_group_id) %>% c(0) %>% max(na.rm = TRUE) %>% add(1)
+
+    next_est %>%
+      set_model(model) %>%
+      get_component_estimands(next_estimand_id, next_estimand_group_id) %>%
+      bind_rows(accum_data)
+  }
+
+  new_est_collection <- new(
+    "EstimandCollection",
+    model = model,
+    estimands = rlang::list2(...) %>%
+      compact() %>%
+      reduce(estimand_data_builder, .init = NULL) %>%
+      mutate(
+        est_type = case_when(
+          map_lgl(est_obj, is, "AtomEstimand") ~ "atom",
+          map_lgl(est_obj, is, "DiscreteDiffEstimand") ~ "diff",
+          map_lgl(est_obj, is, "DiscretizedMeanEstimand") ~ "mean",
+          map_lgl(est_obj, is, "DiscretizedUtilityEstimand") ~ "utility",
+          map_lgl(est_obj, is, "DiscretizedMeanDiffEstimand") ~ "mean-diff",
+          map_lgl(est_obj, is, "DiscretizedUtilityDiffEstimand") ~ "utility-diff",
+        ) %>% factor(levels = c("atom", "diff", "mean", "utility", "mean-diff", "utility-diff"))
+      ) %>% {
+        if ("cutpoint" %in% names(.)) . else mutate(., cutpoint = NA_real_)
+      }
+  )
+
+  new_est_collection@estimands %<>%
+    arrange(est_type, estimand_id) %>%
+    mutate(new_estimand_id = seq(n())) %>% {
+      if (any(str_detect(names(.), "estimand_id_(left|right)"))) {
+        left_join(., select(., estimand_id, new_estimand_id), by = c("estimand_id_left" = "estimand_id"), suffix = c("", "_left")) %>%
+        left_join(select(., estimand_id, new_estimand_id), by = c("estimand_id_right" = "estimand_id"), suffix = c("", "_right"))
+      } else .
+    } %>%
+    select(-starts_with("estimand_id")) %>%
+    rename_at(vars(starts_with("new_estimand")), str_remove, "new_") %>%
+    group_by(est_type) %>%
+    mutate(within_est_type_index = seq(n())) %>%
+    ungroup() %>%
+    mutate(
+      atom_index = if_else(fct_match(est_type, "atom"), within_est_type_index, NA_integer_),
+      diff_index = if_else(fct_match(est_type, "diff"), within_est_type_index, NA_integer_),
+      mean_index = if_else(fct_match(est_type, "mean"), within_est_type_index, NA_integer_),
+      utility_index = if_else(fct_match(est_type, "utility"), within_est_type_index, NA_integer_),
+    ) %>%
+    select(-within_est_type_index) %>% {
+      if (any(str_detect(names(.), "estimand_id_(left|right)"))) {
+        left_join(., filter(., fct_match(est_type, "mean")) %>% select(estimand_id, mean_index), by = c("estimand_id_left" = "estimand_id"), suffix = c("", "_left")) %>%
+          left_join(filter(., fct_match(est_type, "mean")) %>% select(estimand_id, mean_index), by = c("estimand_id_right" = "estimand_id"), suffix = c("", "_right")) %>%
+          left_join(filter(., fct_match(est_type, "utility")) %>% select(estimand_id, utility_index), by = c("estimand_id_left" = "estimand_id"), suffix = c("", "_left")) %>%
+          left_join(filter(., fct_match(est_type, "utility")) %>% select(estimand_id, utility_index), by = c("estimand_id_right" = "estimand_id"), suffix = c("", "_right"))
+      } else .
+    }
+
+  if (any(!is.na(utility))) {
+    stopifnot(length(utility) == (length(get_discretized_cutpoints(model)) + 1))
+  } else {
+    stopifnot(filter(new_est_collection@estimands, fct_match(est_type, "utility")) %>% nrow() %>% equals(0))
+  }
+
+  num_diff_estimands <- num_estimands(new_est_collection, "diff")
+
+  discretized_group_ids <- if (any(fct_match(new_est_collection@estimands$est_type, "mean"))) new_est_collection@estimands %>%
+    filter(fct_match(est_type, "mean")) %>%
+    semi_join(new_est_collection@estimands, ., by = c("estimand_group_id" = "mean_estimand_group_id")) %>%
+    select(estimand_group_id, estimand_id)
+
+  new_est_collection@est_stan_info <- new_est_collection %>%
+    get_stan_data_structures(cores = cores) %>%
+    list_modify(!!!lst(
+      num_discrete_estimands = num_estimands(new_est_collection, c("atom", "diff")),
+      num_atom_estimands = num_estimands(new_est_collection, "atom"),
+      num_diff_estimands,
+      num_mean_diff_estimands = num_estimands(new_est_collection, "mean-diff"),
+      num_utility_diff_estimands = num_estimands(new_est_collection, "utility-diff"),
+
+      utility = if (all(!is.na(utility))) as.array(utility) else array(0, dim = 0),
+      num_discrete_utility_values = length(utility),
+
+      diff_estimand_atoms = new_est_collection@estimands %>%
+        filter(fct_match(est_type, "diff")) %>%
+        arrange(estimand_id) %>%
+        select(matches("^estimand_id_(left|right)$")) %>% {
+          if (nrow(.) > 0) as.matrix(.) %>% t() %>% c() else array(0, dim = 0)
+        },
+
+      mean_diff_estimand_atoms = new_est_collection@estimands %>%
+        filter(fct_match(est_type, "mean-diff")) %>%
+        arrange(estimand_id) %>%
+        select(matches("mean_index_(left|right)")) %>% {
+          if (nrow(.) > 0) as.matrix(.) %>% t() %>% c() else array(0, dim = 0)
+        },
+
+      utility_diff_estimand_atoms = new_est_collection@estimands %>%
+        filter(fct_match(est_type, "utility-diff")) %>%
+        arrange(estimand_id) %>%
+        select(matches("utility_index_(left|right)")) %>% {
+          if (nrow(.) > 0) as.matrix(.) %>% t() %>% c() else array(0, dim = 0)
+        },
+
+      num_discretized_groups = if (!is_empty(discretized_group_ids)) n_distinct(discretized_group_ids$estimand_group_id) else 0,
+      discretized_group_ids = if (!is_empty(discretized_group_ids)) discretized_group_ids %>% pull(estimand_id) else array(0, dim = 0),
+    ))
+
+  return(new_est_collection)
 })
 
 #' Defined the structural model's directed acyclic graph and each variable's response function
@@ -656,3 +799,4 @@ create_prior_predicted_simulation <- function(scm, sample_size, chains, iter, ..
     #   if (length(.) > 1) . else first(.)
     # }
 }
+

@@ -1,18 +1,32 @@
 #' @include structural_model.R
 NULL
 
+#' S4 base class for all responses
+#'
+#' @slot output Variable name.
+#'
+#' @export
 setClass(
   "BaseResponse",
   slots = c(output = "character"),
   contains = "BaseModel"
 )
 
+#' S4 class for a discrete variable's responses
+#'
+#' @slot input Variable name.
+#' @slot finite_states list of latent types and their corresponding structural functions.
+#'
+#' @export
 setClass(
   "Response",
   contains =  "BaseResponse",
   slots = c(input = "character", finite_states = "list")
 )
 
+#' S4 base class for all discretized variable responses.
+#'
+#' @export
 setClass("BaseDiscretizedResponse",
          contains = "BaseResponse")
 
@@ -22,6 +36,14 @@ setClass(
   slots = c("cutpoint" = "numeric")
 )
 
+#' Create a collection of variables and their responses for a discretized continuous variable
+#'
+#' @slot child_responses Individual variable for each cutpoint.
+#' @slot cutpoints list of cutpoints to discretize and the boundary values.
+#' @slot direction Calculate proportion below or above cutpoints.
+#' @slot pruning_data \code{data.frame} to exclude some response type combinations.
+#'
+#' @export
 setClass("DiscretizedResponseGroup",
          contains = "BaseDiscretizedResponse",
          slots = c(child_responses = "list", cutpoints = "list", direction = "factor", pruning_data = "data.frame"))
@@ -159,7 +181,7 @@ setMethod("get_candidates", "Response", function(r, analysis_data) {
 #' Define an observable variable and its response function
 #'
 #' @param output Name of variable
-#' @param input Antecedent variables
+#' @param input Antecedent variable names
 #' @param ... finite responses to input
 #'
 #' @return A \code{Response} S4 object
@@ -191,6 +213,17 @@ define_discretized_response <- function(output, cutpoint, input = NA_character_,
       cutpoint = cutpoint)
 }
 
+#' Define a discretized variable for a continuous variable
+#'
+#' @param output Variable name.
+#' @param cutpoints list of cutpoints to discretize over and the boundary values.
+#' @param direction Whether discretization calculates proportion above or below cutpoints.
+#' @param input Antecedent variable names.
+#' @param ... finite responses to input
+#' @slot pruning_data \code{data.frame} to exclude some response type combinations.
+#'
+#' @return A \code{DiscretizedResponseGroup} S4 object
+#' @export
 define_discretized_response_group <- function(output, cutpoints, direction = c("<", ">"), input = NA_character_, ..., pruning_data = NULL) {
   stopifnot(!is.unsorted(cutpoints) || length(cutpoints) > 2)
 

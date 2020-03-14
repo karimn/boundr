@@ -127,6 +127,15 @@ setGeneric("get_estimation_results", function(r, no_levels = FALSE, no_sim_diag 
   standardGeneric("get_estimation_results")
 })
 
+#' Prepare estimation results
+#'
+#' @param r \code{SamplingResults}
+#' @param no_levels Estimate only at the top-level
+#' @param no_sim_diag Do not calculate simulation diagnostics (Rhat and ESS diagnostics)
+#' @param level_hist
+#'
+#' @return Nested \code{tibble} with estimation results
+#' @export
 setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = FALSE, no_sim_diag = TRUE, level_hist = FALSE) {
   estimands <- r@sampler@estimands
 
@@ -223,6 +232,13 @@ setGeneric("get_marginal_latent_type_prob", function(r, no_sim_diag = TRUE) {
   standardGeneric("get_marginal_latent_type_prob")
 })
 
+#' Extract latent type marginal probabilities
+#'
+#' @param r \code{SamplingResults}
+#' @param no_sim_diag Do not generate simulation diagnostics (Rhat and ESS diagnostics)
+#'
+#' @return \code{tibble} with marginal probabilities
+#' @export
 setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim_diag = TRUE) {
   r %>%
     as.array(par = "marginal_p_r") %>%
