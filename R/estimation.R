@@ -193,7 +193,7 @@ setMethod("calculate_from_known_dgp", "EstimandCollection", function(est, joint_
   calculated_est <- est_calculator(joint_dist, prob_var = prob, calculated_var = prob)
 
   if (!as_df) {
-    calculated_est <- calculated_est$r_prob %>% set_names(calculated_est$name)
+    calculated_est <- calculated_est$r_prob %>% purrr::set_names(calculated_est$name)
   }
 
   return(calculated_est)
@@ -361,7 +361,7 @@ setMethod("plot", c("EstimandResults"), function(x,
         rename_sep <- if (wrap_after_friendly_name) "\n" else ", "
 
         rename_list <- estimands %>%
-          set_names(str_c(names(.), ., sep = rename_sep))
+          purrr::set_names(str_c(names(.), ., sep = rename_sep))
 
         exec(fct_recode, est_names, !!!rename_list)
       }
@@ -521,7 +521,7 @@ setMethod("plot_cdf_diff", "EstimandResults", function(data, ..., just_data = FA
       # mutate(percentile = per)
   },
   data = data) %>%
-    set_names(estimands) %>%
+    purrr::set_names(estimands) %>%
     bind_rows(.id = "est_group") %>%
     mutate(est_group = str_replace_all(est_group, c("\\(?E" = "Pr", "([\\[\\]])" = "\\\\\\1", "\\)$" = "")))
 
@@ -736,7 +736,7 @@ setMethod("get_component_estimands", "DiscretizedDiffEstimandCollection", functi
   mean_diff_data <- list(left_est_data, right_est_data) %>%
     map(filter, map_lgl(est_obj, is, "DiscretizedMeanEstimand")) %>%
     map_df(select, estimand_id, est_obj) %>% {
-      left_right_list <- set_names(.$est_obj, c("left", "right"))
+      left_right_list <- purrr::set_names(.$est_obj, c("left", "right"))
       mean_diff_est_obj <- exec(new, "DiscretizedMeanDiffEstimand", !!!left_right_list)
 
       transmute(., estimand_id, name = c("left", "right")) %>%
@@ -752,7 +752,7 @@ setMethod("get_component_estimands", "DiscretizedDiffEstimandCollection", functi
   utility_diff_data <- list(left_est_data, right_est_data) %>%
     map(filter, map_lgl(est_obj, is, "DiscretizedUtilityEstimand")) %>%
     map_df(select, estimand_id, est_obj) %>% {
-      left_right_list <- set_names(.$est_obj, c("left", "right"))
+      left_right_list <- purrr::set_names(.$est_obj, c("left", "right"))
       utility_diff_est_obj <- exec(new, "DiscretizedUtilityDiffEstimand", !!!left_right_list)
 
       transmute(., estimand_id, name = c("left", "right")) %>%

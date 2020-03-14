@@ -112,7 +112,7 @@ setMethod("set_obs_outcomes", "StructuralCausalModel", function (r, ..., cond = 
 
   leaf_responses %>%
     purrr::discard(~ get_output_variable_name(.x) %in% names(intervention)) %>%
-    iwalk(function(response, r_type_name) {
+    purrr::iwalk(function(response, r_type_name) {
       input_arg <- get_input_variable_names(response)
 
       output_val <- if (!is_null(input_arg)) {
@@ -273,7 +273,7 @@ create_sampler_creator <- function() {
         arrange(unique_entity_id) %>%
         select(-unique_entity_id) %>%
         distinct() %>%
-        mutate_if(~ !is.factor(.), as_factor) %>%
+        mutate_if(~ !is.factor(.), forcats::as_factor) %>%
         mutate_all(fct_drop)
     } else {
       new_sampler@unique_entity_ids <- tibble()
@@ -663,7 +663,7 @@ define_structural_causal_model <- function(..., exogenous_prob) {
       } %>%
       purrr::set_names(map_chr(., get_output_variable_name) %>% str_c("r_", .)) %>%
       map(get_response_type_names) %>%
-      map(as_factor) %>%
+      map(forcats::as_factor) %>%
       do.call(expand.grid, .)
   )
 

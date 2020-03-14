@@ -8,8 +8,13 @@
 #' @useDynLib boundr, .registration = TRUE
 #' @import methods
 #' @import Rcpp
-#' @importFrom rlang list2
-#' @importFrom purrr map map_chr flatten keep compact
+#' @import rlang
+#' @import purrr
+#' @import dplyr
+#' @import stringr
+#' @import forcats
+#' @import tidyr
+#' @import tibble
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rstan sampling vb
 #'
