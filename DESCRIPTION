@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "karimn2.0@gmail.com",
            comment = c(ORCID = "https://orcid.org/0000-0002-9965-130X"))
-Description: This package is used to build and analyze structural graphical models as proposed by Pearl in "Causality: Models, Reasoning, and Inference" (Chapter 8). This approach allows for bounded estimation of counterfactuals by modeling the correlated background variables determining all observable variables.  
+Description: This R package is used to build and analyze structural graphical models as proposed by Pearl [2009. Causality: Models, Reasoning and Inference (Second Ed). Cambridge: Cambridge University Press. chapter 8]. This approach allows for bounded estimation of counterfactuals in an experiment where (i) all variables are discrete and (ii) not all variables are directly manipulated by the randomized assignment mechanism. This is done by modeling the correlated latent background variables determining all observable variables. Inference is conducted by constructing a Bayesian statistical model.  
 License: GPL-3 
 Encoding: UTF-8
 LazyData: true
