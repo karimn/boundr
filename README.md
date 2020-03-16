@@ -16,9 +16,11 @@ Please note that this package is still very incomplete, particularly in terms fo
 What you can do with `boundr`:
 
 1. Define a directed cyclic graph (DAG) composed of
-    a) Discrete variables 
-    b) Directed edges between variables
-    c) Response functions for each variable dependent on finite types or classes (representing latent background variables)
-    d) Terminal variables can be discretized continuous variables 
+
+        a) Discrete variables 
+        b) Directed edges between variables
+        c) Response functions for each variable dependent on finite types or classes (representing latent background variables)
+        d) Terminal variables can be discretized continuous variables 
+    
 2. Define causal quantities.
 3. Run full Bayesian sampling to calculate causal quantities.
