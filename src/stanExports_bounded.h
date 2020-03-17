@@ -1344,7 +1344,6 @@ private:
         int num_experiment_types;
         vector_d experiment_types_prob;
         int num_responses;
-        std::vector<matrix_d> type_response_value;
         int num_bg_variables;
         std::vector<int> num_bg_variable_types;
         std::vector<int> num_bg_variable_type_combo_members;
@@ -1618,24 +1617,6 @@ public:
             pos__ = 0;
             num_responses = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_responses", num_responses, 1);
-            current_statement_begin__ = 394;
-            validate_non_negative_index("type_response_value", "num_experiment_types", num_experiment_types);
-            validate_non_negative_index("type_response_value", "num_r_types", num_r_types);
-            validate_non_negative_index("type_response_value", "num_responses", num_responses);
-            context__.validate_dims("data initialization", "type_response_value", "matrix_d", context__.to_vec(num_responses,num_experiment_types,num_r_types));
-            type_response_value = std::vector<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> >(num_responses, Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>(num_experiment_types, num_r_types));
-            vals_r__ = context__.vals_r("type_response_value");
-            pos__ = 0;
-            size_t type_response_value_j_2_max__ = num_r_types;
-            size_t type_response_value_j_1_max__ = num_experiment_types;
-            size_t type_response_value_k_0_max__ = num_responses;
-            for (size_t j_2__ = 0; j_2__ < type_response_value_j_2_max__; ++j_2__) {
-                for (size_t j_1__ = 0; j_1__ < type_response_value_j_1_max__; ++j_1__) {
-                    for (size_t k_0__ = 0; k_0__ < type_response_value_k_0_max__; ++k_0__) {
-                        type_response_value[k_0__](j_1__, j_2__) = vals_r__[pos__++];
-                    }
-                }
-            }
             current_statement_begin__ = 398;
             context__.validate_dims("data initialization", "num_bg_variables", "int", context__.to_vec());
             num_bg_variables = int(0);
