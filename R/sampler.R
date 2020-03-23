@@ -265,5 +265,7 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
 #'
 #' @export
 setMethod("loo", "SamplingResults", function(x, ..., save_psis = FALSE, cores = getOption("mc.cores", 1)) {
-  rstan::loo(x, pars = "log_lik", ... , save_psis, cores)
+  ll <- loo::extract_log_lik(x, parameter_name = "log_lik", merge_chains = FALSE)
+  r_eff <- loo::relative_eff(exp(ll), cores = cores)
+  loo::loo.array(ll, r_eff = r_eff, cores = cores, save_psis = save_psis)
 })
