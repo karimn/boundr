@@ -519,8 +519,8 @@ transformed data {
 
   int<lower = 1, upper = num_unique_entities> unique_entities_in_level_entities[num_unique_entities, num_levels];
 
-  int<lower = 1, upper = num_obs> num_obs_in_log_lik_level_entities[log_lik_level > 0 ? level_size[log_lik_level] : 0];
-  int<lower = 1, upper = num_obs> obs_in_log_lik_level_entities[log_lik_level > 0 ? num_obs : 0];
+  // int<lower = 1, upper = num_obs> num_obs_in_log_lik_level_entities[log_lik_level > 0 ? level_size[log_lik_level] : 0];
+  // int<lower = 1, upper = num_obs> obs_in_log_lik_level_entities[log_lik_level > 0 ? num_obs : 0];
 
   vector<lower = -1, upper = 1>[num_diff_estimands * 2 * num_unique_entities] vec_diff = to_vector(rep_matrix([1, -1]', num_diff_estimands * num_unique_entities));
   vector<lower = -1, upper = 1>[num_mean_diff_estimands * 2 * num_unique_entities] vec_mean_diff = to_vector(rep_matrix([1, -1]', num_mean_diff_estimands * num_unique_entities));
@@ -616,10 +616,10 @@ transformed data {
     discretize_bin_beta[cutpoint_index - 1] = cutpoints[cutpoint_index];
   }
 
-  if (log_lik_level > 0) {
-    num_obs_in_log_lik_level_entities = calculate_num_in_level_entities(unique_entity_ids[obs_unique_entity_id, log_lik_level:log_lik_level], { level_size[log_lik_level] });
-    obs_in_log_lik_level_entities = sort_indices_asc(unique_entity_ids[obs_unique_entity_id, log_lik_level]);
-  }
+  // if (log_lik_level > 0) {
+  //   num_obs_in_log_lik_level_entities = calculate_num_in_level_entities(unique_entity_ids[obs_unique_entity_id, log_lik_level:log_lik_level], { level_size[log_lik_level] });
+  //   obs_in_log_lik_level_entities = sort_indices_asc(unique_entity_ids[obs_unique_entity_id, log_lik_level]);
+  // }
 
   for (level_index in 1:num_levels) {
     unique_entities_in_level_entities[, level_index] = sort_indices_asc(unique_entity_ids[, level_index]);

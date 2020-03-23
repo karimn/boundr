@@ -250,3 +250,20 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
     unnest(estimand_quantiles)
 })
+
+# Hint for using importMethodsFrom: add @import to boundr-package.R first then write method. Otherwise NAMESPACE won't be updated with
+# the needed generic functions.
+
+#' Approximate leave-one-out cross-validation
+#'
+#' @param x S4 \code{SamplingResults} object.
+#' @param ... Passed on to \code{rstan::loo()}
+#' @param save_psis Save intermediate \code{psis} results.
+#' @param cores Number of cores to use for parallelization.
+#'
+#' @return \code{loo} object
+#'
+#' @export
+setMethod("loo", "SamplingResults", function(x, ..., save_psis = FALSE, cores = getOption("mc.cores", 1)) {
+  rstan::loo(x, pars = "log_lik", ... , save_psis, cores)
+})

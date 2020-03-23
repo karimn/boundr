@@ -17,6 +17,7 @@
 #' @import tibble
 #' @importFrom magrittr %>% %<>%
 #' @importFrom rstan sampling vb
+#' @importFrom loo loo loo.array
 #'
 #' @references
 #' Chickering, D. M., & Pearl, J. (1996). A clinician’s tool for analyzing non-compliance. Proceedings of the National Conference on Artificial Intelligence, 2, 1269–1276.

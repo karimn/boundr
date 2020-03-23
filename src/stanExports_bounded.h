@@ -1409,8 +1409,6 @@ private:
         vector_d unique_entity_prop;
         std::vector<int> num_unique_entities_in_estimand_level_entities;
         std::vector<std::vector<int> > unique_entities_in_level_entities;
-        std::vector<int> num_obs_in_log_lik_level_entities;
-        std::vector<int> obs_in_log_lik_level_entities;
         vector_d vec_diff;
         vector_d vec_mean_diff;
         vector_d vec_utility_diff;
@@ -2220,14 +2218,6 @@ public:
             validate_non_negative_index("unique_entities_in_level_entities", "num_levels", num_levels);
             unique_entities_in_level_entities = std::vector<std::vector<int> >(num_unique_entities, std::vector<int>(num_levels, int(0)));
             stan::math::fill(unique_entities_in_level_entities, std::numeric_limits<int>::min());
-            current_statement_begin__ = 522;
-            validate_non_negative_index("num_obs_in_log_lik_level_entities", "(logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, \"level_size\", 1) : 0 )", (logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, "level_size", 1) : 0 ));
-            num_obs_in_log_lik_level_entities = std::vector<int>((logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, "level_size", 1) : 0 ), int(0));
-            stan::math::fill(num_obs_in_log_lik_level_entities, std::numeric_limits<int>::min());
-            current_statement_begin__ = 523;
-            validate_non_negative_index("obs_in_log_lik_level_entities", "(logical_gt(log_lik_level, 0) ? num_obs : 0 )", (logical_gt(log_lik_level, 0) ? num_obs : 0 ));
-            obs_in_log_lik_level_entities = std::vector<int>((logical_gt(log_lik_level, 0) ? num_obs : 0 ), int(0));
-            stan::math::fill(obs_in_log_lik_level_entities, std::numeric_limits<int>::min());
             current_statement_begin__ = 525;
             validate_non_negative_index("vec_diff", "((num_diff_estimands * 2) * num_unique_entities)", ((num_diff_estimands * 2) * num_unique_entities));
             vec_diff = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_diff_estimands * 2) * num_unique_entities));
@@ -2436,13 +2426,6 @@ public:
                             stan::model::cons_list(stan::model::index_uni((cutpoint_index - 1)), stan::model::nil_index_list()), 
                             get_base1(cutpoints, cutpoint_index, "cutpoints", 1), 
                             "assigning variable discretize_bin_beta");
-            }
-            current_statement_begin__ = 619;
-            if (as_bool(logical_gt(log_lik_level, 0))) {
-                current_statement_begin__ = 620;
-                stan::math::assign(num_obs_in_log_lik_level_entities, calculate_num_in_level_entities(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_multi(obs_unique_entity_id), stan::model::cons_list(stan::model::index_min_max(log_lik_level, log_lik_level), stan::model::nil_index_list())), "unique_entity_ids"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(get_base1(level_size, log_lik_level, "level_size", 1)).array()), pstream__));
-                current_statement_begin__ = 621;
-                stan::math::assign(obs_in_log_lik_level_entities, sort_indices_asc(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_multi(obs_unique_entity_id), stan::model::cons_list(stan::model::index_uni(log_lik_level), stan::model::nil_index_list())), "unique_entity_ids")));
             }
             current_statement_begin__ = 624;
             for (int level_index = 1; level_index <= num_levels; ++level_index) {
@@ -3154,18 +3137,6 @@ public:
                     check_greater_or_equal(function__, "unique_entities_in_level_entities[i_0__][i_1__]", unique_entities_in_level_entities[i_0__][i_1__], 1);
                     check_less_or_equal(function__, "unique_entities_in_level_entities[i_0__][i_1__]", unique_entities_in_level_entities[i_0__][i_1__], num_unique_entities);
                 }
-            }
-            current_statement_begin__ = 522;
-            size_t num_obs_in_log_lik_level_entities_i_0_max__ = (logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, "level_size", 1) : 0 );
-            for (size_t i_0__ = 0; i_0__ < num_obs_in_log_lik_level_entities_i_0_max__; ++i_0__) {
-                check_greater_or_equal(function__, "num_obs_in_log_lik_level_entities[i_0__]", num_obs_in_log_lik_level_entities[i_0__], 1);
-                check_less_or_equal(function__, "num_obs_in_log_lik_level_entities[i_0__]", num_obs_in_log_lik_level_entities[i_0__], num_obs);
-            }
-            current_statement_begin__ = 523;
-            size_t obs_in_log_lik_level_entities_i_0_max__ = (logical_gt(log_lik_level, 0) ? num_obs : 0 );
-            for (size_t i_0__ = 0; i_0__ < obs_in_log_lik_level_entities_i_0_max__; ++i_0__) {
-                check_greater_or_equal(function__, "obs_in_log_lik_level_entities[i_0__]", obs_in_log_lik_level_entities[i_0__], 1);
-                check_less_or_equal(function__, "obs_in_log_lik_level_entities[i_0__]", obs_in_log_lik_level_entities[i_0__], num_obs);
             }
             current_statement_begin__ = 525;
             check_greater_or_equal(function__, "vec_diff", vec_diff, -(1));
