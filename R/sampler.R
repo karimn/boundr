@@ -27,7 +27,7 @@ setClass("Sampler",
 
 #' S4 class for sampling results
 #'
-#' @slot sampler Sampler.
+#' @slot sampler S4 \code{Sampler} that was used to produce this results object.
 #'
 #' @export
 setClass("SamplingResults",
