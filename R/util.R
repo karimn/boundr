@@ -4,3 +4,15 @@ summ_iter_data <- function(.data) {
     unnest(estimand_quantiles) %>%
     mutate(mean = map_dbl(iter_data, ~ mean(.$iter_estimand)))
 }
+
+diagnose <- function(cell, no_sim_diag) {
+  tibble(iter_data = list(cell)) %>% {
+    if (!no_sim_diag) {
+      mutate(.,
+             ess_bulk = ess_bulk(cell),
+             ess_tail = ess_tail(cell),
+             rhat = Rhat(cell))
+    } else .
+  }
+}
+

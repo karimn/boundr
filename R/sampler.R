@@ -1,3 +1,5 @@
+#' @include util.R
+
 #' S4 class for MCMC sampling
 #'
 #' @slot stan_data list.
@@ -244,7 +246,7 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
     as.array(par = "marginal_p_r") %>%
     plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
     tidyr::extract(parameters, "marginal_latent_type_index", "(\\d+)", convert = TRUE) %>%
-    mutate(iter_data = map(iter_data, ~ tibble(iter_p_r= c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
+    mutate(iter_data = map(iter_data, ~ tibble(iter_p_r = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
     full_join(r@sampler@endogenous_latent_type_variables, ., by = "marginal_latent_type_index") %>%
     mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)),
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
@@ -257,7 +259,7 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
 #' Approximate leave-one-out cross-validation
 #'
 #' @param x S4 \code{SamplingResults} object.
-#' @param ... Passed on to \code{rstan::loo()}
+#' @param ... Ignored
 #' @param save_psis Save intermediate \code{psis} results.
 #' @param cores Number of cores to use for parallelization.
 #'
@@ -268,4 +270,28 @@ setMethod("loo", "SamplingResults", function(x, ..., save_psis = FALSE, cores = 
   ll <- loo::extract_log_lik(x, parameter_name = "log_lik", merge_chains = FALSE)
   r_eff <- loo::relative_eff(exp(ll), cores = cores)
   loo::loo.array(ll, r_eff = r_eff, cores = cores, save_psis = save_psis)
+})
+
+setGeneric("get_latent_type_prob", function(r, ...) standardGeneric("get_latent_type_prob"))
+
+#' Extract sampled joint latent type probabilities
+#'
+#' @param r S4 \code{SamplingResults} object.
+#' @param ... Ignored
+#' @param no_sim_diag Do not generate sampling diagnostics [default: TRUE].
+#'
+#' @return Nested tibble
+#' @export
+setMethod("get_latent_type_prob", "SamplingResults", function(r, ..., no_sim_diag = TRUE) {
+  r %>%
+    as.array(par = "r_prob") %>%
+    plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
+    tidyr::extract(parameters, "latent_type_index", "(\\d+)", convert = TRUE) %>%
+    mutate(
+      iter_data = map(iter_data, ~ tibble(iter_r_prob = c(.), iter_id = seq(NROW(.) * NCOL(.)))),
+      latent_type_index = rep(seq(r@sampler@stan_data$num_r_types), r@sampler@stan_data$num_unique_entities),
+      unique_entity_id = rep(seq(r@sampler@stan_data$num_unique_entities), each = r@sampler@stan_data$num_r_types)
+    ) %>%
+    left_join(mutate(r@sampler@unique_entity_ids, unique_entity_id = seq(n())), by = "unique_entity_id") %>%
+    as_tibble()
 })

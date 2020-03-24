@@ -1,4 +1,4 @@
-#' @include structural_model.R
+#' @include util.R structural_model.R
 NULL
 
 setClass(
@@ -139,18 +139,6 @@ setMethod("initialize", "DiscretizedUtilityDiffEstimand", function(.Object, ...)
 
   return(.Object)
 })
-
-diagnose <- function(cell, no_sim_diag) {
-  tibble(iter_data = list(cell)) %>%
-    {
-      if (!no_sim_diag) {
-        mutate(.,
-               ess_bulk = ess_bulk(cell),
-               ess_tail = ess_tail(cell),
-               rhat = Rhat(cell))
-      } else .
-    }
-}
 
 setGeneric("calculate_from_known_dgp",
            signature = "est",
