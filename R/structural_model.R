@@ -74,6 +74,14 @@ setMethod("get_discretized_cutpoints", "StructuralCausalModel", function(r, name
   r@discretized_responses[[name]] %>% get_discretized_cutpoints()
 })
 
+#' Get names of discretized variables
+#'
+#' Continuous variables are discretized over a set of cutpoints. This method returns the names of the discrete variables that correspond to these cutpoints.
+#'
+#' @param r S4 object for structural causal model.
+#'
+#' @return vector of names.
+#' @export
 setMethod("get_discretized_variable_names", "StructuralCausalModel", function(r, name) {
   r@discretized_responses[[name]] %>% get_discretized_variable_names()
 })
