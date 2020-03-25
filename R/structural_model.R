@@ -210,8 +210,6 @@ setGeneric("create_sampler", function(r,
 })
 
 create_sampler_creator <- function() {
-  # compiled_model <- stanmodels$bounded # stan_model(file.path("boundr", "bounded.stan"))
-
   function(r,
            estimands = NULL, rep_estimands = NULL,
            model_levels = NA_character_, cv_level = NA_character_, estimand_levels = NULL, between_entity_diff_levels = NULL,
@@ -223,12 +221,12 @@ create_sampler_creator <- function() {
            num_sim_unique_entities = 0,
            alternative_model_file = NULL) {
     new_sampler <- if (is_null(alternative_model_file)) {
-      # compiled_model %>% as("Sampler")
       stanmodels$bounded %>% as("Sampler")
     } else {
       stan_model(alternative_model_file) %>% as("Sampler")
     }
 
+    new_sampler@structural_model <- r
     new_sampler@endogenous_latent_type_variables <- r@endogenous_latent_type_variables
 
     new_sampler@cv_level <- factor(arg_match(cv_level, values = c(model_levels, NA_character_)), levels = model_levels)

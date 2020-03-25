@@ -76,6 +76,12 @@ setMethod("get_discretized_cutpoints", "DiscretizedResponseGroup", function(r, .
   r@child_responses %>% { purrr::set_names(map_dbl(., get_cutpoint), map_chr(., get_output_variable_name)) }
 })
 
+#' Get names of discretized variables
+#'
+#' @param r S4 object for discretized response group.
+#'
+#' @return vector of names.
+#' @export
 setMethod("get_discretized_variable_names", "DiscretizedResponseGroup", function(r, ...) {
   r@child_responses %>% map_chr(get_output_variable_name)
 })

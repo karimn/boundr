@@ -15,7 +15,8 @@
 #' @export
 setClass("Sampler",
          contains = "stanmodel",
-         slots = c(stan_data = "list",
+         slots = c(structural_model = "StructuralCausalModel",
+                   stan_data = "list",
                    analysis_data = "data.frame",
                    model_levels = "character",
                    estimand_levels = "character",
