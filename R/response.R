@@ -78,6 +78,8 @@ setMethod("get_discretized_cutpoints", "DiscretizedResponseGroup", function(r, .
 
 #' Get names of discretized variables
 #'
+#' Continuous variables are discretized over a set of cutpoints. This method returns the names of the discrete variables that correspond to these cutpoints.
+#'
 #' @param r S4 object for discretized response group.
 #'
 #' @return vector of names.
