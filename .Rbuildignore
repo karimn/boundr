@@ -3,3 +3,4 @@
 ^Read-and-delete-me$
 ^packrat/
 ^\.Rprofile$
+^test_boundr.R$
