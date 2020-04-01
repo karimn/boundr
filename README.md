@@ -1,4 +1,4 @@
-# {boundr}: Bounded Effects and Counterfactuals for Imperfect Experiments
+# {boundr}: R Package for Estimation of Bounded Effects and Counterfactuals for Imperfect Experiments
 
 *This R package is under development.*
 
