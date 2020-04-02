@@ -4518,14 +4518,14 @@ public:
             }
             current_statement_begin__ = 1116;
             check_greater_or_equal(function__, "total_abducted_prob", total_abducted_prob, 0);
-            check_less_or_equal(function__, "total_abducted_prob", total_abducted_prob, 1.01);
+            check_less_or_equal(function__, "total_abducted_prob", total_abducted_prob, 1);
             size_t total_abducted_prob_j_1_max__ = (num_abducted_estimands * num_unique_entities);
             for (size_t j_1__ = 0; j_1__ < total_abducted_prob_j_1_max__; ++j_1__) {
                 vars__.push_back(total_abducted_prob(j_1__));
             }
             current_statement_begin__ = 1118;
             check_greater_or_equal(function__, "iter_atom_estimand", iter_atom_estimand, 0);
-            check_less_or_equal(function__, "iter_atom_estimand", iter_atom_estimand, 1.01);
+            check_less_or_equal(function__, "iter_atom_estimand", iter_atom_estimand, 1);
             size_t iter_atom_estimand_j_2_max__ = num_unique_entities;
             size_t iter_atom_estimand_j_1_max__ = num_atom_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_atom_estimand_j_2_max__; ++j_2__) {
@@ -4534,8 +4534,8 @@ public:
                 }
             }
             current_statement_begin__ = 1119;
-            check_greater_or_equal(function__, "iter_diff_estimand", iter_diff_estimand, -(1.01));
-            check_less_or_equal(function__, "iter_diff_estimand", iter_diff_estimand, 1.01);
+            check_greater_or_equal(function__, "iter_diff_estimand", iter_diff_estimand, -(1));
+            check_less_or_equal(function__, "iter_diff_estimand", iter_diff_estimand, 1);
             size_t iter_diff_estimand_j_2_max__ = num_unique_entities;
             size_t iter_diff_estimand_j_1_max__ = num_diff_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_diff_estimand_j_2_max__; ++j_2__) {
