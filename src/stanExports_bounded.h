@@ -4525,7 +4525,7 @@ public:
             }
             current_statement_begin__ = 1118;
             check_greater_or_equal(function__, "iter_atom_estimand", iter_atom_estimand, 0);
-            check_less_or_equal(function__, "iter_atom_estimand", iter_atom_estimand, 1);
+            check_less_or_equal(function__, "iter_atom_estimand", iter_atom_estimand, (1 + 1e-15));
             size_t iter_atom_estimand_j_2_max__ = num_unique_entities;
             size_t iter_atom_estimand_j_1_max__ = num_atom_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_atom_estimand_j_2_max__; ++j_2__) {
@@ -4581,6 +4581,8 @@ public:
                 }
             }
             current_statement_begin__ = 1129;
+            check_greater_or_equal(function__, "iter_entity_discretized_histogram_vec", iter_entity_discretized_histogram_vec, -(1e-15));
+            check_less_or_equal(function__, "iter_entity_discretized_histogram_vec", iter_entity_discretized_histogram_vec, 1);
             size_t iter_entity_discretized_histogram_vec_j_1_max__ = ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities);
             for (size_t j_1__ = 0; j_1__ < iter_entity_discretized_histogram_vec_j_1_max__; ++j_1__) {
                 vars__.push_back(iter_entity_discretized_histogram_vec(j_1__));
