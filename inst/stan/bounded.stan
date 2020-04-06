@@ -1115,7 +1115,7 @@ generated quantities {
 
   vector<lower = 0, upper = 1>[num_abducted_estimands * num_unique_entities] total_abducted_prob;
 
-  matrix<lower = 0, upper = 1+1e-15>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  matrix<lower = 0, upper = 1>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
   matrix<lower = -1, upper = 1>[num_diff_estimands, num_unique_entities] iter_diff_estimand;
 
   matrix[num_all_estimands, num_unique_entities] iter_entity_estimand;
@@ -1126,7 +1126,7 @@ generated quantities {
 
   // vector<lower = 0, upper = 1>[num_discretized_groups * (num_cutpoints - 1) * num_unique_entities] iter_entity_discretized_histogram_vec;
   // BUGBUG bring back constraints
-  vector<lower = -1e-15, upper = 1>[num_discretized_groups * (num_cutpoints - 1) * num_unique_entities] iter_entity_discretized_histogram_vec;
+  vector<lower = 0, upper = 1>[num_discretized_groups * (num_cutpoints - 1) * num_unique_entities] iter_entity_discretized_histogram_vec;
   matrix[num_discretized_groups, num_unique_entities] iter_entity_discretized_mean;
   matrix<lower = min(utility), upper = max(utility)>[num_discrete_utility_values > 0 ? num_discretized_groups : 0, num_unique_entities] iter_entity_discretized_utility;
   matrix[num_mean_diff_estimands, num_unique_entities] iter_mean_diff_estimand;
