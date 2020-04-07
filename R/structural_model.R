@@ -55,6 +55,12 @@ setMethod("get_responses", "StructuralCausalModel", function(r) {
 
 setGeneric("create_simulation_analysis_data", function(r) standardGeneric("create_simulation_analysis_data"))
 
+#' Use a simulation run's data to use as analysis data
+#'
+#' @param r S4 \code{StructuralCausalModelSimulation} object
+#'
+#' @return A \code{tibble} data set.
+#' @export
 setMethod("create_simulation_analysis_data", "StructuralCausalModelSimulation", function(r) {
   discretized_response_names <- names(r@discretized_responses)
   discrete_response_names <- names(purrr::discard(r@responses, ~ is(., "DiscretizedResponse")))
@@ -188,16 +194,35 @@ setMethod("get_candidates", "StructuralCausalModel", function(r, analysis_data =
            pull(latent_type_index))
 })
 
-setGeneric("get_prob_indices", function(r, outcome, ..., cond = TRUE) standardGeneric("get_prob_indices"))
+setGeneric("get_prob_indices", function(r, outcome, ..., as_data = FALSE) standardGeneric("get_prob_indices"))
 
-setMethod("get_prob_indices", "StructuralCausalModel", function(r, outcome, ..., cond = TRUE) {
-  r %<>% set_obs_outcomes(..., cond = cond)
+#' Get latent type indices for given intervention
+#'
+#' @param r S4 \code{StructuralCausalModel} object
+#' @param outcome Outcome to predict probability equals to 1.
+#' @param ... Intervention statement
+#' @param cond Conditional statement (for abduction) [default = TRUE]
+#'
+#' @return Vector of indices
+#' @export
+setMethod("get_prob_indices", "StructuralCausalModel", function(r, outcome, ..., as_data = FALSE) {
+  r %<>% set_obs_outcomes(...) #, cond = cond)
 
-  r@types_data %>%
+  outcome_exper <- str_c(outcome, " == 1") %>%
+      parse_expr() %>%
+      as_quosure(env = global_env())
+
+  masked_data <- r@types_data %>%
     unnest(outcomes) %>%
-    mutate(mask = !!outcome) %>%
-    pull(mask) %>%
-    which()
+    mutate(mask = !!outcome_exper)
+
+  if (as_data) {
+    return(masked_data)
+  } else {
+    masked_data %>%
+      pull(mask) %>%
+      which()
+  }
 })
 
 setGeneric("num_exogenous_comb", function(r) standardGeneric("num_exogenous_comb"))
@@ -631,6 +656,29 @@ setMethod("build_estimand_collection", "StructuralCausalModel", function (model,
   return(new_est_collection)
 })
 
+setGeneric("get_latent_type_restriction_matrix", function(model, ...) {
+  standardGeneric("get_latent_type_restriction_matrix")
+})
+
+#' Get linear programming restriction matrix
+#'
+#' @param S4 \code{StructuralCausalModel} object
+#'
+#' @return matrix
+#' @export
+setMethod("get_latent_type_restriction_matrix", "StructuralCausalModel", function(model, ...) {
+  all_variables <- names(model@responses)
+
+  model@types_data %>%
+    unnest(outcomes) %>%
+    arrange_at(vars(all_of(all_variables))) %>%
+    group_by_at(vars(all_of(all_variables))) %>%
+    group_nest() %>%
+    mutate(data = map(data, ~ inset(.y, .x$latent_type_index, 1), rep(0, max(model@types_data$latent_type_index)))) %$%
+    data %>%
+    do.call(rbind, .)
+})
+
 #' Defined the structural model's directed acyclic graph and each variable's response function
 #'
 #' @param ... model variables
@@ -772,8 +820,25 @@ create_scm_simulation <- function(scm, sample_size, prob, concentration_alpha = 
   return(as(new_sim, "StructuralCausalModelSimulation"))
 }
 
+setGeneric("create_prior_predicted_simulation", function(scm, ...) {
+  standardGeneric("create_prior_predicted_simulation")
+})
 
-create_prior_predicted_simulation <- function(scm, sample_size, chains, iter, ..., num_sim = 1, num_entities = 1) {
+#' Title
+#'
+#' @param scm
+#' @param sample_size
+#' @param chains
+#' @param iter
+#' @param ...
+#' @param num_sim
+#' @param num_entities
+#'
+#' @return
+#' @export
+#'
+#' @examples
+setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function(scm, sample_size, chains, iter, ..., num_sim = 1, num_entities = 1) {
   prior_predict_sampler <- scm %>% create_sampler(analysis_data = NULL, ..., num_sim_unique_entities = num_entities)
 
   prior_predict_fit <- prior_predict_sampler %>% sampling(run_type = "prior-predict", pars = "r_prob", chains = chains, iter = iter)
@@ -804,5 +869,31 @@ create_prior_predicted_simulation <- function(scm, sample_size, chains, iter, ..
     # map(mutate, entity_index = factor(entity_index)) %>% {
     #   if (length(.) > 1) . else first(.)
     # }
-}
+})
 
+setGeneric("get_linear_programming_bounds", function(scm, cond_prob, outcome, ...) {
+  standardGeneric("get_linear_programming_bounds")
+})
+
+#' Get linear programming bounds
+#'
+#' @param scm S4 \code{StructuralCausalModel} object.
+#' @param cond_prob Conditional probabilities.
+#' @param outcome Estimation outcome,
+#' @param ... Intervention.
+#'
+#' @return Vector with minimum and maximum bounds.
+#'
+#' @export
+setMethod("get_linear_programming_bounds", "StructuralCausalModel", function(scm, cond_prob, outcome, ...) {
+  latent_type_restrict <- get_latent_type_restriction_matrix(scm)
+  intervention_latent_types <- get_prob_indices(scm, outcome, ..., as_data = TRUE)
+  objective_fun <- intervention_latent_types %>%
+    transmute(latent_type_index, mask = mask * ex_prob) %>%
+    group_by(latent_type_index) %>%
+    summarize(mask = sum(mask)) %>%
+    pull(mask)
+
+  lst(min = lpSolve::lp("min", objective_fun, rbind(latent_type_restrict, 1), "=", c(cond_prob, 1)),
+      max = lpSolve::lp("max", objective_fun, rbind(latent_type_restrict, 1), "=", c(cond_prob, 1)))
+})

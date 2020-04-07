@@ -38,7 +38,7 @@ setClass(
 setClass(
   "AtomEstimand",
   contains = "DiscreteEstimand",
-  slots = list(intervention = "list", outcome = "ANY", cond = "ANY")
+  slots = list(intervention = "list", outcome = "character", cond = "ANY")
 )
 
 setClass(
@@ -153,8 +153,12 @@ setMethod("calculate_from_known_dgp", "AtomEstimand", function(est, joint_dist, 
   joint_dist %<>%
     set_obs_outcomes(!!!est@intervention)
 
+  outcome_exper <- str_c(est@outcome, " == 1") %>%
+      parse_expr() %>%
+      as_quosure(env = global_env())
+
   joint_dist@types_data %>%
-    filter(!!est@outcome) %$%
+    filter(!!outcome_exper) %$%
     sum(full_joint_prob)
 })
 
@@ -660,9 +664,10 @@ setMethod("get_component_estimands", "DiscretizedAtomEstimandCollection", functi
         cutpoint = cutpoint,
         direction = est@direction,
         intervention = est@intervention,
-        outcome = str_c(outcome, " == 1") %>%
-          parse_expr() %>%
-          as_quosure(env = global_env()),
+        outcome = outcome,
+        # str_c(outcome, " == 1") %>%
+        #   parse_expr() %>%
+        #   as_quosure(env = global_env()),
         cond = est@cond
       )
     }) %>%
@@ -874,18 +879,13 @@ build_atom_estimand <- function(outcome, ..., cond, cond_desc) {
     name = str_interp("E[${str_to_upper(outcome)}${intervention_string}${condition_string}]"),
     outcome_group = outcome,
     intervention = intervention,
-    outcome = str_c(outcome, " == 1") %>%
-      parse_expr() %>%
-      as_quosure(env = global_env()),
+    outcome = outcome,
+    # outcome = str_c(outcome, " == 1") %>%
+    #   parse_expr() %>%
+    #   as_quosure(env = global_env()),
     cond = if (!missing(cond)) enquo(cond) else TRUE,
     condition_string = condition_string)
 }
-
-
-# build_discrete_correlation_estimand <- function(outcome1, outcome2, cond) {
-#
-# }
-
 
 build_replication_correlation_estimand <- function(outcome1, outcome2, cond = NA_character_) {
   condition_string <- if (!is.na(cond)) {
@@ -970,12 +970,3 @@ build_discretized_diff_estimand <- function(left, right) {
     right = right,
     outcome_group = NA_character_)
 }
-
-
-# build_discretized_estimands <- function(types, outcome, fun) {
-#   types %>%
-#     get_discretized_response_info(outcome) %>% {
-#       pmap(.[c("cutpoint", "outcome")], fun, outcome_group = outcome, direction = .$direction)
-#     } %>%
-#     flatten()
-# }

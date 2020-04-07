@@ -16,3 +16,21 @@ diagnose <- function(cell, no_sim_diag) {
   }
 }
 
+quantiles_pivot_wider <- function(quantiles_data) {
+  pivot_wider(quantiles_data, names_from = per, values_from = est, names_prefix = "per_")
+}
+
+quantilize_est <- function(iter, var, wide = TRUE, quant_probs = c(0.05, 0.1, 0.5, 0.9, 0.95)) {
+  quant_data <- iter %>%
+    pull({{ var }}) %>%
+    quantile(probs = quant_probs, names = FALSE) %>%
+    enframe(name = NULL, value = "est") %>%
+    mutate(per = quant_probs)
+
+  if (wide) {
+    quant_data %<>%
+      quantiles_pivot_wider()
+  }
+
+  return(quant_data)
+}
