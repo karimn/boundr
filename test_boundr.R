@@ -36,6 +36,20 @@ rstan_options(auto_write = TRUE)
 
 test_model <- define_structural_causal_model(
   define_response(
+    "b",
+
+    "program branch" = ~ 1,
+    "control branch" = ~ 0,
+  ),
+
+  define_response(
+    "g",
+
+    "treatment sector" = ~ 1,
+    "control sector" = ~ 0,
+  ),
+
+  define_response(
     "z",
 
     "village assigned treatment" = ~ 1,
@@ -44,11 +58,14 @@ test_model <- define_structural_causal_model(
 
   define_response(
     "m",
-    input = "z",
+    input = c("b", "g", "z"),
 
     "never" = ~ 0,
-    "complier" = ~ z,
-    "defier" = ~ 1 - z,
+    "program complier" = ~ b,
+    "program defier" = ~ 1 - b,
+    "wedge complier" = ~ g,
+    "wedge defier" = ~ 1 - g,
+    "treatment complier" = ~ z,
     "always" = ~ 1,
   ),
 
@@ -56,23 +73,25 @@ test_model <- define_structural_causal_model(
     "y",
     cutpoints = c(-100, -20, 20, 100),
 
-    input = c("z", "m"),
+    input = c("b", "g", "m"),
 
     "never below" = ~ 0,
-    "treatment complier" = ~ z,
-    "treatment defier" = ~ 1 - z,
+    "program complier" = ~ b,
+    "program defier" = ~ 1 - b,
+    "wedge complier" = ~ g,
+    "wedge defier" = ~ 1 - g,
     "migration complier" = ~ m,
     "migration defier" = ~ 1 - m,
     "always below" = ~ 1,
 
     pruning_data = tribble(
-      ~ hi,                  ~ "always below",  ~ "treatment complier", ~ "wedge complier", ~ "migration complier", ~ "treatment defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
+      ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
 
       "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
-      "treatment complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+      "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
       "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
       "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
-      "treatment defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
+      "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
       "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
       "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
       "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
@@ -83,9 +102,11 @@ test_model <- define_structural_causal_model(
   ),
 
   exogenous_prob = tribble(
-    ~ z, ~ ex_prob,
-    0,   0.4,
-    1,   0.6
+    ~ b, ~ g, ~ z, ~ ex_prob,
+    0,   0,   0,   0.4,
+    1,   0,   0,   0.2,
+    1,   1,   0,   0.2,
+    1,   1,   1,   0.2
   ),
 )
 
@@ -147,28 +168,28 @@ test_estimands <- build_estimand_collection(
   # build_atom_estimand("m", cond = z == 0),
 
   build_diff_estimand(
-    build_atom_estimand("m", z = 1),
-    build_atom_estimand("m", z = 0)
+    build_atom_estimand("m", b = 1, g = 1, z = 1),
+    build_atom_estimand("m", b = 0, g = 0, z = 0)
   ),
 
   build_discretized_diff_estimand(
-    build_discretized_atom_estimand("y", z = 0, m = 1),
-    build_discretized_atom_estimand("y", z = 0, m = 0)
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
   ),
 
   build_discretized_diff_estimand(
-    build_discretized_atom_estimand("y", m = 1, cond = m == 1),
-    build_discretized_atom_estimand("y", m = 0, cond = m == 1)
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0, cond = m == 1 & b == 0 & g == 0 & z == 0)
   ),
 
-  build_discretized_diff_estimand(
-    build_discretized_atom_estimand("y", m = 1, z = 1,
-                                    cond = fct_match(r_m, c("complier")),
-                                    cond_desc = "M_{z=0} = 0, M_{l=0} = 0, M_{z=1} + M_{l=1} > 0"),
-    build_discretized_atom_estimand("y", m = 0, z = 1,
-                                    cond = fct_match(r_m, c("complier")),
-                                    cond_desc = "M_{z=0} = 0, M_{l=0} = 0, M_{z=1} + M_{l=1} > 0")
-  ),
+  # build_discretized_diff_estimand(
+  #   build_discretized_atom_estimand("y", m = 1, z = 1,
+  #                                   cond = fct_match(r_m, c("complier")),
+  #                                   cond_desc = "M_{z=0} = 0, M_{l=0} = 0, M_{z=1} + M_{l=1} > 0"),
+  #   build_discretized_atom_estimand("y", m = 0, z = 1,
+  #                                   cond = fct_match(r_m, c("complier")),
+  #                                   cond_desc = "M_{z=0} = 0, M_{l=0} = 0, M_{z=1} + M_{l=1} > 0")
+  # ),
 )
 
 # test_estimands_discrete_only <- build_estimand_collection(
@@ -205,6 +226,9 @@ if (script_options$single) {
     deframe() %>%
     map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
     mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30)))
+
+  test_model %>%
+    get_linear_programming_bounds(test_sim_data, "y_1", b = 1, g = 1, z = 1, m = 0)
 
   test_sampler <- create_sampler(
     test_model,
