@@ -990,36 +990,6 @@ transformed parameters {
       r_prob[r_prob_pos:r_prob_end] = calculate_r_type_joint_prob(num_r_types, num_discrete_r_types, num_discretized_r_types, discrete_group_size,
                                                                   num_compatible_discretized_r_types, compatible_discretized_r_types, compatible_discretized_pair_ids,
                                                                   curr_discrete_prob, discretized_beta, entity_index);
-      // for (discrete_index in 1:num_discrete_r_types) {
-      //   int discretized_pos = 1 + (discrete_index - 1) * num_discretized_r_types;
-      //   int discretized_end = discrete_index * num_discretized_r_types;
-      //   int discrete_group_pos = 1 + (discrete_index - 1) * discrete_group_size;
-      //   int discrete_group_end = discrete_index * discrete_group_size;
-      //   int r_prob_pos = (entity_index - 1) * num_r_types + discrete_group_pos;
-      //   int r_prob_end = (entity_index - 1) * num_r_types + discrete_group_end;
-      //
-      //   vector[num_discretized_r_types] first_discretized_prob = softmax(discretized_beta[1, discretized_pos:discretized_end, entity_index]);
-      //
-      //   r_prob[r_prob_pos:r_prob_end] = curr_discrete_prob[discrete_index] * first_discretized_prob[compatible_discretized_pair_ids[1, discrete_group_pos:discrete_group_end]];
-      //
-      //   for (discretized_var_index in 2:num_discretized_variables) {
-      //     vector[sum(num_compatible_discretized_r_types)] curr_cond_discretized_prob;
-      //     int cond_prob_pos = 1;
-      //
-      //     for (discretized_type_index in 1:num_discretized_r_types) {
-      //       int cond_prob_end = cond_prob_pos + num_compatible_discretized_r_types[discretized_type_index] - 1;
-      //       int compatible_ids[num_compatible_discretized_r_types[discretized_type_index]] = compatible_discretized_r_types[cond_prob_pos:cond_prob_end, 1];
-      //
-      //       curr_cond_discretized_prob[cond_prob_pos:cond_prob_end] =
-      //         softmax(discretized_beta[discretized_var_index, discretized_pos:discretized_end, entity_index][compatible_ids]);
-      //
-      //       cond_prob_pos = cond_prob_end + 1;
-      //     }
-      //
-      //     r_prob[r_prob_pos:r_prob_end] =
-      //       r_prob[r_prob_pos:r_prob_end] .* curr_cond_discretized_prob[compatible_discretized_pair_ids[discretized_var_index, discrete_group_pos:discrete_group_end]];
-      //   }
-      // }
     } else {
       int r_prob_pos = (entity_index - 1) * num_r_types + 1;
       int r_prob_end = (entity_index) * num_r_types;
@@ -1027,47 +997,6 @@ transformed parameters {
       r_prob[r_prob_pos:r_prob_end] = curr_discrete_prob[discrete_r_type_id];
     }
   }
-  // } else {
-  //   vector[num_discrete_r_types] curr_discrete_prob = softmax(discrete_beta[, 1]);
-  //
-  //   if (num_discretized_r_types > 0) {
-  //     r_prob = calculate_r_type_joint_prob(num_r_types, num_discrete_r_types, num_discretized_r_types, discrete_group_size,
-  //                                          num_compatible_discretized_r_types, compatible_discretized_r_types, compatible_discretized_pair_ids,
-  //                                          curr_discrete_prob, discretized_beta, 1);
-  //     // for (discrete_index in 1:num_discrete_r_types) {
-  //     //   int discretized_pos = 1 + (discrete_index - 1) * num_discretized_r_types;
-  //     //   int discretized_end = discrete_index * num_discretized_r_types;
-  //     //   int discrete_group_pos = 1 + (discrete_index - 1) * discrete_group_size;
-  //     //   int discrete_group_end = discrete_index * discrete_group_size;
-  //     //   int r_prob_pos = discrete_group_pos;
-  //     //   int r_prob_end = discrete_group_end;
-  //     //
-  //     //   vector[num_discretized_r_types] first_discretized_prob = softmax(discretized_beta[1, discrete_index, discretized_pos:discretized_end]');
-  //     //
-  //     //   r_prob[r_prob_pos:r_prob_end] = discrete_prob[discrete_index] * first_discretized_prob[compatible_discretized_pair_ids[1, discrete_group_pos:discrete_group_end]];
-  //     //
-  //     //   for (discretized_var_index in 2:num_discretized_variables) {
-  //     //     vector[sum(num_compatible_discretized_r_types)] curr_cond_discretized_prob;
-  //     //     int cond_prob_pos = 1;
-  //     //
-  //     //     for (discretized_type_index in 1:num_discretized_r_types) {
-  //     //       int cond_prob_end = cond_prob_pos + num_compatible_discretized_r_types[discretized_type_index] - 1;
-  //     //       int compatible_ids[num_compatible_discretized_r_types[discretized_type_index]] = compatible_discretized_r_types[cond_prob_pos:cond_prob_end, 1];
-  //     //
-  //     //       curr_cond_discretized_prob[cond_prob_pos:cond_prob_end] =
-  //     //         softmax(discretized_beta[discretized_var_index, discrete_index, discretized_pos:discretized_end][compatible_ids]');
-  //     //
-  //     //       cond_prob_pos = cond_prob_end + 1;
-  //     //     }
-  //     //
-  //     //     r_prob[r_prob_pos:r_prob_end] =
-  //     //       r_prob[r_prob_pos:r_prob_end] .* curr_cond_discretized_prob[compatible_discretized_pair_ids[discretized_var_index, discrete_group_pos:discrete_group_end]];
-  //     //   }
-  //     // }
-  //   } else {
-  //     r_prob = curr_discrete_prob;
-  //   }
-  // }
 
   if (run_type == RUN_TYPE_FIT) {
     entity_candidates_group_logp = log(csr_matrix_times_vector(sum(num_unique_entity_candidate_groups),
