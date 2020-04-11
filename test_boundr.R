@@ -66,12 +66,14 @@ test_model <- define_structural_causal_model(
     "wedge complier" = ~ g,
     "wedge defier" = ~ 1 - g,
     "treatment complier" = ~ z,
+    "treatment defier" = ~ 1 - z,
     "always" = ~ 1,
   ),
 
   define_discretized_response_group(
     "y",
-    cutpoints = c(-100, -20, 20, 100),
+    # cutpoints = c(-100, -20, 20, 100),
+    cutpoints = c(-100, 20, 100),
 
     input = c("b", "g", "m"),
 
@@ -224,8 +226,8 @@ if (script_options$single) {
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe() %>%
-    map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
-    mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30)))
+    map_dfr(create_simulation_analysis_data, .id = "entity_index")
+    # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30)))
 
   test_model %>%
     get_linear_programming_bounds(test_sim_data, "y_1", b = 1, g = 1, z = 1, m = 0)
