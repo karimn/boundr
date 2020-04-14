@@ -1,4 +1,6 @@
 functions {
+  vector csr_log_sum_exp(int m, int n, int[] v, int[] u, vector b);
+
   // These functions were in the multilvlr submodule
 
   int num_test(int[] to_test, int[] target_val, int test_equality) {
