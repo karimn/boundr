@@ -4,3 +4,4 @@
 ^packrat/
 ^\.Rprofile$
 ^test_boundr.R$
+^temp-data/

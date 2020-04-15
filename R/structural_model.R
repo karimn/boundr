@@ -850,15 +850,16 @@ setGeneric("create_prior_predicted_simulation", function(scm, ...) {
 setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function(scm, sample_size, chains, iter, ..., num_sim = 1, num_entities = 1) {
   prior_predict_sampler <- scm %>% create_sampler(analysis_data = NULL, ..., num_sim_unique_entities = num_entities)
 
-  prior_predict_fit <- prior_predict_sampler %>% sampling(run_type = "prior-predict", pars = "r_prob", chains = chains, iter = iter)
+  prior_predict_fit <- prior_predict_sampler %>% sampling(run_type = "prior-predict", pars = "r_log_prob", chains = chains, iter = iter)
 
   prior_predict_fit %>%
-    as.data.frame(pars = "r_prob") %>%
+    as.data.frame(pars = "r_log_prob") %>%
     sample_n(num_sim, replace = FALSE) %>%
     mutate(iter_id = seq(n())) %>%
     pivot_longer(cols = -iter_id, names_to = "latent_type_index", values_to = "iter_prob") %>%
     tidyr::extract(latent_type_index, "latent_type_index", "(\\d+)", convert = TRUE) %>%
     mutate(
+      iter_prob = exp(iter_prob),
       entity_index = ((latent_type_index - 1) %/% prior_predict_sampler@stan_data$num_r_types) + 1,
       latent_type_index = ((latent_type_index - 1) %% prior_predict_sampler@stan_data$num_r_types) + 1
     ) %>%

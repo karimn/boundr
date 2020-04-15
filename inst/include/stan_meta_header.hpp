@@ -1,4 +1,6 @@
 // Insert all #include<foo.hpp> statements here
 
-#include "csr_log_sum_exp.hpp"
-// #include "test.hpp"
+// #include <stan/math.hpp>
+// #include <stan/math/prim/scal.hpp>
+
+// #include "csr_log_sum_exp.hpp"

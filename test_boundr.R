@@ -6,8 +6,8 @@
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  # docopt::docopt(opt_desc, "multi 12 500")
-  docopt::docopt(opt_desc, "single")
+  docopt::docopt(opt_desc, "multi 12 5")
+  # docopt::docopt(opt_desc, "single")
 } else {
   docopt::docopt(opt_desc)
 }
@@ -72,8 +72,8 @@ test_model <- define_structural_causal_model(
 
   define_discretized_response_group(
     "y",
-    # cutpoints = c(-100, -20, 20, 100),
-    cutpoints = c(-100, 20, 100),
+    cutpoints = c(-100, -20, 20, 100),
+    # cutpoints = c(-100, 20, 100),
 
     input = c("b", "g", "m"),
 
@@ -180,6 +180,11 @@ test_estimands <- build_estimand_collection(
   ),
 
   build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", b = 1, g = 1, z = 1),
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0)
+  ),
+
+  build_discretized_diff_estimand(
     build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
     build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0, cond = m == 1 & b == 0 & g == 0 & z == 0)
   ),
@@ -226,11 +231,12 @@ if (script_options$single) {
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe() %>%
-    map_dfr(create_simulation_analysis_data, .id = "entity_index")
-    # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30)))
+    map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
+    # mutate(y = if_else(y_1 == 0, 30, -30))
+    mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30)))
 
-  test_model %>%
-    get_linear_programming_bounds(test_sim_data, "y_1", b = 1, g = 1, z = 1, m = 0)
+  # test_model %>%
+  #   get_linear_programming_bounds(test_sim_data, "y_1", b = 1, g = 1, z = 1, m = 0)
 
   test_sampler <- create_sampler(
     test_model,
@@ -248,7 +254,7 @@ if (script_options$single) {
   test_fit <- test_sampler %>%
     sampling(
       chains = 4,
-      iter = 4000,
+      iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
       pars = c("iter_estimand"),
     )
@@ -257,9 +263,9 @@ if (script_options$single) {
     get_estimation_results(no_sim_diag = FALSE) %T>%
     print(n = 1000)
 
-  # test_model %>%
-  #   get_known_estimands(test_estimands) %>%
-  #   select(estimand_name, prob)
+  test_model %>%
+    get_known_estimands(test_estimands) %>%
+    select(estimand_name, prob)
 
   # test_prob <- as.data.frame(test_fit, pars = "r_prob") %>%
   #   mutate(iter_id = seq(n)) %>%
@@ -290,7 +296,7 @@ if (script_options$multi) {
         entity_data %<>% deframe()
 
         known_results <- entity_data %>%
-          map_dfr(get_known_estimands, test_estimands, .id = "entity_index") %>%
+          map_dfr(boundr:::get_known_estimands, test_estimands, .id = "entity_index") %>%
           group_by_at(vars(-entity_index, -prob)) %>%
           summarize(prob = mean(prob)) %>%
           ungroup()
@@ -312,10 +318,10 @@ if (script_options$multi) {
           ) %>%
           sampling(
             pars = "iter_estimand",
-            chains = 4, iter = 4000
+            chains = 4, iter = 1000
           ) %>%
           get_estimation_results() %>%
-          select(estimand_name, cutpoint, starts_with("per_")) %>%
+          select(estimand_name, cutpoint, rhat, starts_with("ess"), starts_with("per_")) %>%
           inner_join(
             select(known_results, estimand_name, cutpoint, prob),
             by = c("estimand_name", "cutpoint")
@@ -326,7 +332,7 @@ if (script_options$multi) {
     ) %>%
     bind_rows(.id = "iter_id")
 
-  write_rds(test_run_data, file.path("stan_analysis_data", "test_run.rds"))
+  write_rds(test_run_data, file.path("temp-data", "test_run.rds"))
 
   test_run_data %>%
     group_by_at(vars(estimand_name, any_of("cutpoint"))) %>%

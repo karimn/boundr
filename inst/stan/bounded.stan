@@ -1,144 +1,7 @@
 functions {
-  vector csr_log_sum_exp(int m, int n, int[] v, int[] u, vector b);
-
-  // These functions were in the multilvlr submodule
-
-  int num_test(int[] to_test, int[] target_val, int test_equality) {
-    int num_to_test = num_elements(to_test);
-    int num_targets = num_elements(target_val);
-    int result = 0;
-
-    int sorted_to_test[num_to_test] = sort_asc(to_test);
-
-    for (to_test_index in 1:num_to_test) {
-      int found = 0;
-
-      for (target_index in 1:num_targets) {
-        if (sorted_to_test[to_test_index] == target_val[target_index]) {
-          if (test_equality) {
-            result += 1;
-          }
-
-          found = 1;
-          break;
-        }
-      }
-
-      if (!found && (1 - test_equality)) {
-        result += 1;
-      }
-    }
-
-    return(result);
-  }
-
-  int num_equals(int[] to_test, int[] target_val) {
-    return(num_test(to_test, target_val, 1));
-  }
-
-  int[] unique(int[] find_in) {
-    int num_to_tally = num_elements(find_in);
-    int sorted_find_in[num_to_tally] = sort_asc(find_in);
-    int unique_count = 1;
-    int unique_found[num_to_tally];
-
-    unique_found[1] = sorted_find_in[1];
-
-    for (tally_index in 2:num_to_tally) {
-      if (sorted_find_in[tally_index] != unique_found[unique_count]) {
-        unique_count += 1;
-        unique_found[unique_count] = sorted_find_in[tally_index];
-      }
-    }
-
-    return(unique_found[1:unique_count]);
-  }
-
-  int num_unique(int[] find_in) {
-    return(num_elements(unique(find_in)));
-  }
-
-  int[] count(int count_size, int[] find_in) {
-    int count_array[count_size] = rep_array(0, count_size);
-
-    for (count_index in 1:count_size) {
-      count_array[count_index] = num_equals(find_in, { count_index });
-    }
-
-    return(count_array);
-  }
-
-  int[] array_add(int[] left, int[] right) {
-    int array_size = num_elements(left);
-    int array_sum[array_size];
-    int right_array_size = num_elements(right);
-
-    if (right_array_size != array_size && right_array_size != 1) {
-      reject("Incompatible array sizes.");
-    }
-
-    for (array_index in 1:array_size) {
-      array_sum[array_index] = left[array_index] + right[right_array_size > 1 ? array_index : 1];
-    }
-
-    return(array_sum);
-  }
-
-  int[] extract_group_pos_end(int[] group_sizes, int group_to_extract) {
-    int group_pos = group_to_extract > 1 ? sum(group_sizes[1:(group_to_extract - 1)]) + 1 : 1;
-    int group_end = group_pos + group_sizes[group_to_extract] - 1;
-
-    return({ group_pos, group_end });
-  }
-
-  int[] array_extract_group_values(int[] all_values, int[] group_sizes, int[] groups_to_extract) {
-    int num_groups_to_extract = num_elements(groups_to_extract);
-    int num_values[num_groups_to_extract] = group_sizes[groups_to_extract];
-    int extracted[sum(num_values)];
-
-    int extracted_pos = 1;
-
-    for (group_index in 1:num_groups_to_extract) {
-      int extracted_end = extracted_pos + num_values[group_index] - 1;
-      int actual_curr_group_index = groups_to_extract[group_index];
-
-      int group_pos_end[2] = extract_group_pos_end(group_sizes, actual_curr_group_index);
-
-      extracted[extracted_pos:extracted_end] = all_values[group_pos_end[1]:group_pos_end[2]];
-
-      extracted_pos = extracted_end + 1;
-    }
-
-    return(extracted);
-  }
-
-  int[] array_product(int[] left, int[] right) {
-    int array_size = num_elements(left);
-    int array_prod[array_size];
-    int right_array_size = num_elements(right);
-
-    if (right_array_size != array_size && right_array_size != 1) {
-      reject("Incompatible array sizes.");
-    }
-
-    for (array_index in 1:array_size) {
-      array_prod[array_index] = left[array_index] * right[right_array_size > 1 ? array_index : 1];
-    }
-
-    return(array_prod);
-  }
-
-  int[] seq(int from, int to, int by) {
-    int reverse = from > to;
-    int seq_len = (((1 - 2 * reverse) * (to - from)) / by) + 1;
-    int result_seq[seq_len];
-
-    for (seq_index in 1:seq_len) {
-      result_seq[seq_index] =  from + (1 - 2 * reverse) * ((seq_index - 1) * by);
-    }
-
-    return(result_seq);
-  }
+#include include/util.stan
+#include include/csr_util.stan
+#include include/r_type_prob.stan
 
   // Below functions only defined in this file
 
@@ -216,44 +79,6 @@ functions {
     return entity_total_num_candidates;
   }
 
-  int[] csr_shift_expand_v(int[] indices, int shift_size, int num_shifts) {
-    int num_indices = num_elements(indices);
-    int new_csr_v[num_indices * num_shifts];
-
-    int id_pos = 1;
-
-    for (shift_index in 1:num_shifts) {
-      int id_end = id_pos + num_indices - 1;
-
-      new_csr_v[id_pos:id_end] = array_add(indices, { (shift_index - 1) * shift_size });
-
-      id_pos = id_end + 1;
-    }
-
-    return new_csr_v;
-  }
-
-  int[] csr_shift_expand_u(int[] row_sizes, int num_shifts) {
-    int num_rows = num_elements(row_sizes);
-    int new_csr_u[num_rows * num_shifts + 1]; // The last element is for padding
-
-    int row_pos_pos = 1;
-    int last_size;
-
-    for (shift_index in 1:num_shifts) {
-      for (row_index in 1:num_rows) {
-        new_csr_u[row_pos_pos] = row_pos_pos > 1 ? new_csr_u[row_pos_pos - 1] + last_size : 1;
-        last_size = row_sizes[row_index];
-
-        row_pos_pos += 1;
-      }
-    }
-
-    new_csr_u[row_pos_pos] = new_csr_u[row_pos_pos - 1] + last_size;
-
-    return new_csr_u;
-  }
-
   matrix rep_corr_estimand_rng(matrix r_prob_mat, int[] rep_corr_outcomes, int[] rep_corr_cond, int[,] experiment_assign_entity, matrix[] type_response_value) {
     int num_r_types = rows(r_prob_mat);
     int num_rep_corr_estimands = num_elements(rep_corr_outcomes) / 2;
@@ -326,45 +151,6 @@ functions {
 
     return rep_corr_estimand;
   }
-
- vector calculate_r_type_joint_prob(int num_r_types, int num_discrete_r_types, int num_discretized_r_types, int discrete_group_size,
-                                    int[] num_compatible_discretized_r_types, int[] compatible_discretized_r_types, int[,] compatible_discretized_pair_ids,
-                                    vector discrete_prob, matrix[] beta, int entity_index) {
-   int num_discretized_variables = size(beta);
-   vector[num_r_types] joint_prob;
-
-   for (discrete_index in 1:num_discrete_r_types) {
-     int discretized_pos = 1 + (discrete_index - 1) * num_discretized_r_types;
-     int discretized_end = discrete_index * num_discretized_r_types;
-     int discrete_group_pos = 1 + (discrete_index - 1) * discrete_group_size;
-     int discrete_group_end = discrete_index * discrete_group_size;
-     int r_prob_pos = discrete_group_pos;
-     int r_prob_end = discrete_group_end;
-
-     vector[num_discretized_r_types] first_discretized_prob = softmax(beta[1, discretized_pos:discretized_end, entity_index]);
-
-     joint_prob[r_prob_pos:r_prob_end] = discrete_prob[discrete_index] * first_discretized_prob[compatible_discretized_pair_ids[1, discrete_group_pos:discrete_group_end]];
-
-     for (discretized_var_index in 2:num_discretized_variables) {
-       vector[sum(num_compatible_discretized_r_types)] curr_cond_discretized_prob;
-       int cond_prob_pos = 1;
-
-       for (discretized_type_index in 1:num_discretized_r_types) {
-         int cond_prob_end = cond_prob_pos + num_compatible_discretized_r_types[discretized_type_index] - 1;
-         int compatible_ids[num_compatible_discretized_r_types[discretized_type_index]] = compatible_discretized_r_types[cond_prob_pos:cond_prob_end];
-
-         curr_cond_discretized_prob[cond_prob_pos:cond_prob_end] =  softmax(beta[discretized_var_index, discretized_pos:discretized_end, entity_index][compatible_ids]);
-
-         cond_prob_pos = cond_prob_end + 1;
-       }
-
-       joint_prob[r_prob_pos:r_prob_end] =
-         joint_prob[r_prob_pos:r_prob_end] .* curr_cond_discretized_prob[compatible_discretized_pair_ids[discretized_var_index, discrete_group_pos:discrete_group_end]];
-     }
-   }
-
-   return joint_prob;
- }
 }
 
 data {
@@ -944,7 +730,8 @@ parameters {
 }
 
 transformed parameters {
-  vector<lower = 0, upper = 1>[num_r_types * num_unique_entities] r_prob; // Entities first, Types second
+  // vector<lower = 0, upper = 1>[num_r_types * num_unique_entities] r_prob; // Entities first, Types second
+  vector<upper = 0>[num_r_types * num_unique_entities] r_log_prob; // Entities first, Types second
 
   vector[run_type == RUN_TYPE_FIT ? sum(num_unique_entity_candidate_groups) : 0] entity_candidates_group_logp;
 
@@ -983,30 +770,35 @@ transformed parameters {
   }
 
   for (entity_index in 1:num_unique_entities) {
-    vector[num_discrete_r_types] curr_discrete_prob = softmax(discrete_beta[, entity_index]);
+    vector[num_discrete_r_types] curr_discrete_log_prob = log_softmax(discrete_beta[, entity_index]);
 
     if (num_discretized_r_types > 0) {
       int r_prob_pos = (entity_index - 1) * num_r_types + 1;
       int r_prob_end = entity_index * num_r_types;
 
-      r_prob[r_prob_pos:r_prob_end] = calculate_r_type_joint_prob(num_r_types, num_discrete_r_types, num_discretized_r_types, discrete_group_size,
-                                                                  num_compatible_discretized_r_types, compatible_discretized_r_types, compatible_discretized_pair_ids,
-                                                                  curr_discrete_prob, discretized_beta, entity_index);
+      r_log_prob[r_prob_pos:r_prob_end] = calculate_r_type_joint_log_prob(num_r_types, num_discrete_r_types, num_discretized_r_types, discrete_group_size,
+                                                                          num_compatible_discretized_r_types, compatible_discretized_r_types, compatible_discretized_pair_ids,
+                                                                          curr_discrete_log_prob, discretized_beta, entity_index);
     } else {
       int r_prob_pos = (entity_index - 1) * num_r_types + 1;
       int r_prob_end = (entity_index) * num_r_types;
 
-      r_prob[r_prob_pos:r_prob_end] = curr_discrete_prob[discrete_r_type_id];
+      r_log_prob[r_prob_pos:r_prob_end] = curr_discrete_log_prob[discrete_r_type_id];
     }
   }
 
   if (run_type == RUN_TYPE_FIT) {
-    entity_candidates_group_logp = log(csr_matrix_times_vector(sum(num_unique_entity_candidate_groups),
-                                                               num_r_types * num_unique_entities,
-                                                               vec_1[1:sum(candidate_group_size[unique_entity_candidate_groups])],
-                                                               entity_candidate_group_ids,
-                                                               entity_candidate_group_csr_row_pos,
-                                                               r_prob));
+    // entity_candidates_group_logp = log(csr_matrix_times_vector(sum(num_unique_entity_candidate_groups),
+    //                                                            num_r_types * num_unique_entities,
+    //                                                            vec_1[1:sum(candidate_group_size[unique_entity_candidate_groups])],
+    //                                                            entity_candidate_group_ids,
+    //                                                            entity_candidate_group_csr_row_pos,
+    //                                                            r_prob));
+    entity_candidates_group_logp = csr_log_sum_exp(sum(num_unique_entity_candidate_groups),
+                                                   num_r_types * num_unique_entities,
+                                                   entity_candidate_group_ids,
+                                                   entity_candidate_group_csr_row_pos,
+                                                   r_log_prob);
   }
 }
 
@@ -1041,14 +833,12 @@ model {
 generated quantities {
   vector[run_type == RUN_TYPE_FIT && log_lik_level > -1 ? (log_lik_level > 0 ? level_size[log_lik_level] : num_obs) : 0] log_lik;
 
-  vector<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0] marginal_p_r;
-  // matrix<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0, sum(level_size)] level_marginal_p_r;
-
-  vector<lower = 0, upper = 1>[num_abducted_estimands * num_unique_entities] total_abducted_prob;
+  // vector<lower = 0, upper = 1>[num_abducted_estimands * num_unique_entities] total_abducted_prob;
+  vector<upper = 0>[num_abducted_estimands * num_unique_entities] total_abducted_log_prob;
 
   // BUGBUG missing constraint
-  // matrix<lower = 0, upper = 1>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
-  matrix[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  matrix<lower = 0, upper = 1>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  // matrix[num_atom_estimands, num_unique_entities] iter_atom_estimand;
   matrix<lower = -1, upper = 1>[num_diff_estimands, num_unique_entities] iter_diff_estimand;
 
   matrix[num_all_estimands, num_unique_entities] iter_entity_estimand;
@@ -1065,83 +855,97 @@ generated quantities {
   matrix[num_mean_diff_estimands, num_unique_entities] iter_mean_diff_estimand;
   matrix[num_mean_diff_estimands, num_unique_entities] iter_utility_diff_estimand;
 
+  vector<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0] marginal_p_r;
+  // matrix<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0, sum(level_size)] level_marginal_p_r;
+
+
   // matrix<lower = -1, upper = 1>[generate_rep && num_rep_corr_estimands > 0 && run_type == RUN_TYPE_FIT ? num_rep_corr_estimands : 0, 2] rep_corr_estimand;
 
   if (run_type == RUN_TYPE_FIT && log_lik_level > -1) {
-    log_lik = log(csr_matrix_times_vector(num_obs,
-                                          num_r_types * num_unique_entities,
-                                          vec_1[1:sum(candidate_group_size[obs_candidate_group])],
-                                          obs_candidate_group_ids,
-                                          obs_candidate_group_csr_row_pos,
-                                          r_prob));
+    log_lik = csr_log_sum_exp(num_obs,
+                              num_r_types * num_unique_entities,
+                              obs_candidate_group_ids,
+                              obs_candidate_group_csr_row_pos,
+                              r_log_prob);
 
-    // for (obs_index in 1:num_obs) {
-    // }
+    // log_lik = log(csr_matrix_times_vector(num_obs,
+    //                                       num_r_types * num_unique_entities,
+    //                                       vec_1[1:sum(candidate_group_size[obs_candidate_group])],
+    //                                       obs_candidate_group_ids,
+    //                                       obs_candidate_group_csr_row_pos,
+    //                                       r_prob));
   }
 
-  // if (log_lik_level > 0) {
-  //   int level_entity_obs_pos = 1;
-  //
-  //   for (level_entity_index in 1:level_size[log_lik_level]) {
-  //     int num_obs_in_level_entity = num_obs_in_log_lik_level_entities[level_entity_index];
-  //     int level_entity_obs_end = level_entity_obs_pos + num_obs_in_level_entity - 1;
-  //
-  //     log_lik[level_entity_index] = sum(obs_log_lik[obs_in_log_lik_level_entities[level_entity_obs_pos:level_entity_obs_end]]);
-  //
-  //     level_entity_obs_pos = level_entity_obs_end + 1;
-  //   }
-  // } else if (log_lik_level == 0) {
-  //   // log_lik = obs_log_lik;
-  // }
-
-    // for (obs_index in 1:num_obs) {
-    //   int candidate_end = candidate_pos + num_r_candidates[obs_index] - 1;
-    //
-    //   int curr_r_candidates[num_r_candidates[obs_index]] = r_candidates[candidate_pos:candidate_end];
-    //   vector[num_r_candidates[obs_index]] curr_candidate_r_prob = r_prob[curr_r_candidates, obs_unique_entity_id[obs_index]];
-    //
-    //   obs_log_lik[obs_index] = log(sum(curr_candidate_r_prob)); // + curr_cont_outcome_log_lik;
-    //
-    //   candidate_pos = candidate_end + 1;
-    // }
-
   if (num_discrete_estimands > 0) {
-    matrix[num_experiment_types, num_r_types * num_unique_entities] full_r_prob = rep_matrix(r_prob', num_experiment_types) .* rep_matrix(experiment_types_prob, num_r_types * num_unique_entities);
-    vector[num_r_types_full * num_unique_entities] full_r_prob_vec = to_vector(full_r_prob);
+    // matrix[num_experiment_types, num_r_types * num_unique_entities] full_r_prob = rep_matrix(r_prob', num_experiment_types) .* rep_matrix(experiment_types_prob, num_r_types * num_unique_entities);
+    // vector[num_r_types_full * num_unique_entities] full_r_prob_vec = to_vector(full_r_prob);
+    matrix[num_experiment_types, num_r_types * num_unique_entities] full_r_log_prob = rep_matrix(r_log_prob', num_experiment_types) + rep_matrix(log(experiment_types_prob), num_r_types * num_unique_entities);
+    vector[num_r_types_full * num_unique_entities] full_r_log_prob_vec = to_vector(full_r_log_prob);
 
-    vector[num_atom_estimands * num_unique_entities] iter_atom_estimand_vec =
-      csr_matrix_times_vector(num_atom_estimands * num_unique_entities,
-                              num_r_types_full * num_unique_entities,
-                              vec_1[1:(num_unique_entities * sum(est_prob_size))],
-                              entity_est_prob_ids,
-                              entity_est_prob_csr_row_pos,
-                              full_r_prob_vec);
+    vector[num_atom_estimands * num_unique_entities] iter_atom_log_estimand_vec =
+      csr_log_sum_exp(num_atom_estimands * num_unique_entities,
+                      num_r_types_full * num_unique_entities,
+                      entity_est_prob_ids,
+                      entity_est_prob_csr_row_pos,
+                      full_r_log_prob_vec);
+      // csr_matrix_times_vector(num_atom_estimands * num_unique_entities,
+      //                         num_r_types_full * num_unique_entities,
+      //                         vec_1[1:(num_unique_entities * sum(est_prob_size))],
+      //                         entity_est_prob_ids,
+      //                         entity_est_prob_csr_row_pos,
+      //                         full_r_prob_vec);
 
     vector[num_diff_estimands * num_unique_entities] iter_diff_estimand_vec;
 
     if (num_abducted_estimands > 0) {
-      total_abducted_prob = csr_matrix_times_vector(
+      total_abducted_log_prob = csr_log_sum_exp(
         num_abducted_estimands * num_unique_entities,
         num_r_types_full * num_unique_entities,
-        vec_1[1:(num_unique_entities * sum(abducted_prob_size))],
         entity_abducted_prob_ids,
         entity_abducted_prob_csr_row_pos,
-        full_r_prob_vec);
+        full_r_log_prob_vec);
+      // total_abducted_prob = csr_matrix_times_vector(
+      //   num_abducted_estimands * num_unique_entities,
+      //   num_r_types_full * num_unique_entities,
+      //   vec_1[1:(num_unique_entities * sum(abducted_prob_size))],
+      //   entity_abducted_prob_ids,
+      //   entity_abducted_prob_csr_row_pos,
+      //   full_r_prob_vec);
 
-      iter_atom_estimand_vec[long_entity_abducted_index] = iter_atom_estimand_vec[long_entity_abducted_index] ./ total_abducted_prob;
+      // iter_atom_estimand_vec[long_entity_abducted_index] = iter_atom_estimand_vec[long_entity_abducted_index] ./ total_abducted_prob;
+      iter_atom_log_estimand_vec[long_entity_abducted_index] -= total_abducted_log_prob;
     }
 
-    iter_atom_estimand = to_matrix(iter_atom_estimand_vec, num_atom_estimands, num_unique_entities);
+    iter_atom_estimand = to_matrix(exp(iter_atom_log_estimand_vec), num_atom_estimands, num_unique_entities);
 
     if (num_diff_estimands > 0) {
-      iter_diff_estimand_vec = csr_matrix_times_vector(
+      iter_diff_estimand_vec = csr_diff_exp(
         num_diff_estimands * num_unique_entities,
         num_atom_estimands * num_unique_entities,
-        vec_diff,
         entity_diff_estimand_ids,
-        entity_diff_estimand_csr_row_pos,
-        iter_atom_estimand_vec);
+        iter_atom_log_estimand_vec);
+      // iter_diff_log_estimand_vec = csr_log_sum_exp2(
+      //   num_diff_estimands * num_unique_entities,
+      //   num_atom_estimands * num_unique_entities,
+      //   vec_diff,
+      //   entity_diff_estimand_ids,
+      //   entity_diff_estimand_csr_row_pos,
+      //   iter_atom_log_estimand_vec);
+      // iter_diff_estimand_vec = csr_matrix_times_vector(
+      //   num_diff_estimands * num_unique_entities,
+      //   num_atom_estimands * num_unique_entities,
+      //   vec_diff,
+      //   entity_diff_estimand_ids,
+      //   entity_diff_estimand_csr_row_pos,
+      //   iter_atom_estimand_vec);
 
+      // print("entity_diff_estimand_ids = ", entity_diff_estimand_ids);
+      // print("entity_diff_estimand_csr_row_pos = ", entity_diff_estimand_csr_row_pos);
+      // print("vec_diff = ", vec_diff);
+      // print("iter_atom_log_estimand_vec = ", iter_atom_log_estimand_vec);
+      // print("iter_diff_log_estimand_vec = ", iter_diff_log_estimand_vec);
+
+      // iter_diff_estimand = to_matrix(exp(iter_diff_log_estimand_vec), num_diff_estimands, num_unique_entities);
       iter_diff_estimand = to_matrix(iter_diff_estimand_vec, num_diff_estimands, num_unique_entities);
     }
 
@@ -1155,7 +959,7 @@ generated quantities {
           entity_histogram_vec,
           entity_histogram_ids,
           entity_histogram_csr_row_pos,
-          append_row(iter_atom_estimand_vec, 1)
+          append_row(exp(iter_atom_log_estimand_vec), 1)
         );
 
       iter_entity_discretized_mean_vec = csr_matrix_times_vector(
@@ -1284,12 +1088,28 @@ generated quantities {
     //
     // level_marginal_p_r = to_matrix(level_marginal_p_r_vec);
 
-    marginal_p_r = csr_matrix_times_vector(total_num_bg_variable_types,
-                                           num_r_types * num_unique_entities,
-                                           marginal_prob_csr_vec,
-                                           entity_marginal_prob_ids,
-                                           entity_marginal_prob_csr_row_pos,
-                                           r_prob);
+    // marginal_p_r = csr_matrix_times_vector(total_num_bg_variable_types,
+    //                                        num_r_types * num_unique_entities,
+    //                                        marginal_prob_csr_vec,
+    //                                        entity_marginal_prob_ids,
+    //                                        entity_marginal_prob_csr_row_pos,
+    //                                        r_prob);
+
+    vector[total_num_bg_variable_types] marginal_log_p_r =
+    // marginal_p_r =
+      csr_log_sum_exp2(total_num_bg_variable_types,
+      // csr_diff_exp(total_num_bg_variable_types,
+                   num_r_types * num_unique_entities,
+                   marginal_prob_csr_vec,
+                    entity_marginal_prob_ids,
+                    entity_marginal_prob_csr_row_pos,
+                    r_log_prob);
+
+    // print("r_log_prob = ", r_log_prob);
+    // print("marginal_prob_csr_vec = ", marginal_prob_csr_vec);
+    // print("marginal_log_p_r = ", marginal_log_p_r);
+
+    marginal_p_r = exp(marginal_log_p_r);
   }
 
   // if (generate_rep && num_rep_corr_estimands > 0 && run_type == RUN_TYPE_FIT) {
