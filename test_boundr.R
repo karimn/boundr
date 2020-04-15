@@ -6,8 +6,8 @@
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 2")
-  # docopt::docopt(opt_desc, "single")
+  # docopt::docopt(opt_desc, "multi 12 2")
+  docopt::docopt(opt_desc, "single")
 } else {
   docopt::docopt(opt_desc)
 }
@@ -225,12 +225,21 @@ test_estimands <- build_estimand_collection(
 # Single Run --------------------------------------------------------------
 
 if (script_options$single) {
-  test_sim_data <- create_prior_predicted_simulation(test_model, sample_size = 4000, chains = 4, iter = 1000,
+  entity_data <- create_prior_predicted_simulation(test_model, sample_size = 4000, chains = 4, iter = 1000,
                                                      discrete_beta_hyper_sd = 2, discretized_beta_hyper_sd = 2, tau_level_sigma = 1,
                                                      num_entities = 3) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
-    deframe() %>%
+    deframe()
+
+  known_results <- entity_data %>%
+    map_dfr(boundr:::get_known_estimands, test_estimands, .id = "entity_index") %>%
+    group_by_at(vars(-entity_index, -prob)) %>%
+    summarize(prob = mean(prob)) %>%
+    ungroup() %>%
+    select(estimand_name, cutpoint, prob)
+
+  test_sim_data <- entity_data %>%
     map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
     # mutate(y = if_else(y_1 == 0, 30, -30))
     mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30)))

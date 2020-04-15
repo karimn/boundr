@@ -55,6 +55,8 @@ vector csr_diff_exp(int m, int n, int[] v, vector b) {
     // real max_sub_b = max(sub_b);
 
     result[row_index] = exp(sub_b[1]) - exp(sub_b[2]);
+
+    row_pos += 2;
   }
 
   return result;
