@@ -6,7 +6,7 @@
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 5")
+  docopt::docopt(opt_desc, "multi 12 2")
   # docopt::docopt(opt_desc, "single")
 } else {
   docopt::docopt(opt_desc)
@@ -292,7 +292,7 @@ if (script_options$multi) {
     deframe() %>%
     test_parallel_map(cores = script_options$cores %/% 4,
     # map(
-      function(entity_data) {
+      function(entity_data) tryCatch({
         entity_data %<>% deframe()
 
         known_results <- entity_data %>%
@@ -321,15 +321,16 @@ if (script_options$multi) {
             chains = 4, iter = 1000
           ) %>%
           get_estimation_results() %>%
-          select(estimand_name, cutpoint, rhat, starts_with("ess"), starts_with("per_")) %>%
+          select(estimand_name, cutpoint, starts_with("per_")) %>% # rhat, starts_with("ess"),
           inner_join(
             select(known_results, estimand_name, cutpoint, prob),
             by = c("estimand_name", "cutpoint")
           ) %>%
           mutate_at(vars(starts_with("per_")), ~ . - prob) %>%
           mutate(coverage = if_else(per_0.1 > 0 | per_0.9 < 0, "outside", "inside") %>% factor())
-      }
+      }, error = function(err) browser())
     ) %>%
+    compact() %>%
     bind_rows(.id = "iter_id")
 
   write_rds(test_run_data, file.path("temp-data", "test_run.rds"))
