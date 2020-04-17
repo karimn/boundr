@@ -11,7 +11,7 @@ install.packages("remotes")
 remotes::install_github("karimn/boundr")
 ```
 
-Please note that this package is still very incomplete, particularly in terms for documentation. 
+Please note that this package is still very incomplete, particularly in terms of documentation. 
 
 What you can do with `boundr`:
 
