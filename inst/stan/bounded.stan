@@ -837,9 +837,10 @@ generated quantities {
   vector<upper = 0>[num_abducted_estimands * num_unique_entities] total_abducted_log_prob;
 
   // BUGBUG missing constraint
-  matrix<lower = 0, upper = 1>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
-  // matrix[num_atom_estimands, num_unique_entities] iter_atom_estimand;
-  matrix<lower = -1, upper = 1>[num_diff_estimands, num_unique_entities] iter_diff_estimand;
+  // matrix<lower = 0, upper = 1>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  matrix[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  // matrix<lower = -1, upper = 1>[num_diff_estimands, num_unique_entities] iter_diff_estimand;
+  matrix[num_diff_estimands, num_unique_entities] iter_diff_estimand;
 
   matrix[num_all_estimands, num_unique_entities] iter_entity_estimand;
   vector[num_all_estimands] iter_estimand;
