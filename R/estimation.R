@@ -209,9 +209,9 @@ setMethod("get_discrete_estimand_info", "DiscretizedAtomEstimand", function(est)
 
 setGeneric("extract_from_fit",
            signature = c("est"),
-           function(est, fit, levels, unique_ids, between_entity_diff_info, no_sim_diag = FALSE) standardGeneric("extract_from_fit"))
+           function(est, fit, levels, unique_ids, between_entity_diff_info, no_sim_diag, ...) standardGeneric("extract_from_fit"))
 
-setMethod("extract_from_fit", "EstimandCollection", function(est, fit, levels, unique_ids, between_entity_diff_info, no_sim_diag = FALSE) {
+setMethod("extract_from_fit", "EstimandCollection", function(est, fit, levels, unique_ids, between_entity_diff_info, no_sim_diag, quants, ...) {
   discrete_est_info <- est@estimands
 
   discrete_estimation <- fit %>%
@@ -251,7 +251,7 @@ setMethod("extract_from_fit", "EstimandCollection", function(est, fit, levels, u
         plyr::adply(3, diagnose, no_sim_diag) %>%
         tidyr::extract(parameters, c("estimand_id", "long_entity_index"), "(\\d+),(\\d+)", convert = TRUE) %>%
         mutate(iter_data = map(iter_data, ~ tibble(iter_estimand = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
-        summ_iter_data() %>%
+        summ_iter_data(quants = quants) %>%
         left_join(long_entity_ids, by = c("long_entity_index")) %>%
         group_nest(estimand_id, .key = "level_estimands") %>%
         left_join(discrete_estimation, ., by = c("estimand_id"))
@@ -270,7 +270,7 @@ setMethod("extract_from_fit", "EstimandCollection", function(est, fit, levels, u
         plyr::adply(3, diagnose, no_sim_diag) %>%
         tidyr::extract(parameters, c("estimand_id", "diff_index"), "(\\d+),(\\d+)", convert = TRUE) %>%
         mutate(iter_data = map(iter_data, ~ tibble(iter_estimand = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
-        summ_iter_data() %>%
+        summ_iter_data(quants = quants) %>%
         left_join(between_entity_diff_info, by = c("diff_index", "estimand_id")) %>%
         group_nest(estimand_id, .key = "between_entity_estimands") %>%
         left_join(discrete_estimation, ., by = "estimand_id")
@@ -278,7 +278,7 @@ setMethod("extract_from_fit", "EstimandCollection", function(est, fit, levels, u
   }
 
   discrete_estimation %>%
-    summ_iter_data() %>%
+    summ_iter_data(quants = quants) %>%
     new_tibble(nrow = nrow(.), class = "EstimandResults")
 })
 

@@ -126,7 +126,7 @@ setGeneric("get_sampler", function(r) {
 
 setMethod("get_sampler", "SamplingResults", function(r) r@sampler)
 
-setGeneric("get_estimation_results", function(r, no_levels = FALSE, no_sim_diag = TRUE, level_hist = FALSE) {
+setGeneric("get_estimation_results", function(r, no_levels = FALSE, no_sim_diag = TRUE, level_hist = FALSE, ...) {
   standardGeneric("get_estimation_results")
 })
 
@@ -139,7 +139,7 @@ setGeneric("get_estimation_results", function(r, no_levels = FALSE, no_sim_diag 
 #'
 #' @return Nested \code{tibble} with estimation results
 #' @export
-setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = FALSE, no_sim_diag = TRUE, level_hist = FALSE) {
+setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = FALSE, no_sim_diag = TRUE, level_hist = FALSE, quants = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95), ...) {
   estimands <- r@sampler@estimands
 
   if (is_null(estimands)) {
@@ -147,7 +147,7 @@ setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = F
   } else {
     results <- if (no_levels || any(is.na(r@sampler@model_levels))) {
       estimands%>%
-        extract_from_fit(r, no_sim_diag = no_sim_diag)
+        extract_from_fit(r, no_sim_diag = no_sim_diag, quants = quants)
     } else {
       between_entity_diff_info <- if (!is_null(r@sampler@between_entity_diff_levels)) {
         r@sampler@analysis_data %>%
@@ -164,7 +164,7 @@ setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = F
       }
 
       estimands %>%
-        extract_from_fit(r, levels = r@sampler@estimand_levels, unique_ids = r@sampler@unique_entity_ids, between_entity_diff_info = between_entity_diff_info, no_sim_diag = no_sim_diag)
+        extract_from_fit(r, levels = r@sampler@estimand_levels, unique_ids = r@sampler@unique_entity_ids, between_entity_diff_info = between_entity_diff_info, no_sim_diag = no_sim_diag, quants = quants)
 
     }
 
@@ -198,7 +198,7 @@ setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = F
             map(mutate, freq = counts / sum(counts)) %>%
             map(ungroup) %>%
             map(nest, break_data = c(iter_id, counts:freq)) %>%
-            map(mutate, quant = map(break_data, quantilize_est, freq, quant_probs = c(0.1, 0.25, 0.5, 0.75, 0.9))) %>%
+            map(mutate, quant = map(break_data, quantilize_est, freq, quant_probs = quants)) %>%
             map(select, -break_data) %>%
             map(unnest, quant)
         )
