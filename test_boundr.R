@@ -2,11 +2,11 @@
 
 "Usage:
   test_boundr single
-  test_boundr multi <cores> <runs>
+  test_boundr multi <cores> <runs> [--append]
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 2")
+  docopt::docopt(opt_desc, "multi 12 2 --append")
   # docopt::docopt(opt_desc, "single")
 } else {
   docopt::docopt(opt_desc)
@@ -34,7 +34,7 @@ rstan_options(auto_write = TRUE)
 
 # Models ------------------------------------------------------------------
 
-test_model <- define_structural_causal_model(
+discrete_variables <- list2(
   define_response(
     "b",
 
@@ -69,6 +69,10 @@ test_model <- define_structural_causal_model(
     "treatment defier" = ~ 1 - z,
     "always" = ~ 1,
   ),
+)
+
+test_model <- define_structural_causal_model(
+  !!!discrete_variables,
 
   define_discretized_response_group(
     "y",
@@ -113,45 +117,83 @@ test_model <- define_structural_causal_model(
 )
 
 test_model2 <- define_structural_causal_model(
-  define_response(
-    "b",
-
-    "program branch" = ~ 1,
-    "control branch" = ~ 0,
-  ),
-
-  define_response(
-    "g",
-
-    "treatment sector" = ~ 1,
-    "control sector" = ~ 0,
-  ),
-
-  define_response(
-    "z",
-
-    "village assigned treatment" = ~ 1,
-    "village assigned control" = ~ 0,
-  ),
-
-  define_response(
-    "m",
-    input = c("b", "g", "z"),
-
-    "never" = ~ 0,
-    "program complier" = ~ b,
-    "program defier" = ~ 1 - b,
-    "wedge complier" = ~ g,
-    "wedge defier" = ~ 1 - g,
-    "treatment complier" = ~ z,
-    "treatment defier" = ~ 1 - z,
-    "always" = ~ 1,
-  ),
+  !!!discrete_variables,
 
   define_discretized_response_group(
     "y",
     cutpoints = c(-100, -20, -10, 10, 20, 100),
     # cutpoints = c(-100, 20, 100),
+
+    input = c("b", "g", "m"),
+
+    "never below" = ~ 0,
+    "program complier" = ~ b,
+    "program defier" = ~ 1 - b,
+    "wedge complier" = ~ g,
+    "wedge defier" = ~ 1 - g,
+    "migration complier" = ~ m,
+    "migration defier" = ~ 1 - m,
+    "always below" = ~ 1,
+
+    pruning_data = tribble(
+      ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
+
+      "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
+      "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+      "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+      "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
+      "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
+      "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
+      "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
+      "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+    ) %>%
+      pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
+      filter(allow) %>%
+      select(-allow)
+  ),
+
+  exogenous_prob = tribble(
+    ~ b, ~ g, ~ z, ~ ex_prob,
+    0,   0,   0,   0.4,
+    1,   0,   0,   0.2,
+    1,   1,   0,   0.2,
+    1,   1,   1,   0.2
+  ),
+)
+
+test_model3 <- define_structural_causal_model(
+  !!!discrete_variables,
+
+  define_response(
+    "y",
+
+    input = c("b", "g", "m"),
+
+    "never below" = ~ 0,
+    "program complier" = ~ b,
+    "program defier" = ~ 1 - b,
+    "wedge complier" = ~ g,
+    "wedge defier" = ~ 1 - g,
+    "migration complier" = ~ m,
+    "migration defier" = ~ 1 - m,
+    "always below" = ~ 1,
+  ),
+
+  exogenous_prob = tribble(
+    ~ b, ~ g, ~ z, ~ ex_prob,
+    0,   0,   0,   0.4,
+    1,   0,   0,   0.2,
+    1,   1,   0,   0.2,
+    1,   1,   1,   0.2
+  ),
+)
+
+test_model4 <- define_structural_causal_model(
+  !!!discrete_variables,
+
+  define_discretized_response_group(
+    "y",
+    cutpoints = c(100, -20, 100),
 
     input = c("b", "g", "m"),
 
@@ -292,6 +334,30 @@ test_estimands2 <- build_estimand_collection(
   # ),
 )
 
+test_estimands3 <- build_estimand_collection(
+  model = test_model3,
+
+  build_diff_estimand(
+    build_atom_estimand("m", b = 1, g = 1, z = 1),
+    build_atom_estimand("m", b = 0, g = 0, z = 0)
+  ),
+
+  build_diff_estimand(
+    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
+    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
+  ),
+
+  build_diff_estimand(
+    build_atom_estimand("y", b = 1, g = 1, z = 1),
+    build_atom_estimand("y", b = 0, g = 0, z = 0)
+  ),
+
+  build_diff_estimand(
+    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
+    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 0, cond = m == 1 & b == 0 & g == 0 & z == 0)
+  ),
+)
+
 # test_estimands_discrete_only <- build_estimand_collection(
 #   model = test_model_discrete_only,
 #
@@ -346,6 +412,7 @@ if (script_options$single) {
     model_levels = "entity_index",
     analysis_data = test_sim_data,
     estimands = test_estimands2,
+    # y = y < -20,
     y = y,
 
     discrete_beta_hyper_sd = 2,
@@ -354,13 +421,26 @@ if (script_options$single) {
     calculate_marginal_prob = TRUE
   )
 
+  test_prior_fit <- test_sampler %>%
+    sampling(
+      chains = 4,
+      iter = 1000,
+      # control = lst(adapt_delta = 0.99, max_treedepth = 12),
+      pars = c("iter_estimand", "marginal_p_r"),
+      run_type = "prior-predict",
+    )
+
   test_fit <- test_sampler %>%
     sampling(
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand"),
+      pars = c("iter_estimand", "marginal_p_r"),
     )
+
+  test_prior_results <- test_prior_fit %>%
+    get_estimation_results(no_sim_diag = FALSE) %T>%
+    print(n = 1000)
 
   test_results <- test_fit %>%
     get_estimation_results(no_sim_diag = FALSE) %T>%
@@ -372,6 +452,8 @@ if (script_options$single) {
     mutate(coverage = if_else(per_0.1 > 0 | per_0.9 < 0, "outside", "inside") %>% factor()) %>%
     select(estimand_name, coverage) %>%
     print(n = 1000)
+
+  test_prior_marginal_prob <- test_prior_fit %>% get_marginal_latent_type_prob()
 }
 
 # Multiple Runs -----------------------------------------------------------
@@ -404,10 +486,10 @@ if (script_options$multi) {
           # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30))) %>%
           mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
           create_sampler(
-            test_model2,
+            test_model,
             model_levels = "entity_index",
             analysis_data = .,
-            estimands = test_estimands2,
+            estimands = test_estimands,
             y = y,
 
             discrete_beta_hyper_sd = 2,
@@ -432,15 +514,22 @@ if (script_options$multi) {
     compact() %>%
     bind_rows(.id = "iter_id")
 
-  write_rds(test_run_data, file.path("temp-data", "test_run2.rds"))
+  test_run_data_file <- file.path("temp-data", "test_run3.rds")
+
+  if (script_options$append && file.exists(test_run_data_file)) {
+    test_run_data %<>%
+      bind_rows(read_rds(test_run_data_file))
+  }
+
+  write_rds(test_run_data, test_run_data_file)
 
   test_run_data %>%
     group_by_at(vars(estimand_name, any_of("cutpoint"))) %>%
     summarize(coverage = mean(fct_match(coverage, "inside"))) %>%
     ungroup() %>%
-    arrange_at(vars(estimand_name, any_of("cutpoint")))
+    arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
+    print(n = 1000)
 }
-
 
 # Manual Run --------------------------------------------------------------
 
