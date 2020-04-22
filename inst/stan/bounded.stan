@@ -718,15 +718,21 @@ transformed data {
 }
 
 parameters {
-  vector[num_discrete_r_types - 1] toplevel_discrete_beta;
+  vector[num_discrete_r_types] toplevel_discrete_beta;
+  // vector[num_discrete_r_types - 1] toplevel_discrete_beta;
 
-  matrix[num_discrete_r_types - 1, sum(level_size)] discrete_level_beta_raw;
-  matrix<lower = 0>[num_discrete_r_types - 1, num_levels] discrete_level_beta_sigma;
+  // matrix[num_discrete_r_types - 1, sum(level_size)] discrete_level_beta_raw;
+  // matrix<lower = 0>[num_discrete_r_types - 1, num_levels] discrete_level_beta_sigma;
+  matrix[num_discrete_r_types, sum(level_size)] discrete_level_beta_raw;
+  matrix<lower = 0>[num_discrete_r_types, num_levels] discrete_level_beta_sigma;
 
-  matrix[max(0, num_discretized_r_types - 1), num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
+  // matrix[max(0, num_discretized_r_types - 1), num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
+  matrix[max(0, num_discretized_r_types), num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
 
-  matrix[max(num_discretized_r_types - 1, 0) * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
-  matrix<lower = 0>[max(num_discretized_r_types - 1, 0), num_levels] discretized_level_beta_sigma[num_discretized_variables];
+  // matrix[max(num_discretized_r_types - 1, 0) * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
+  // matrix<lower = 0>[max(num_discretized_r_types - 1, 0), num_levels] discretized_level_beta_sigma[num_discretized_variables];
+  matrix[max(num_discretized_r_types, 0) * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
+  matrix<lower = 0>[max(num_discretized_r_types, 0), num_levels] discretized_level_beta_sigma[num_discretized_variables];
 }
 
 transformed parameters {
@@ -735,13 +741,14 @@ transformed parameters {
 
   vector[run_type == RUN_TYPE_FIT ? sum(num_unique_entity_candidate_groups) : 0] entity_candidates_group_logp;
 
-  matrix[num_discrete_r_types, num_unique_entities] discrete_beta = rep_matrix(append_row(0, toplevel_discrete_beta), num_unique_entities);
+  matrix[num_discrete_r_types, num_unique_entities] discrete_beta = rep_matrix(toplevel_discrete_beta, num_unique_entities); // rep_matrix(append_row(0, toplevel_discrete_beta), num_unique_entities);
 
   matrix[num_discretized_r_types * num_discrete_r_types, num_unique_entities] discretized_beta[num_discretized_variables];
 
   for (discretized_var_index in 1:num_discretized_variables) {
     matrix[num_discretized_r_types, num_discrete_r_types] curr_discretized_beta =
-      append_row(rep_row_vector(0, num_discrete_r_types), toplevel_discretized_beta[discretized_var_index]);
+      // append_row(rep_row_vector(0, num_discrete_r_types), toplevel_discretized_beta[discretized_var_index]);
+      toplevel_discretized_beta[discretized_var_index];
 
     discretized_beta[discretized_var_index] = rep_matrix(to_vector(curr_discretized_beta), num_unique_entities);
   }
@@ -752,17 +759,18 @@ transformed parameters {
     for (level_index in 1:num_levels) {
       int level_entity_end = level_entity_pos + level_size[level_index] - 1;
 
-      matrix[num_discrete_r_types - 1, level_size[level_index]] curr_discrete_level_beta =
+      matrix[num_discrete_r_types, level_size[level_index]] curr_discrete_level_beta =
         discrete_level_beta_raw[, level_entity_pos:level_entity_end] .* rep_matrix(discrete_level_beta_sigma[, level_index], level_size[level_index]);
 
-      discrete_beta[2:] += curr_discrete_level_beta[, unique_entity_ids[, level_index]];
+      discrete_beta += curr_discrete_level_beta[, unique_entity_ids[, level_index]];
 
       for (discretized_var_index in 1:num_discretized_variables) {
-        matrix[max(num_discretized_r_types - 1, 0) * num_discrete_r_types, level_size[level_index]] curr_discretized_level_beta =
+        matrix[max(num_discretized_r_types, 0) * num_discrete_r_types, level_size[level_index]] curr_discretized_level_beta =
           discretized_level_beta_raw[discretized_var_index, , level_entity_pos:level_entity_end] .*
           rep_matrix(to_vector(rep_matrix(discretized_level_beta_sigma[discretized_var_index, , level_index], num_discrete_r_types)), level_size[level_index]);
 
-        discretized_beta[discretized_var_index, nonzero_beta_offsets] += curr_discretized_level_beta[, unique_entity_ids[, level_index]];
+        // discretized_beta[discretized_var_index, nonzero_beta_offsets] += curr_discretized_level_beta[, unique_entity_ids[, level_index]];
+        discretized_beta[discretized_var_index, ] += curr_discretized_level_beta[, unique_entity_ids[, level_index]];
       }
 
       level_entity_pos = level_entity_end + 1;
@@ -771,6 +779,9 @@ transformed parameters {
 
   for (entity_index in 1:num_unique_entities) {
     vector[num_discrete_r_types] curr_discrete_log_prob = log_softmax(discrete_beta[, entity_index]);
+
+    // print(curr_discrete_log_prob);
+    // print(discretized_beta);
 
     if (num_discretized_r_types > 0) {
       int r_prob_pos = (entity_index - 1) * num_r_types + 1;
