@@ -377,17 +377,17 @@ transformed data {
   int<lower = 1, upper = num_all_estimands * sum(level_size)> between_entity_diff_csr_ids[2 * num_atom_estimands * (sum(level_size[between_entity_diff_levels]) - num_between_entity_diff_levels)];
   int<lower = 1> between_entity_diff_csr_row_pos[num_between_entity_diff_levels > 0 ? num_atom_estimands * (sum(level_size[between_entity_diff_levels]) - num_between_entity_diff_levels) + 1 : 0];
 
-  int<lower = 2> nonzero_beta_offsets[max(num_discretized_r_types - 1, 0) * num_discrete_r_types];
-
-  if (num_discretized_r_types > 0) {
-    int index_pos = 1;
-    for (offset_index in 2:(num_discretized_r_types * num_discrete_r_types)) {
-      if (offset_index % num_discretized_r_types != 1) {
-        nonzero_beta_offsets[index_pos] = offset_index;
-        index_pos += 1;
-      }
-    }
-  }
+  // int<lower = 2> nonzero_beta_offsets[max(num_discretized_r_types - 1, 0) * num_discrete_r_types];
+  //
+  // if (num_discretized_r_types > 0) {
+  //   int index_pos = 1;
+  //   for (offset_index in 2:(num_discretized_r_types * num_discrete_r_types)) {
+  //     if (offset_index % num_discretized_r_types != 1) {
+  //       nonzero_beta_offsets[index_pos] = offset_index;
+  //       index_pos += 1;
+  //     }
+  //   }
+  // }
 
   // TODO calculate the expected among and check it
   // if (num_discretized_r_types > 0 && num_r_types != num_discrete_r_types * num_discretized_r_types) {
@@ -722,10 +722,10 @@ parameters {
   matrix[num_discrete_r_types, sum(level_size)] discrete_level_beta_raw;
   matrix<lower = 0>[num_discrete_r_types, num_levels] discrete_level_beta_sigma;
 
-  matrix[max(0, num_discretized_r_types), num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
+  matrix[num_discretized_r_types, num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
 
-  matrix[max(num_discretized_r_types, 0) * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
-  matrix<lower = 0>[max(num_discretized_r_types, 0), num_levels] discretized_level_beta_sigma[num_discretized_variables];
+  matrix[num_discretized_r_types * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
+  matrix<lower = 0>[num_discretized_r_types, num_levels] discretized_level_beta_sigma[num_discretized_variables];
 }
 
 transformed parameters {
@@ -756,7 +756,7 @@ transformed parameters {
       discrete_beta += curr_discrete_level_beta[, unique_entity_ids[, level_index]];
 
       for (discretized_var_index in 1:num_discretized_variables) {
-        matrix[max(num_discretized_r_types, 0) * num_discrete_r_types, level_size[level_index]] curr_discretized_level_beta =
+        matrix[num_discretized_r_types * num_discrete_r_types, level_size[level_index]] curr_discretized_level_beta =
           discretized_level_beta_raw[discretized_var_index, , level_entity_pos:level_entity_end] .*
           rep_matrix(to_vector(rep_matrix(discretized_level_beta_sigma[discretized_var_index, , level_index], num_discrete_r_types)), level_size[level_index]);
 
