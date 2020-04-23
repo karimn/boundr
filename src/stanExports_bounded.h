@@ -45,7 +45,7 @@ stan::io::program_reader prog_reader__() {
     reader.add_event(240, 0, "start", "include/r_type_prob.stan");
     reader.add_event(316, 76, "end", "include/r_type_prob.stan");
     reader.add_event(316, 4, "restart", "model_bounded");
-    reader.add_event(1446, 1132, "end", "model_bounded");
+    reader.add_event(1427, 1113, "end", "model_bounded");
     return reader;
 }
 int
@@ -1322,19 +1322,19 @@ calculate_level_size(const int& num_levels,
     int current_statement_begin__ = -1;
     try {
         {
-        current_statement_begin__ = 348;
+        current_statement_begin__ = 347;
         validate_non_negative_index("level_size", "num_levels", num_levels);
         std::vector<int  > level_size(num_levels, int(0));
         stan::math::fill(level_size, std::numeric_limits<int>::min());
-        current_statement_begin__ = 350;
+        current_statement_begin__ = 349;
         for (int level_index = 1; level_index <= num_levels; ++level_index) {
-            current_statement_begin__ = 351;
+            current_statement_begin__ = 350;
             stan::model::assign(level_size, 
                         stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list()), 
                         num_unique(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids"), pstream__), 
                         "assigning variable level_size");
         }
-        current_statement_begin__ = 354;
+        current_statement_begin__ = 353;
         return stan::math::promote_scalar<fun_return_scalar_t__>(level_size);
         }
     } catch (const std::exception& e) {
@@ -1362,38 +1362,38 @@ calculate_num_in_level_entities(const std::vector<std::vector<int> >& unique_ent
     int current_statement_begin__ = -1;
     try {
         {
-        current_statement_begin__ = 358;
+        current_statement_begin__ = 357;
         int num_levels(0);
         (void) num_levels;  // dummy to suppress unused var warning
         stan::math::fill(num_levels, std::numeric_limits<int>::min());
         stan::math::assign(num_levels,num_elements(level_size));
-        current_statement_begin__ = 359;
+        current_statement_begin__ = 358;
         validate_non_negative_index("num_unique_entities_in_level_entities", "sum(level_size)", sum(level_size));
         std::vector<int  > num_unique_entities_in_level_entities(sum(level_size), int(0));
         stan::math::fill(num_unique_entities_in_level_entities, std::numeric_limits<int>::min());
-        current_statement_begin__ = 361;
+        current_statement_begin__ = 360;
         int level_entity_pos(0);
         (void) level_entity_pos;  // dummy to suppress unused var warning
         stan::math::fill(level_entity_pos, std::numeric_limits<int>::min());
         stan::math::assign(level_entity_pos,1);
-        current_statement_begin__ = 363;
+        current_statement_begin__ = 362;
         for (int level_index = 1; level_index <= num_levels; ++level_index) {
             {
-            current_statement_begin__ = 364;
+            current_statement_begin__ = 363;
             int level_entity_end(0);
             (void) level_entity_end;  // dummy to suppress unused var warning
             stan::math::fill(level_entity_end, std::numeric_limits<int>::min());
             stan::math::assign(level_entity_end,((level_entity_pos + get_base1(level_size, level_index, "level_size", 1)) - 1));
-            current_statement_begin__ = 366;
+            current_statement_begin__ = 365;
             stan::model::assign(num_unique_entities_in_level_entities, 
                         stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list()), 
                         count(get_base1(level_size, level_index, "level_size", 1), stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids"), pstream__), 
                         "assigning variable num_unique_entities_in_level_entities");
-            current_statement_begin__ = 368;
+            current_statement_begin__ = 367;
             stan::math::assign(level_entity_pos, (level_entity_end + 1));
             }
         }
-        current_statement_begin__ = 371;
+        current_statement_begin__ = 370;
         return stan::math::promote_scalar<fun_return_scalar_t__>(num_unique_entities_in_level_entities);
         }
     } catch (const std::exception& e) {
@@ -1422,48 +1422,48 @@ calculate_entity_total_num_candidates(const std::vector<int>& num_unique_entity_
     int current_statement_begin__ = -1;
     try {
         {
-        current_statement_begin__ = 375;
+        current_statement_begin__ = 374;
         int num_unique_entities(0);
         (void) num_unique_entities;  // dummy to suppress unused var warning
         stan::math::fill(num_unique_entities, std::numeric_limits<int>::min());
         stan::math::assign(num_unique_entities,num_elements(num_unique_entity_candidate_groups));
-        current_statement_begin__ = 376;
+        current_statement_begin__ = 375;
         validate_non_negative_index("entity_total_num_candidates", "num_unique_entities", num_unique_entities);
         std::vector<int  > entity_total_num_candidates(num_unique_entities, int(0));
         stan::math::fill(entity_total_num_candidates, std::numeric_limits<int>::min());
-        current_statement_begin__ = 378;
+        current_statement_begin__ = 377;
         int entity_candidate_group_pos(0);
         (void) entity_candidate_group_pos;  // dummy to suppress unused var warning
         stan::math::fill(entity_candidate_group_pos, std::numeric_limits<int>::min());
         stan::math::assign(entity_candidate_group_pos,1);
-        current_statement_begin__ = 380;
+        current_statement_begin__ = 379;
         for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
             {
-            current_statement_begin__ = 381;
+            current_statement_begin__ = 380;
             int num_entity_candidate_groups(0);
             (void) num_entity_candidate_groups;  // dummy to suppress unused var warning
             stan::math::fill(num_entity_candidate_groups, std::numeric_limits<int>::min());
             stan::math::assign(num_entity_candidate_groups,get_base1(num_unique_entity_candidate_groups, entity_index, "num_unique_entity_candidate_groups", 1));
-            current_statement_begin__ = 382;
+            current_statement_begin__ = 381;
             int entity_candidate_group_end(0);
             (void) entity_candidate_group_end;  // dummy to suppress unused var warning
             stan::math::fill(entity_candidate_group_end, std::numeric_limits<int>::min());
             stan::math::assign(entity_candidate_group_end,((entity_candidate_group_pos + num_entity_candidate_groups) - 1));
-            current_statement_begin__ = 384;
+            current_statement_begin__ = 383;
             validate_non_negative_index("curr_candidate_groups", "num_entity_candidate_groups", num_entity_candidate_groups);
             std::vector<int  > curr_candidate_groups(num_entity_candidate_groups, int(0));
             stan::math::fill(curr_candidate_groups, std::numeric_limits<int>::min());
             stan::math::assign(curr_candidate_groups,stan::model::rvalue(unique_entity_candidate_groups, stan::model::cons_list(stan::model::index_min_max(entity_candidate_group_pos, entity_candidate_group_end), stan::model::nil_index_list()), "unique_entity_candidate_groups"));
-            current_statement_begin__ = 386;
+            current_statement_begin__ = 385;
             stan::model::assign(entity_total_num_candidates, 
                         stan::model::cons_list(stan::model::index_uni(entity_index), stan::model::nil_index_list()), 
                         sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(curr_candidate_groups), stan::model::nil_index_list()), "candidate_group_size")), 
                         "assigning variable entity_total_num_candidates");
-            current_statement_begin__ = 388;
+            current_statement_begin__ = 387;
             stan::math::assign(entity_candidate_group_pos, (entity_candidate_group_end + 1));
             }
         }
-        current_statement_begin__ = 391;
+        current_statement_begin__ = 390;
         return stan::math::promote_scalar<fun_return_scalar_t__>(entity_total_num_candidates);
         }
     } catch (const std::exception& e) {
@@ -1496,175 +1496,175 @@ rep_corr_estimand_rng(const Eigen::Matrix<T0__, Eigen::Dynamic, Eigen::Dynamic>&
     int current_statement_begin__ = -1;
     try {
         {
-        current_statement_begin__ = 395;
+        current_statement_begin__ = 394;
         int num_r_types(0);
         (void) num_r_types;  // dummy to suppress unused var warning
         stan::math::fill(num_r_types, std::numeric_limits<int>::min());
         stan::math::assign(num_r_types,rows(r_prob_mat));
-        current_statement_begin__ = 396;
+        current_statement_begin__ = 395;
         int num_rep_corr_estimands(0);
         (void) num_rep_corr_estimands;  // dummy to suppress unused var warning
         stan::math::fill(num_rep_corr_estimands, std::numeric_limits<int>::min());
         stan::math::assign(num_rep_corr_estimands,divide(num_elements(rep_corr_outcomes), 2));
-        current_statement_begin__ = 397;
+        current_statement_begin__ = 396;
         int num_experiment_entities(0);
         (void) num_experiment_entities;  // dummy to suppress unused var warning
         stan::math::fill(num_experiment_entities, std::numeric_limits<int>::min());
         stan::math::assign(num_experiment_entities,size(experiment_assign_entity));
-        current_statement_begin__ = 399;
+        current_statement_begin__ = 398;
         validate_non_negative_index("rep_corr_estimand", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_corr_estimand", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_corr_estimand(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_corr_estimand, DUMMY_VAR__);
         stan::math::fill(rep_corr_estimand, DUMMY_VAR__);
-        current_statement_begin__ = 403;
+        current_statement_begin__ = 402;
         validate_non_negative_index("rep_outcome_n", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_outcome_n", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_outcome_n(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_outcome_n, DUMMY_VAR__);
         stan::math::fill(rep_outcome_n, DUMMY_VAR__);
         stan::math::assign(rep_outcome_n,rep_matrix(0, num_rep_corr_estimands, 2));
-        current_statement_begin__ = 404;
+        current_statement_begin__ = 403;
         validate_non_negative_index("rep_outcome_product_sum", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_outcome_product_sum", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_outcome_product_sum(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_outcome_product_sum, DUMMY_VAR__);
         stan::math::fill(rep_outcome_product_sum, DUMMY_VAR__);
         stan::math::assign(rep_outcome_product_sum,rep_matrix(0, num_rep_corr_estimands, 2));
-        current_statement_begin__ = 405;
+        current_statement_begin__ = 404;
         validate_non_negative_index("rep_outcome1_sum", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_outcome1_sum", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_outcome1_sum(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_outcome1_sum, DUMMY_VAR__);
         stan::math::fill(rep_outcome1_sum, DUMMY_VAR__);
         stan::math::assign(rep_outcome1_sum,rep_matrix(0, num_rep_corr_estimands, 2));
-        current_statement_begin__ = 406;
+        current_statement_begin__ = 405;
         validate_non_negative_index("rep_outcome2_sum", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_outcome2_sum", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_outcome2_sum(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_outcome2_sum, DUMMY_VAR__);
         stan::math::fill(rep_outcome2_sum, DUMMY_VAR__);
         stan::math::assign(rep_outcome2_sum,rep_matrix(0, num_rep_corr_estimands, 2));
-        current_statement_begin__ = 407;
+        current_statement_begin__ = 406;
         validate_non_negative_index("rep_outcome1_squared_sum", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_outcome1_squared_sum", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_outcome1_squared_sum(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_outcome1_squared_sum, DUMMY_VAR__);
         stan::math::fill(rep_outcome1_squared_sum, DUMMY_VAR__);
         stan::math::assign(rep_outcome1_squared_sum,rep_matrix(0, num_rep_corr_estimands, 2));
-        current_statement_begin__ = 408;
+        current_statement_begin__ = 407;
         validate_non_negative_index("rep_outcome2_squared_sum", "num_rep_corr_estimands", num_rep_corr_estimands);
         validate_non_negative_index("rep_outcome2_squared_sum", "2", 2);
         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> rep_outcome2_squared_sum(num_rep_corr_estimands, 2);
         stan::math::initialize(rep_outcome2_squared_sum, DUMMY_VAR__);
         stan::math::fill(rep_outcome2_squared_sum, DUMMY_VAR__);
         stan::math::assign(rep_outcome2_squared_sum,rep_matrix(0, num_rep_corr_estimands, 2));
-        current_statement_begin__ = 410;
+        current_statement_begin__ = 409;
         for (int entity_exp_index = 1; entity_exp_index <= num_experiment_entities; ++entity_exp_index) {
             {
-            current_statement_begin__ = 411;
+            current_statement_begin__ = 410;
             int entity_exp_id(0);
             (void) entity_exp_id;  // dummy to suppress unused var warning
             stan::math::fill(entity_exp_id, std::numeric_limits<int>::min());
             stan::math::assign(entity_exp_id,get_base1(get_base1(experiment_assign_entity, entity_exp_index, "experiment_assign_entity", 1), 2, "experiment_assign_entity", 2));
-            current_statement_begin__ = 412;
+            current_statement_begin__ = 411;
             int entity_exp_size(0);
             (void) entity_exp_size;  // dummy to suppress unused var warning
             stan::math::fill(entity_exp_size, std::numeric_limits<int>::min());
             stan::math::assign(entity_exp_size,get_base1(get_base1(experiment_assign_entity, entity_exp_index, "experiment_assign_entity", 1), 3, "experiment_assign_entity", 2));
-            current_statement_begin__ = 414;
+            current_statement_begin__ = 413;
             validate_non_negative_index("rep_sample_types", "num_r_types", num_r_types);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> rep_sample_types(num_r_types);
             stan::math::initialize(rep_sample_types, DUMMY_VAR__);
             stan::math::fill(rep_sample_types, DUMMY_VAR__);
             stan::math::assign(rep_sample_types,to_vector(multinomial_rng(stan::model::rvalue(r_prob_mat, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(get_base1(get_base1(experiment_assign_entity, entity_exp_index, "experiment_assign_entity", 1), 1, "experiment_assign_entity", 2)), stan::model::nil_index_list())), "r_prob_mat"), entity_exp_size, base_rng__)));
-            current_statement_begin__ = 416;
+            current_statement_begin__ = 415;
             for (int rep_corr_index = 1; rep_corr_index <= num_rep_corr_estimands; ++rep_corr_index) {
                 {
-                current_statement_begin__ = 417;
+                current_statement_begin__ = 416;
                 int rep_corr_pos(0);
                 (void) rep_corr_pos;  // dummy to suppress unused var warning
                 stan::math::fill(rep_corr_pos, std::numeric_limits<int>::min());
                 stan::math::assign(rep_corr_pos,((2 * (rep_corr_index - 1)) + 1));
-                current_statement_begin__ = 418;
+                current_statement_begin__ = 417;
                 validate_non_negative_index("outcome_id", "2", 2);
                 std::vector<int  > outcome_id(2, int(0));
                 stan::math::fill(outcome_id, std::numeric_limits<int>::min());
                 stan::math::assign(outcome_id,stan::model::rvalue(rep_corr_outcomes, stan::model::cons_list(stan::model::index_min_max(rep_corr_pos, (rep_corr_pos + 1)), stan::model::nil_index_list()), "rep_corr_outcomes"));
-                current_statement_begin__ = 420;
+                current_statement_begin__ = 419;
                 validate_non_negative_index("outcome1", "num_r_types", num_r_types);
                 Eigen::Matrix<local_scalar_t__, 1, Eigen::Dynamic> outcome1(num_r_types);
                 stan::math::initialize(outcome1, DUMMY_VAR__);
                 stan::math::fill(outcome1, DUMMY_VAR__);
                 stan::math::assign(outcome1,get_base1(get_base1(type_response_value, get_base1(outcome_id, 1, "outcome_id", 1), "type_response_value", 1), entity_exp_id, "type_response_value", 2));
-                current_statement_begin__ = 421;
+                current_statement_begin__ = 420;
                 validate_non_negative_index("outcome2", "num_r_types", num_r_types);
                 Eigen::Matrix<local_scalar_t__, 1, Eigen::Dynamic> outcome2(num_r_types);
                 stan::math::initialize(outcome2, DUMMY_VAR__);
                 stan::math::fill(outcome2, DUMMY_VAR__);
                 stan::math::assign(outcome2,get_base1(get_base1(type_response_value, get_base1(outcome_id, 2, "outcome_id", 1), "type_response_value", 1), entity_exp_id, "type_response_value", 2));
-                current_statement_begin__ = 422;
+                current_statement_begin__ = 421;
                 validate_non_negative_index("cond", "num_r_types", num_r_types);
                 Eigen::Matrix<local_scalar_t__, 1, Eigen::Dynamic> cond(num_r_types);
                 stan::math::initialize(cond, DUMMY_VAR__);
                 stan::math::fill(cond, DUMMY_VAR__);
                 stan::math::assign(cond,get_base1(get_base1(type_response_value, get_base1(rep_corr_cond, rep_corr_index, "rep_corr_cond", 1), "type_response_value", 1), entity_exp_id, "type_response_value", 2));
-                current_statement_begin__ = 424;
+                current_statement_begin__ = 423;
                 stan::model::assign(rep_outcome_n, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome_n, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "rep_outcome_n") + multiply(subtract(1, cond), rep_sample_types)), 
                             "assigning variable rep_outcome_n");
-                current_statement_begin__ = 425;
+                current_statement_begin__ = 424;
                 stan::model::assign(rep_outcome_n, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome_n, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "rep_outcome_n") + multiply(cond, rep_sample_types)), 
                             "assigning variable rep_outcome_n");
-                current_statement_begin__ = 427;
+                current_statement_begin__ = 426;
                 stan::model::assign(rep_outcome_product_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome_product_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "rep_outcome_product_sum") + multiply(elt_multiply(elt_multiply(outcome1, outcome2), subtract(1, cond)), rep_sample_types)), 
                             "assigning variable rep_outcome_product_sum");
-                current_statement_begin__ = 428;
+                current_statement_begin__ = 427;
                 stan::model::assign(rep_outcome_product_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome_product_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "rep_outcome_product_sum") + multiply(elt_multiply(elt_multiply(outcome1, outcome2), cond), rep_sample_types)), 
                             "assigning variable rep_outcome_product_sum");
-                current_statement_begin__ = 430;
+                current_statement_begin__ = 429;
                 stan::model::assign(rep_outcome1_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome1_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "rep_outcome1_sum") + multiply(elt_multiply(outcome1, subtract(1, cond)), rep_sample_types)), 
                             "assigning variable rep_outcome1_sum");
-                current_statement_begin__ = 431;
+                current_statement_begin__ = 430;
                 stan::model::assign(rep_outcome1_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome1_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "rep_outcome1_sum") + multiply(elt_multiply(outcome1, cond), rep_sample_types)), 
                             "assigning variable rep_outcome1_sum");
-                current_statement_begin__ = 433;
+                current_statement_begin__ = 432;
                 stan::model::assign(rep_outcome2_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome2_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "rep_outcome2_sum") + multiply(elt_multiply(outcome2, subtract(1, cond)), rep_sample_types)), 
                             "assigning variable rep_outcome2_sum");
-                current_statement_begin__ = 434;
+                current_statement_begin__ = 433;
                 stan::model::assign(rep_outcome2_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome2_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "rep_outcome2_sum") + multiply(elt_multiply(outcome2, cond), rep_sample_types)), 
                             "assigning variable rep_outcome2_sum");
-                current_statement_begin__ = 436;
+                current_statement_begin__ = 435;
                 stan::model::assign(rep_outcome1_squared_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome1_squared_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "rep_outcome1_squared_sum") + multiply(square(elt_multiply(outcome1, subtract(1, cond))), rep_sample_types)), 
                             "assigning variable rep_outcome1_squared_sum");
-                current_statement_begin__ = 437;
+                current_statement_begin__ = 436;
                 stan::model::assign(rep_outcome1_squared_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome1_squared_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "rep_outcome1_squared_sum") + multiply(square(elt_multiply(outcome1, cond)), rep_sample_types)), 
                             "assigning variable rep_outcome1_squared_sum");
-                current_statement_begin__ = 439;
+                current_statement_begin__ = 438;
                 stan::model::assign(rep_outcome2_squared_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome2_squared_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), "rep_outcome2_squared_sum") + multiply(square(elt_multiply(outcome2, subtract(1, cond))), rep_sample_types)), 
                             "assigning variable rep_outcome2_squared_sum");
-                current_statement_begin__ = 440;
+                current_statement_begin__ = 439;
                 stan::model::assign(rep_outcome2_squared_sum, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             (stan::model::rvalue(rep_outcome2_squared_sum, stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), "rep_outcome2_squared_sum") + multiply(square(elt_multiply(outcome2, cond)), rep_sample_types)), 
@@ -1673,36 +1673,36 @@ rep_corr_estimand_rng(const Eigen::Matrix<T0__, Eigen::Dynamic, Eigen::Dynamic>&
             }
             }
         }
-        current_statement_begin__ = 444;
+        current_statement_begin__ = 443;
         for (int rep_corr_index = 1; rep_corr_index <= num_rep_corr_estimands; ++rep_corr_index) {
-            current_statement_begin__ = 445;
+            current_statement_begin__ = 444;
             stan::model::assign(rep_corr_estimand, 
                         stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                         (((get_base1(rep_outcome_n, rep_corr_index, 1, "rep_outcome_n", 1) * get_base1(rep_outcome_product_sum, rep_corr_index, 1, "rep_outcome_product_sum", 1)) - (get_base1(rep_outcome1_sum, rep_corr_index, 1, "rep_outcome1_sum", 1) * get_base1(rep_outcome2_sum, rep_corr_index, 1, "rep_outcome2_sum", 1))) / (stan::math::sqrt(((get_base1(rep_outcome_n, rep_corr_index, 1, "rep_outcome_n", 1) * get_base1(rep_outcome1_squared_sum, rep_corr_index, 1, "rep_outcome1_squared_sum", 1)) - square(get_base1(rep_outcome1_sum, rep_corr_index, 1, "rep_outcome1_sum", 1)))) * stan::math::sqrt(((get_base1(rep_outcome_n, rep_corr_index, 1, "rep_outcome_n", 1) * get_base1(rep_outcome2_squared_sum, rep_corr_index, 1, "rep_outcome2_squared_sum", 1)) - square(get_base1(rep_outcome2_sum, rep_corr_index, 1, "rep_outcome2_sum", 1)))))), 
                         "assigning variable rep_corr_estimand");
-            current_statement_begin__ = 450;
+            current_statement_begin__ = 449;
             if (as_bool(is_nan(get_base1(rep_corr_estimand, rep_corr_index, 1, "rep_corr_estimand", 1)))) {
-                current_statement_begin__ = 451;
+                current_statement_begin__ = 450;
                 stan::model::assign(rep_corr_estimand, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list())), 
                             0, 
                             "assigning variable rep_corr_estimand");
             }
-            current_statement_begin__ = 454;
+            current_statement_begin__ = 453;
             stan::model::assign(rep_corr_estimand, 
                         stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                         (((get_base1(rep_outcome_n, rep_corr_index, 2, "rep_outcome_n", 1) * get_base1(rep_outcome_product_sum, rep_corr_index, 2, "rep_outcome_product_sum", 1)) - (get_base1(rep_outcome1_sum, rep_corr_index, 2, "rep_outcome1_sum", 1) * get_base1(rep_outcome2_sum, rep_corr_index, 2, "rep_outcome2_sum", 1))) / (stan::math::sqrt(((get_base1(rep_outcome_n, rep_corr_index, 2, "rep_outcome_n", 1) * get_base1(rep_outcome1_squared_sum, rep_corr_index, 2, "rep_outcome1_squared_sum", 1)) - square(get_base1(rep_outcome1_sum, rep_corr_index, 2, "rep_outcome1_sum", 1)))) * stan::math::sqrt(((get_base1(rep_outcome_n, rep_corr_index, 2, "rep_outcome_n", 1) * get_base1(rep_outcome2_squared_sum, rep_corr_index, 2, "rep_outcome2_squared_sum", 1)) - square(get_base1(rep_outcome2_sum, rep_corr_index, 2, "rep_outcome2_sum", 1)))))), 
                         "assigning variable rep_corr_estimand");
-            current_statement_begin__ = 459;
+            current_statement_begin__ = 458;
             if (as_bool(is_nan(get_base1(rep_corr_estimand, rep_corr_index, 2, "rep_corr_estimand", 1)))) {
-                current_statement_begin__ = 460;
+                current_statement_begin__ = 459;
                 stan::model::assign(rep_corr_estimand, 
                             stan::model::cons_list(stan::model::index_uni(rep_corr_index), stan::model::cons_list(stan::model::index_uni(2), stan::model::nil_index_list())), 
                             0, 
                             "assigning variable rep_corr_estimand");
             }
         }
-        current_statement_begin__ = 464;
+        current_statement_begin__ = 463;
         return stan::math::promote_scalar<fun_return_scalar_t__>(rep_corr_estimand);
         }
     } catch (const std::exception& e) {
@@ -1872,28 +1872,28 @@ public:
         (void) DUMMY_VAR__;  // suppress unused var warning
         try {
             // initialize data block variables from context__
-            current_statement_begin__ = 469;
+            current_statement_begin__ = 468;
             context__.validate_dims("data initialization", "num_obs", "int", context__.to_vec());
             num_obs = int(0);
             vals_i__ = context__.vals_i("num_obs");
             pos__ = 0;
             num_obs = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_obs", num_obs, 0);
-            current_statement_begin__ = 471;
+            current_statement_begin__ = 470;
             context__.validate_dims("data initialization", "num_r_types", "int", context__.to_vec());
             num_r_types = int(0);
             vals_i__ = context__.vals_i("num_r_types");
             pos__ = 0;
             num_r_types = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_r_types", num_r_types, 1);
-            current_statement_begin__ = 472;
+            current_statement_begin__ = 471;
             context__.validate_dims("data initialization", "num_discrete_r_types", "int", context__.to_vec());
             num_discrete_r_types = int(0);
             vals_i__ = context__.vals_i("num_discrete_r_types");
             pos__ = 0;
             num_discrete_r_types = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_discrete_r_types", num_discrete_r_types, 1);
-            current_statement_begin__ = 473;
+            current_statement_begin__ = 472;
             validate_non_negative_index("discrete_r_type_id", "num_r_types", num_r_types);
             context__.validate_dims("data initialization", "discrete_r_type_id", "int", context__.to_vec(num_r_types));
             discrete_r_type_id = std::vector<int>(num_r_types, int(0));
@@ -1908,14 +1908,14 @@ public:
                 check_greater_or_equal(function__, "discrete_r_type_id[i_0__]", discrete_r_type_id[i_0__], 1);
                 check_less_or_equal(function__, "discrete_r_type_id[i_0__]", discrete_r_type_id[i_0__], num_discrete_r_types);
             }
-            current_statement_begin__ = 477;
+            current_statement_begin__ = 476;
             context__.validate_dims("data initialization", "num_cutpoints", "int", context__.to_vec());
             num_cutpoints = int(0);
             vals_i__ = context__.vals_i("num_cutpoints");
             pos__ = 0;
             num_cutpoints = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_cutpoints", num_cutpoints, 0);
-            current_statement_begin__ = 478;
+            current_statement_begin__ = 477;
             validate_non_negative_index("cutpoints", "num_cutpoints", num_cutpoints);
             context__.validate_dims("data initialization", "cutpoints", "vector_d", context__.to_vec(num_cutpoints));
             cutpoints = Eigen::Matrix<double, Eigen::Dynamic, 1>(num_cutpoints);
@@ -1925,14 +1925,14 @@ public:
             for (size_t j_1__ = 0; j_1__ < cutpoints_j_1_max__; ++j_1__) {
                 cutpoints(j_1__) = vals_r__[pos__++];
             }
-            current_statement_begin__ = 480;
+            current_statement_begin__ = 479;
             context__.validate_dims("data initialization", "num_discretized_r_types", "int", context__.to_vec());
             num_discretized_r_types = int(0);
             vals_i__ = context__.vals_i("num_discretized_r_types");
             pos__ = 0;
             num_discretized_r_types = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_discretized_r_types", num_discretized_r_types, 0);
-            current_statement_begin__ = 481;
+            current_statement_begin__ = 480;
             validate_non_negative_index("num_compatible_discretized_r_types", "num_discretized_r_types", num_discretized_r_types);
             context__.validate_dims("data initialization", "num_compatible_discretized_r_types", "int", context__.to_vec(num_discretized_r_types));
             num_compatible_discretized_r_types = std::vector<int>(num_discretized_r_types, int(0));
@@ -1947,7 +1947,7 @@ public:
                 check_greater_or_equal(function__, "num_compatible_discretized_r_types[i_0__]", num_compatible_discretized_r_types[i_0__], 1);
                 check_less_or_equal(function__, "num_compatible_discretized_r_types[i_0__]", num_compatible_discretized_r_types[i_0__], num_discretized_r_types);
             }
-            current_statement_begin__ = 482;
+            current_statement_begin__ = 481;
             validate_non_negative_index("compatible_discretized_r_types", "sum(num_compatible_discretized_r_types)", sum(num_compatible_discretized_r_types));
             context__.validate_dims("data initialization", "compatible_discretized_r_types", "int", context__.to_vec(sum(num_compatible_discretized_r_types)));
             compatible_discretized_r_types = std::vector<int>(sum(num_compatible_discretized_r_types), int(0));
@@ -1962,7 +1962,7 @@ public:
                 check_greater_or_equal(function__, "compatible_discretized_r_types[i_0__]", compatible_discretized_r_types[i_0__], 1);
                 check_less_or_equal(function__, "compatible_discretized_r_types[i_0__]", compatible_discretized_r_types[i_0__], num_discretized_r_types);
             }
-            current_statement_begin__ = 484;
+            current_statement_begin__ = 483;
             validate_non_negative_index("compatible_discretized_pair_ids", "std::max(0, (num_cutpoints - 2))", std::max(0, (num_cutpoints - 2)));
             validate_non_negative_index("compatible_discretized_pair_ids", "num_r_types", num_r_types);
             context__.validate_dims("data initialization", "compatible_discretized_pair_ids", "int", context__.to_vec(std::max(0, (num_cutpoints - 2)),num_r_types));
@@ -1984,14 +1984,14 @@ public:
                     check_less_or_equal(function__, "compatible_discretized_pair_ids[i_0__][i_1__]", compatible_discretized_pair_ids[i_0__][i_1__], sum(num_compatible_discretized_r_types));
                 }
             }
-            current_statement_begin__ = 488;
+            current_statement_begin__ = 487;
             context__.validate_dims("data initialization", "num_experiment_types", "int", context__.to_vec());
             num_experiment_types = int(0);
             vals_i__ = context__.vals_i("num_experiment_types");
             pos__ = 0;
             num_experiment_types = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_experiment_types", num_experiment_types, 1);
-            current_statement_begin__ = 489;
+            current_statement_begin__ = 488;
             validate_non_negative_index("experiment_types_prob", "num_experiment_types", num_experiment_types);
             context__.validate_dims("data initialization", "experiment_types_prob", "vector_d", context__.to_vec(num_experiment_types));
             experiment_types_prob = Eigen::Matrix<double, Eigen::Dynamic, 1>(num_experiment_types);
@@ -2002,21 +2002,21 @@ public:
                 experiment_types_prob(j_1__) = vals_r__[pos__++];
             }
             stan::math::check_simplex(function__, "experiment_types_prob", experiment_types_prob);
-            current_statement_begin__ = 493;
+            current_statement_begin__ = 492;
             context__.validate_dims("data initialization", "num_responses", "int", context__.to_vec());
             num_responses = int(0);
             vals_i__ = context__.vals_i("num_responses");
             pos__ = 0;
             num_responses = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_responses", num_responses, 1);
-            current_statement_begin__ = 498;
+            current_statement_begin__ = 497;
             context__.validate_dims("data initialization", "num_bg_variables", "int", context__.to_vec());
             num_bg_variables = int(0);
             vals_i__ = context__.vals_i("num_bg_variables");
             pos__ = 0;
             num_bg_variables = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_bg_variables", num_bg_variables, 1);
-            current_statement_begin__ = 499;
+            current_statement_begin__ = 498;
             validate_non_negative_index("num_bg_variable_types", "num_bg_variables", num_bg_variables);
             context__.validate_dims("data initialization", "num_bg_variable_types", "int", context__.to_vec(num_bg_variables));
             num_bg_variable_types = std::vector<int>(num_bg_variables, int(0));
@@ -2030,7 +2030,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < num_bg_variable_types_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "num_bg_variable_types[i_0__]", num_bg_variable_types[i_0__], 1);
             }
-            current_statement_begin__ = 500;
+            current_statement_begin__ = 499;
             validate_non_negative_index("num_bg_variable_type_combo_members", "sum(num_bg_variable_types)", sum(num_bg_variable_types));
             context__.validate_dims("data initialization", "num_bg_variable_type_combo_members", "int", context__.to_vec(sum(num_bg_variable_types)));
             num_bg_variable_type_combo_members = std::vector<int>(sum(num_bg_variable_types), int(0));
@@ -2045,7 +2045,7 @@ public:
                 check_greater_or_equal(function__, "num_bg_variable_type_combo_members[i_0__]", num_bg_variable_type_combo_members[i_0__], 1);
                 check_less_or_equal(function__, "num_bg_variable_type_combo_members[i_0__]", num_bg_variable_type_combo_members[i_0__], num_r_types);
             }
-            current_statement_begin__ = 501;
+            current_statement_begin__ = 500;
             validate_non_negative_index("bg_variable_type_combo_members", "sum(num_bg_variable_type_combo_members)", sum(num_bg_variable_type_combo_members));
             context__.validate_dims("data initialization", "bg_variable_type_combo_members", "int", context__.to_vec(sum(num_bg_variable_type_combo_members)));
             bg_variable_type_combo_members = std::vector<int>(sum(num_bg_variable_type_combo_members), int(0));
@@ -2060,21 +2060,21 @@ public:
                 check_greater_or_equal(function__, "bg_variable_type_combo_members[i_0__]", bg_variable_type_combo_members[i_0__], 1);
                 check_less_or_equal(function__, "bg_variable_type_combo_members[i_0__]", bg_variable_type_combo_members[i_0__], num_r_types);
             }
-            current_statement_begin__ = 505;
+            current_statement_begin__ = 504;
             context__.validate_dims("data initialization", "num_levels", "int", context__.to_vec());
             num_levels = int(0);
             vals_i__ = context__.vals_i("num_levels");
             pos__ = 0;
             num_levels = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_levels", num_levels, 0);
-            current_statement_begin__ = 507;
+            current_statement_begin__ = 506;
             context__.validate_dims("data initialization", "num_unique_entities", "int", context__.to_vec());
             num_unique_entities = int(0);
             vals_i__ = context__.vals_i("num_unique_entities");
             pos__ = 0;
             num_unique_entities = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_unique_entities", num_unique_entities, 1);
-            current_statement_begin__ = 508;
+            current_statement_begin__ = 507;
             validate_non_negative_index("unique_entity_ids", "num_unique_entities", num_unique_entities);
             validate_non_negative_index("unique_entity_ids", "num_levels", num_levels);
             context__.validate_dims("data initialization", "unique_entity_ids", "int", context__.to_vec(num_unique_entities,num_levels));
@@ -2095,7 +2095,7 @@ public:
                     check_greater_or_equal(function__, "unique_entity_ids[i_0__][i_1__]", unique_entity_ids[i_0__][i_1__], 1);
                 }
             }
-            current_statement_begin__ = 509;
+            current_statement_begin__ = 508;
             validate_non_negative_index("obs_unique_entity_id", "num_obs", num_obs);
             context__.validate_dims("data initialization", "obs_unique_entity_id", "int", context__.to_vec(num_obs));
             obs_unique_entity_id = std::vector<int>(num_obs, int(0));
@@ -2110,14 +2110,14 @@ public:
                 check_greater_or_equal(function__, "obs_unique_entity_id[i_0__]", obs_unique_entity_id[i_0__], 1);
                 check_less_or_equal(function__, "obs_unique_entity_id[i_0__]", obs_unique_entity_id[i_0__], num_unique_entities);
             }
-            current_statement_begin__ = 517;
+            current_statement_begin__ = 516;
             context__.validate_dims("data initialization", "num_candidate_groups", "int", context__.to_vec());
             num_candidate_groups = int(0);
             vals_i__ = context__.vals_i("num_candidate_groups");
             pos__ = 0;
             num_candidate_groups = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_candidate_groups", num_candidate_groups, 1);
-            current_statement_begin__ = 518;
+            current_statement_begin__ = 517;
             validate_non_negative_index("candidate_group_size", "num_candidate_groups", num_candidate_groups);
             context__.validate_dims("data initialization", "candidate_group_size", "int", context__.to_vec(num_candidate_groups));
             candidate_group_size = std::vector<int>(num_candidate_groups, int(0));
@@ -2132,7 +2132,7 @@ public:
                 check_greater_or_equal(function__, "candidate_group_size[i_0__]", candidate_group_size[i_0__], 1);
                 check_less_or_equal(function__, "candidate_group_size[i_0__]", candidate_group_size[i_0__], num_r_types);
             }
-            current_statement_begin__ = 519;
+            current_statement_begin__ = 518;
             validate_non_negative_index("candidate_group_ids", "sum(candidate_group_size)", sum(candidate_group_size));
             context__.validate_dims("data initialization", "candidate_group_ids", "int", context__.to_vec(sum(candidate_group_size)));
             candidate_group_ids = std::vector<int>(sum(candidate_group_size), int(0));
@@ -2147,7 +2147,7 @@ public:
                 check_greater_or_equal(function__, "candidate_group_ids[i_0__]", candidate_group_ids[i_0__], 1);
                 check_less_or_equal(function__, "candidate_group_ids[i_0__]", candidate_group_ids[i_0__], num_r_types);
             }
-            current_statement_begin__ = 521;
+            current_statement_begin__ = 520;
             validate_non_negative_index("num_unique_entity_candidate_groups", "(logical_gt(num_obs, 0) ? num_unique_entities : 0 )", (logical_gt(num_obs, 0) ? num_unique_entities : 0 ));
             context__.validate_dims("data initialization", "num_unique_entity_candidate_groups", "int", context__.to_vec((logical_gt(num_obs, 0) ? num_unique_entities : 0 )));
             num_unique_entity_candidate_groups = std::vector<int>((logical_gt(num_obs, 0) ? num_unique_entities : 0 ), int(0));
@@ -2162,7 +2162,7 @@ public:
                 check_greater_or_equal(function__, "num_unique_entity_candidate_groups[i_0__]", num_unique_entity_candidate_groups[i_0__], 1);
                 check_less_or_equal(function__, "num_unique_entity_candidate_groups[i_0__]", num_unique_entity_candidate_groups[i_0__], num_candidate_groups);
             }
-            current_statement_begin__ = 522;
+            current_statement_begin__ = 521;
             validate_non_negative_index("unique_entity_candidate_groups", "sum(num_unique_entity_candidate_groups)", sum(num_unique_entity_candidate_groups));
             context__.validate_dims("data initialization", "unique_entity_candidate_groups", "int", context__.to_vec(sum(num_unique_entity_candidate_groups)));
             unique_entity_candidate_groups = std::vector<int>(sum(num_unique_entity_candidate_groups), int(0));
@@ -2177,7 +2177,7 @@ public:
                 check_greater_or_equal(function__, "unique_entity_candidate_groups[i_0__]", unique_entity_candidate_groups[i_0__], 1);
                 check_less_or_equal(function__, "unique_entity_candidate_groups[i_0__]", unique_entity_candidate_groups[i_0__], num_candidate_groups);
             }
-            current_statement_begin__ = 523;
+            current_statement_begin__ = 522;
             validate_non_negative_index("num_unique_entity_in_candidate_groups", "sum(num_unique_entity_candidate_groups)", sum(num_unique_entity_candidate_groups));
             context__.validate_dims("data initialization", "num_unique_entity_in_candidate_groups", "row_vector_d", context__.to_vec(sum(num_unique_entity_candidate_groups)));
             num_unique_entity_in_candidate_groups = Eigen::Matrix<double, 1, Eigen::Dynamic>(sum(num_unique_entity_candidate_groups));
@@ -2188,7 +2188,7 @@ public:
                 num_unique_entity_in_candidate_groups(j_1__) = vals_r__[pos__++];
             }
             check_greater_or_equal(function__, "num_unique_entity_in_candidate_groups", num_unique_entity_in_candidate_groups, 1);
-            current_statement_begin__ = 525;
+            current_statement_begin__ = 524;
             validate_non_negative_index("obs_candidate_group", "num_obs", num_obs);
             context__.validate_dims("data initialization", "obs_candidate_group", "int", context__.to_vec(num_obs));
             obs_candidate_group = std::vector<int>(num_obs, int(0));
@@ -2203,7 +2203,7 @@ public:
                 check_greater_or_equal(function__, "obs_candidate_group[i_0__]", obs_candidate_group[i_0__], 1);
                 check_less_or_equal(function__, "obs_candidate_group[i_0__]", obs_candidate_group[i_0__], num_candidate_groups);
             }
-            current_statement_begin__ = 527;
+            current_statement_begin__ = 526;
             validate_non_negative_index("obs_in_unique_entity_in_candidate_groups", "num_obs", num_obs);
             context__.validate_dims("data initialization", "obs_in_unique_entity_in_candidate_groups", "int", context__.to_vec(num_obs));
             obs_in_unique_entity_in_candidate_groups = std::vector<int>(num_obs, int(0));
@@ -2218,14 +2218,14 @@ public:
                 check_greater_or_equal(function__, "obs_in_unique_entity_in_candidate_groups[i_0__]", obs_in_unique_entity_in_candidate_groups[i_0__], 1);
                 check_less_or_equal(function__, "obs_in_unique_entity_in_candidate_groups[i_0__]", obs_in_unique_entity_in_candidate_groups[i_0__], num_obs);
             }
-            current_statement_begin__ = 531;
+            current_statement_begin__ = 530;
             context__.validate_dims("data initialization", "num_discrete_estimands", "int", context__.to_vec());
             num_discrete_estimands = int(0);
             vals_i__ = context__.vals_i("num_discrete_estimands");
             pos__ = 0;
             num_discrete_estimands = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_discrete_estimands", num_discrete_estimands, 0);
-            current_statement_begin__ = 532;
+            current_statement_begin__ = 531;
             context__.validate_dims("data initialization", "num_atom_estimands", "int", context__.to_vec());
             num_atom_estimands = int(0);
             vals_i__ = context__.vals_i("num_atom_estimands");
@@ -2233,7 +2233,7 @@ public:
             num_atom_estimands = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_atom_estimands", num_atom_estimands, 0);
             check_less_or_equal(function__, "num_atom_estimands", num_atom_estimands, num_discrete_estimands);
-            current_statement_begin__ = 533;
+            current_statement_begin__ = 532;
             context__.validate_dims("data initialization", "num_diff_estimands", "int", context__.to_vec());
             num_diff_estimands = int(0);
             vals_i__ = context__.vals_i("num_diff_estimands");
@@ -2241,7 +2241,7 @@ public:
             num_diff_estimands = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_diff_estimands", num_diff_estimands, 0);
             check_less_or_equal(function__, "num_diff_estimands", num_diff_estimands, num_discrete_estimands);
-            current_statement_begin__ = 534;
+            current_statement_begin__ = 533;
             context__.validate_dims("data initialization", "num_discretized_groups", "int", context__.to_vec());
             num_discretized_groups = int(0);
             vals_i__ = context__.vals_i("num_discretized_groups");
@@ -2249,21 +2249,21 @@ public:
             num_discretized_groups = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_discretized_groups", num_discretized_groups, 0);
             check_less_or_equal(function__, "num_discretized_groups", num_discretized_groups, num_atom_estimands);
-            current_statement_begin__ = 535;
+            current_statement_begin__ = 534;
             context__.validate_dims("data initialization", "num_mean_diff_estimands", "int", context__.to_vec());
             num_mean_diff_estimands = int(0);
             vals_i__ = context__.vals_i("num_mean_diff_estimands");
             pos__ = 0;
             num_mean_diff_estimands = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_mean_diff_estimands", num_mean_diff_estimands, 0);
-            current_statement_begin__ = 536;
+            current_statement_begin__ = 535;
             context__.validate_dims("data initialization", "num_utility_diff_estimands", "int", context__.to_vec());
             num_utility_diff_estimands = int(0);
             vals_i__ = context__.vals_i("num_utility_diff_estimands");
             pos__ = 0;
             num_utility_diff_estimands = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_utility_diff_estimands", num_utility_diff_estimands, 0);
-            current_statement_begin__ = 538;
+            current_statement_begin__ = 537;
             validate_non_negative_index("diff_estimand_atoms", "(num_diff_estimands * 2)", (num_diff_estimands * 2));
             context__.validate_dims("data initialization", "diff_estimand_atoms", "int", context__.to_vec((num_diff_estimands * 2)));
             diff_estimand_atoms = std::vector<int>((num_diff_estimands * 2), int(0));
@@ -2278,7 +2278,7 @@ public:
                 check_greater_or_equal(function__, "diff_estimand_atoms[i_0__]", diff_estimand_atoms[i_0__], 1);
                 check_less_or_equal(function__, "diff_estimand_atoms[i_0__]", diff_estimand_atoms[i_0__], num_atom_estimands);
             }
-            current_statement_begin__ = 539;
+            current_statement_begin__ = 538;
             validate_non_negative_index("mean_diff_estimand_atoms", "(num_mean_diff_estimands * 2)", (num_mean_diff_estimands * 2));
             context__.validate_dims("data initialization", "mean_diff_estimand_atoms", "int", context__.to_vec((num_mean_diff_estimands * 2)));
             mean_diff_estimand_atoms = std::vector<int>((num_mean_diff_estimands * 2), int(0));
@@ -2293,7 +2293,7 @@ public:
                 check_greater_or_equal(function__, "mean_diff_estimand_atoms[i_0__]", mean_diff_estimand_atoms[i_0__], 1);
                 check_less_or_equal(function__, "mean_diff_estimand_atoms[i_0__]", mean_diff_estimand_atoms[i_0__], num_discretized_groups);
             }
-            current_statement_begin__ = 540;
+            current_statement_begin__ = 539;
             validate_non_negative_index("utility_diff_estimand_atoms", "(num_utility_diff_estimands * 2)", (num_utility_diff_estimands * 2));
             context__.validate_dims("data initialization", "utility_diff_estimand_atoms", "int", context__.to_vec((num_utility_diff_estimands * 2)));
             utility_diff_estimand_atoms = std::vector<int>((num_utility_diff_estimands * 2), int(0));
@@ -2308,7 +2308,7 @@ public:
                 check_greater_or_equal(function__, "utility_diff_estimand_atoms[i_0__]", utility_diff_estimand_atoms[i_0__], 1);
                 check_less_or_equal(function__, "utility_diff_estimand_atoms[i_0__]", utility_diff_estimand_atoms[i_0__], num_discretized_groups);
             }
-            current_statement_begin__ = 542;
+            current_statement_begin__ = 541;
             validate_non_negative_index("discretized_group_ids", "(num_discretized_groups * (num_cutpoints - 2))", (num_discretized_groups * (num_cutpoints - 2)));
             context__.validate_dims("data initialization", "discretized_group_ids", "int", context__.to_vec((num_discretized_groups * (num_cutpoints - 2))));
             discretized_group_ids = std::vector<int>((num_discretized_groups * (num_cutpoints - 2)), int(0));
@@ -2323,14 +2323,14 @@ public:
                 check_greater_or_equal(function__, "discretized_group_ids[i_0__]", discretized_group_ids[i_0__], 1);
                 check_less_or_equal(function__, "discretized_group_ids[i_0__]", discretized_group_ids[i_0__], num_atom_estimands);
             }
-            current_statement_begin__ = 544;
+            current_statement_begin__ = 543;
             context__.validate_dims("data initialization", "num_abducted_estimands", "int", context__.to_vec());
             num_abducted_estimands = int(0);
             vals_i__ = context__.vals_i("num_abducted_estimands");
             pos__ = 0;
             num_abducted_estimands = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_abducted_estimands", num_abducted_estimands, 0);
-            current_statement_begin__ = 545;
+            current_statement_begin__ = 544;
             validate_non_negative_index("abducted_estimand_ids", "num_abducted_estimands", num_abducted_estimands);
             context__.validate_dims("data initialization", "abducted_estimand_ids", "int", context__.to_vec(num_abducted_estimands));
             abducted_estimand_ids = std::vector<int>(num_abducted_estimands, int(0));
@@ -2345,7 +2345,7 @@ public:
                 check_greater_or_equal(function__, "abducted_estimand_ids[i_0__]", abducted_estimand_ids[i_0__], 1);
                 check_less_or_equal(function__, "abducted_estimand_ids[i_0__]", abducted_estimand_ids[i_0__], num_atom_estimands);
             }
-            current_statement_begin__ = 547;
+            current_statement_begin__ = 546;
             context__.validate_dims("data initialization", "num_estimand_levels", "int", context__.to_vec());
             num_estimand_levels = int(0);
             vals_i__ = context__.vals_i("num_estimand_levels");
@@ -2353,7 +2353,7 @@ public:
             num_estimand_levels = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_estimand_levels", num_estimand_levels, 0);
             check_less_or_equal(function__, "num_estimand_levels", num_estimand_levels, num_levels);
-            current_statement_begin__ = 548;
+            current_statement_begin__ = 547;
             validate_non_negative_index("estimand_levels", "num_estimand_levels", num_estimand_levels);
             context__.validate_dims("data initialization", "estimand_levels", "int", context__.to_vec(num_estimand_levels));
             estimand_levels = std::vector<int>(num_estimand_levels, int(0));
@@ -2368,7 +2368,7 @@ public:
                 check_greater_or_equal(function__, "estimand_levels[i_0__]", estimand_levels[i_0__], 1);
                 check_less_or_equal(function__, "estimand_levels[i_0__]", estimand_levels[i_0__], num_levels);
             }
-            current_statement_begin__ = 550;
+            current_statement_begin__ = 549;
             context__.validate_dims("data initialization", "num_between_entity_diff_levels", "int", context__.to_vec());
             num_between_entity_diff_levels = int(0);
             vals_i__ = context__.vals_i("num_between_entity_diff_levels");
@@ -2376,7 +2376,7 @@ public:
             num_between_entity_diff_levels = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_between_entity_diff_levels", num_between_entity_diff_levels, 0);
             check_less_or_equal(function__, "num_between_entity_diff_levels", num_between_entity_diff_levels, num_levels);
-            current_statement_begin__ = 551;
+            current_statement_begin__ = 550;
             validate_non_negative_index("between_entity_diff_levels", "num_between_entity_diff_levels", num_between_entity_diff_levels);
             context__.validate_dims("data initialization", "between_entity_diff_levels", "int", context__.to_vec(num_between_entity_diff_levels));
             between_entity_diff_levels = std::vector<int>(num_between_entity_diff_levels, int(0));
@@ -2391,7 +2391,7 @@ public:
                 check_greater_or_equal(function__, "between_entity_diff_levels[i_0__]", between_entity_diff_levels[i_0__], 1);
                 check_less_or_equal(function__, "between_entity_diff_levels[i_0__]", between_entity_diff_levels[i_0__], num_levels);
             }
-            current_statement_begin__ = 553;
+            current_statement_begin__ = 552;
             validate_non_negative_index("abducted_prob_size", "num_abducted_estimands", num_abducted_estimands);
             context__.validate_dims("data initialization", "abducted_prob_size", "int", context__.to_vec(num_abducted_estimands));
             abducted_prob_size = std::vector<int>(num_abducted_estimands, int(0));
@@ -2405,7 +2405,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < abducted_prob_size_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "abducted_prob_size[i_0__]", abducted_prob_size[i_0__], 0);
             }
-            current_statement_begin__ = 554;
+            current_statement_begin__ = 553;
             validate_non_negative_index("abducted_prob_index", "sum(abducted_prob_size)", sum(abducted_prob_size));
             context__.validate_dims("data initialization", "abducted_prob_index", "int", context__.to_vec(sum(abducted_prob_size)));
             abducted_prob_index = std::vector<int>(sum(abducted_prob_size), int(0));
@@ -2420,7 +2420,7 @@ public:
                 check_greater_or_equal(function__, "abducted_prob_index[i_0__]", abducted_prob_index[i_0__], 1);
                 check_less_or_equal(function__, "abducted_prob_index[i_0__]", abducted_prob_index[i_0__], (num_r_types * num_experiment_types));
             }
-            current_statement_begin__ = 556;
+            current_statement_begin__ = 555;
             validate_non_negative_index("est_prob_size", "num_atom_estimands", num_atom_estimands);
             context__.validate_dims("data initialization", "est_prob_size", "int", context__.to_vec(num_atom_estimands));
             est_prob_size = std::vector<int>(num_atom_estimands, int(0));
@@ -2434,7 +2434,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < est_prob_size_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "est_prob_size[i_0__]", est_prob_size[i_0__], 0);
             }
-            current_statement_begin__ = 557;
+            current_statement_begin__ = 556;
             validate_non_negative_index("est_prob_index", "sum(est_prob_size)", sum(est_prob_size));
             context__.validate_dims("data initialization", "est_prob_index", "int", context__.to_vec(sum(est_prob_size)));
             est_prob_index = std::vector<int>(sum(est_prob_size), int(0));
@@ -2449,14 +2449,14 @@ public:
                 check_greater_or_equal(function__, "est_prob_index[i_0__]", est_prob_index[i_0__], 1);
                 check_less_or_equal(function__, "est_prob_index[i_0__]", est_prob_index[i_0__], (num_r_types * num_experiment_types));
             }
-            current_statement_begin__ = 559;
+            current_statement_begin__ = 558;
             context__.validate_dims("data initialization", "num_discrete_utility_values", "int", context__.to_vec());
             num_discrete_utility_values = int(0);
             vals_i__ = context__.vals_i("num_discrete_utility_values");
             pos__ = 0;
             num_discrete_utility_values = vals_i__[pos__++];
             check_greater_or_equal(function__, "num_discrete_utility_values", num_discrete_utility_values, 0);
-            current_statement_begin__ = 560;
+            current_statement_begin__ = 559;
             validate_non_negative_index("utility", "num_discrete_utility_values", num_discrete_utility_values);
             context__.validate_dims("data initialization", "utility", "vector_d", context__.to_vec(num_discrete_utility_values));
             utility = Eigen::Matrix<double, Eigen::Dynamic, 1>(num_discrete_utility_values);
@@ -2466,7 +2466,7 @@ public:
             for (size_t j_1__ = 0; j_1__ < utility_j_1_max__; ++j_1__) {
                 utility(j_1__) = vals_r__[pos__++];
             }
-            current_statement_begin__ = 570;
+            current_statement_begin__ = 569;
             context__.validate_dims("data initialization", "log_lik_level", "int", context__.to_vec());
             log_lik_level = int(0);
             vals_i__ = context__.vals_i("log_lik_level");
@@ -2474,21 +2474,21 @@ public:
             log_lik_level = vals_i__[pos__++];
             check_greater_or_equal(function__, "log_lik_level", log_lik_level, -(1));
             check_less_or_equal(function__, "log_lik_level", log_lik_level, num_levels);
-            current_statement_begin__ = 576;
+            current_statement_begin__ = 575;
             context__.validate_dims("data initialization", "discrete_beta_hyper_sd", "double", context__.to_vec());
             discrete_beta_hyper_sd = double(0);
             vals_r__ = context__.vals_r("discrete_beta_hyper_sd");
             pos__ = 0;
             discrete_beta_hyper_sd = vals_r__[pos__++];
             check_greater_or_equal(function__, "discrete_beta_hyper_sd", discrete_beta_hyper_sd, 0);
-            current_statement_begin__ = 577;
+            current_statement_begin__ = 576;
             context__.validate_dims("data initialization", "discretized_beta_hyper_sd", "double", context__.to_vec());
             discretized_beta_hyper_sd = double(0);
             vals_r__ = context__.vals_r("discretized_beta_hyper_sd");
             pos__ = 0;
             discretized_beta_hyper_sd = vals_r__[pos__++];
             check_greater_or_equal(function__, "discretized_beta_hyper_sd", discretized_beta_hyper_sd, 0);
-            current_statement_begin__ = 579;
+            current_statement_begin__ = 578;
             validate_non_negative_index("tau_level_sigma", "num_levels", num_levels);
             context__.validate_dims("data initialization", "tau_level_sigma", "vector_d", context__.to_vec(num_levels));
             tau_level_sigma = Eigen::Matrix<double, Eigen::Dynamic, 1>(num_levels);
@@ -2499,7 +2499,7 @@ public:
                 tau_level_sigma(j_1__) = vals_r__[pos__++];
             }
             check_greater_or_equal(function__, "tau_level_sigma", tau_level_sigma, 0);
-            current_statement_begin__ = 583;
+            current_statement_begin__ = 582;
             context__.validate_dims("data initialization", "run_type", "int", context__.to_vec());
             run_type = int(0);
             vals_i__ = context__.vals_i("run_type");
@@ -2507,7 +2507,7 @@ public:
             run_type = vals_i__[pos__++];
             check_greater_or_equal(function__, "run_type", run_type, 1);
             check_less_or_equal(function__, "run_type", run_type, 2);
-            current_statement_begin__ = 584;
+            current_statement_begin__ = 583;
             context__.validate_dims("data initialization", "use_random_binpoint", "int", context__.to_vec());
             use_random_binpoint = int(0);
             vals_i__ = context__.vals_i("use_random_binpoint");
@@ -2515,7 +2515,7 @@ public:
             use_random_binpoint = vals_i__[pos__++];
             check_greater_or_equal(function__, "use_random_binpoint", use_random_binpoint, 0);
             check_less_or_equal(function__, "use_random_binpoint", use_random_binpoint, 1);
-            current_statement_begin__ = 585;
+            current_statement_begin__ = 584;
             context__.validate_dims("data initialization", "generate_rep", "int", context__.to_vec());
             generate_rep = int(0);
             vals_i__ = context__.vals_i("generate_rep");
@@ -2523,7 +2523,7 @@ public:
             generate_rep = vals_i__[pos__++];
             check_greater_or_equal(function__, "generate_rep", generate_rep, 0);
             check_less_or_equal(function__, "generate_rep", generate_rep, 1);
-            current_statement_begin__ = 586;
+            current_statement_begin__ = 585;
             context__.validate_dims("data initialization", "calculate_marginal_prob", "int", context__.to_vec());
             calculate_marginal_prob = int(0);
             vals_i__ = context__.vals_i("calculate_marginal_prob");
@@ -2532,450 +2532,450 @@ public:
             check_greater_or_equal(function__, "calculate_marginal_prob", calculate_marginal_prob, 0);
             check_less_or_equal(function__, "calculate_marginal_prob", calculate_marginal_prob, 1);
             // initialize transformed data variables
-            current_statement_begin__ = 590;
+            current_statement_begin__ = 589;
             RUN_TYPE_PRIOR_PREDICT = int(0);
             stan::math::fill(RUN_TYPE_PRIOR_PREDICT, std::numeric_limits<int>::min());
             stan::math::assign(RUN_TYPE_PRIOR_PREDICT,1);
-            current_statement_begin__ = 591;
+            current_statement_begin__ = 590;
             RUN_TYPE_FIT = int(0);
             stan::math::fill(RUN_TYPE_FIT, std::numeric_limits<int>::min());
             stan::math::assign(RUN_TYPE_FIT,2);
-            current_statement_begin__ = 593;
+            current_statement_begin__ = 592;
             num_all_estimands = int(0);
             stan::math::fill(num_all_estimands, std::numeric_limits<int>::min());
             stan::math::assign(num_all_estimands,(((num_discrete_estimands + ((1 + logical_gt(num_discrete_utility_values, 0)) * num_discretized_groups)) + num_mean_diff_estimands) + num_utility_diff_estimands));
-            current_statement_begin__ = 595;
+            current_statement_begin__ = 594;
             num_discretized_variables = int(0);
             stan::math::fill(num_discretized_variables, std::numeric_limits<int>::min());
             stan::math::assign(num_discretized_variables,std::max((num_cutpoints - 2), 0));
-            current_statement_begin__ = 597;
+            current_statement_begin__ = 596;
             discrete_group_size = int(0);
             stan::math::fill(discrete_group_size, std::numeric_limits<int>::min());
             stan::math::assign(discrete_group_size,divide(num_r_types, num_discrete_r_types));
-            current_statement_begin__ = 599;
+            current_statement_begin__ = 598;
             validate_non_negative_index("cutpoint_midpoints", "std::max((num_cutpoints - 1), 0)", std::max((num_cutpoints - 1), 0));
             cutpoint_midpoints = Eigen::Matrix<double, Eigen::Dynamic, 1>(std::max((num_cutpoints - 1), 0));
             stan::math::fill(cutpoint_midpoints, DUMMY_VAR__);
-            current_statement_begin__ = 600;
+            current_statement_begin__ = 599;
             validate_non_negative_index("discretized_binwidth", "std::max((num_cutpoints - 1), 0)", std::max((num_cutpoints - 1), 0));
             discretized_binwidth = Eigen::Matrix<double, Eigen::Dynamic, 1>(std::max((num_cutpoints - 1), 0));
             stan::math::fill(discretized_binwidth, DUMMY_VAR__);
-            current_statement_begin__ = 602;
+            current_statement_begin__ = 601;
             validate_non_negative_index("discretize_bin_alpha", "std::max((num_cutpoints - 1), 0)", std::max((num_cutpoints - 1), 0));
             discretize_bin_alpha = std::vector<double>(std::max((num_cutpoints - 1), 0), double(0));
             stan::math::fill(discretize_bin_alpha, DUMMY_VAR__);
-            current_statement_begin__ = 603;
+            current_statement_begin__ = 602;
             validate_non_negative_index("discretize_bin_beta", "std::max((num_cutpoints - 1), 0)", std::max((num_cutpoints - 1), 0));
             discretize_bin_beta = std::vector<double>(std::max((num_cutpoints - 1), 0), double(0));
             stan::math::fill(discretize_bin_beta, DUMMY_VAR__);
-            current_statement_begin__ = 605;
+            current_statement_begin__ = 604;
             validate_non_negative_index("entity_discretize_bin_alpha", "((num_unique_entities * (num_cutpoints - 1)) * num_discretized_groups)", ((num_unique_entities * (num_cutpoints - 1)) * num_discretized_groups));
             entity_discretize_bin_alpha = std::vector<double>(((num_unique_entities * (num_cutpoints - 1)) * num_discretized_groups), double(0));
             stan::math::fill(entity_discretize_bin_alpha, DUMMY_VAR__);
-            current_statement_begin__ = 606;
+            current_statement_begin__ = 605;
             validate_non_negative_index("entity_discretize_bin_beta", "((num_unique_entities * (num_cutpoints - 1)) * num_discretized_groups)", ((num_unique_entities * (num_cutpoints - 1)) * num_discretized_groups));
             entity_discretize_bin_beta = std::vector<double>(((num_unique_entities * (num_cutpoints - 1)) * num_discretized_groups), double(0));
             stan::math::fill(entity_discretize_bin_beta, DUMMY_VAR__);
-            current_statement_begin__ = 608;
+            current_statement_begin__ = 607;
             num_r_types_full = int(0);
             stan::math::fill(num_r_types_full, std::numeric_limits<int>::min());
             stan::math::assign(num_r_types_full,(num_r_types * num_experiment_types));
-            current_statement_begin__ = 609;
+            current_statement_begin__ = 608;
             validate_non_negative_index("experiment_r_type_index", "num_r_types_full", num_r_types_full);
             experiment_r_type_index = std::vector<int>(num_r_types_full, int(0));
             stan::math::fill(experiment_r_type_index, std::numeric_limits<int>::min());
-            current_statement_begin__ = 611;
+            current_statement_begin__ = 610;
             validate_non_negative_index("full_experiment_types_prob", "num_r_types_full", num_r_types_full);
             full_experiment_types_prob = Eigen::Matrix<double, Eigen::Dynamic, 1>(num_r_types_full);
             stan::math::fill(full_experiment_types_prob, DUMMY_VAR__);
             stan::math::assign(full_experiment_types_prob,to_vector(rep_matrix(experiment_types_prob, num_r_types)));
-            current_statement_begin__ = 613;
+            current_statement_begin__ = 612;
             validate_non_negative_index("level_size", "num_levels", num_levels);
             level_size = std::vector<int>(num_levels, int(0));
             stan::math::fill(level_size, std::numeric_limits<int>::min());
             stan::math::assign(level_size,calculate_level_size(num_levels, unique_entity_ids, pstream__));
-            current_statement_begin__ = 614;
+            current_statement_begin__ = 613;
             validate_non_negative_index("num_obs_in_unique_entity", "num_unique_entities", num_unique_entities);
             num_obs_in_unique_entity = Eigen::Matrix<double, Eigen::Dynamic, 1>(num_unique_entities);
             stan::math::fill(num_obs_in_unique_entity, DUMMY_VAR__);
-            current_statement_begin__ = 615;
+            current_statement_begin__ = 614;
             validate_non_negative_index("unique_entity_prop", "std::max(1, num_unique_entities)", std::max(1, num_unique_entities));
             unique_entity_prop = Eigen::Matrix<double, Eigen::Dynamic, 1>(std::max(1, num_unique_entities));
             stan::math::fill(unique_entity_prop, DUMMY_VAR__);
-            current_statement_begin__ = 617;
+            current_statement_begin__ = 616;
             validate_non_negative_index("num_unique_entities_in_estimand_level_entities", "sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), \"level_size\"))", sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size")));
             num_unique_entities_in_estimand_level_entities = std::vector<int>(sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size")), int(0));
             stan::math::fill(num_unique_entities_in_estimand_level_entities, std::numeric_limits<int>::min());
             stan::math::assign(num_unique_entities_in_estimand_level_entities,calculate_num_in_level_entities(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list())), "unique_entity_ids"), stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"), pstream__));
-            current_statement_begin__ = 620;
+            current_statement_begin__ = 619;
             validate_non_negative_index("unique_entities_in_level_entities", "num_unique_entities", num_unique_entities);
             validate_non_negative_index("unique_entities_in_level_entities", "num_levels", num_levels);
             unique_entities_in_level_entities = std::vector<std::vector<int> >(num_unique_entities, std::vector<int>(num_levels, int(0)));
             stan::math::fill(unique_entities_in_level_entities, std::numeric_limits<int>::min());
-            current_statement_begin__ = 625;
+            current_statement_begin__ = 624;
             validate_non_negative_index("vec_diff", "((num_diff_estimands * 2) * num_unique_entities)", ((num_diff_estimands * 2) * num_unique_entities));
             vec_diff = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_diff_estimands * 2) * num_unique_entities));
             stan::math::fill(vec_diff, DUMMY_VAR__);
             stan::math::assign(vec_diff,to_vector(rep_matrix(transpose(stan::math::to_row_vector(stan::math::array_builder<double >().add(1).add(-(1)).array())), (num_diff_estimands * num_unique_entities))));
-            current_statement_begin__ = 626;
+            current_statement_begin__ = 625;
             validate_non_negative_index("vec_mean_diff", "((num_mean_diff_estimands * 2) * num_unique_entities)", ((num_mean_diff_estimands * 2) * num_unique_entities));
             vec_mean_diff = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_mean_diff_estimands * 2) * num_unique_entities));
             stan::math::fill(vec_mean_diff, DUMMY_VAR__);
             stan::math::assign(vec_mean_diff,to_vector(rep_matrix(transpose(stan::math::to_row_vector(stan::math::array_builder<double >().add(1).add(-(1)).array())), (num_mean_diff_estimands * num_unique_entities))));
-            current_statement_begin__ = 627;
+            current_statement_begin__ = 626;
             validate_non_negative_index("vec_utility_diff", "((num_utility_diff_estimands * 2) * num_unique_entities)", ((num_utility_diff_estimands * 2) * num_unique_entities));
             vec_utility_diff = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_utility_diff_estimands * 2) * num_unique_entities));
             stan::math::fill(vec_utility_diff, DUMMY_VAR__);
             stan::math::assign(vec_utility_diff,to_vector(rep_matrix(transpose(stan::math::to_row_vector(stan::math::array_builder<double >().add(1).add(-(1)).array())), (num_utility_diff_estimands * num_unique_entities))));
-            current_statement_begin__ = 629;
+            current_statement_begin__ = 628;
             vec_1_size = int(0);
             stan::math::fill(vec_1_size, std::numeric_limits<int>::min());
             stan::math::assign(vec_1_size,max(static_cast<std::vector<int> >(stan::math::array_builder<int >().add(sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(unique_entity_candidate_groups), stan::model::nil_index_list()), "candidate_group_size"))).add(sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(obs_candidate_group), stan::model::nil_index_list()), "candidate_group_size"))).add((num_unique_entities * sum(abducted_prob_size))).add((num_unique_entities * sum(est_prob_size))).add((num_unique_entities * num_r_types)).array())));
-            current_statement_begin__ = 634;
+            current_statement_begin__ = 633;
             validate_non_negative_index("vec_1", "vec_1_size", vec_1_size);
             vec_1 = Eigen::Matrix<double, Eigen::Dynamic, 1>(vec_1_size);
             stan::math::fill(vec_1, DUMMY_VAR__);
             stan::math::assign(vec_1,rep_vector(1, vec_1_size));
-            current_statement_begin__ = 636;
+            current_statement_begin__ = 635;
             validate_non_negative_index("entity_total_num_candidates", "(logical_gt(num_obs, 0) ? num_unique_entities : 0 )", (logical_gt(num_obs, 0) ? num_unique_entities : 0 ));
             entity_total_num_candidates = std::vector<int>((logical_gt(num_obs, 0) ? num_unique_entities : 0 ), int(0));
             stan::math::fill(entity_total_num_candidates, std::numeric_limits<int>::min());
             stan::math::assign(entity_total_num_candidates,calculate_entity_total_num_candidates(num_unique_entity_candidate_groups, unique_entity_candidate_groups, candidate_group_size, pstream__));
-            current_statement_begin__ = 645;
+            current_statement_begin__ = 644;
             validate_non_negative_index("entity_candidate_group_ids", "sum(entity_total_num_candidates)", sum(entity_total_num_candidates));
             entity_candidate_group_ids = std::vector<int>(sum(entity_total_num_candidates), int(0));
             stan::math::fill(entity_candidate_group_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 646;
+            current_statement_begin__ = 645;
             validate_non_negative_index("entity_candidate_group_csr_row_pos", "(sum(num_unique_entity_candidate_groups) + 1)", (sum(num_unique_entity_candidate_groups) + 1));
             entity_candidate_group_csr_row_pos = std::vector<int>((sum(num_unique_entity_candidate_groups) + 1), int(0));
             stan::math::fill(entity_candidate_group_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 648;
+            current_statement_begin__ = 647;
             validate_non_negative_index("obs_candidate_group_ids", "sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(obs_candidate_group), stan::model::nil_index_list()), \"candidate_group_size\"))", sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(obs_candidate_group), stan::model::nil_index_list()), "candidate_group_size")));
             obs_candidate_group_ids = std::vector<int>(sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(obs_candidate_group), stan::model::nil_index_list()), "candidate_group_size")), int(0));
             stan::math::fill(obs_candidate_group_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 649;
+            current_statement_begin__ = 648;
             validate_non_negative_index("obs_candidate_group_csr_row_pos", "(num_obs + 1)", (num_obs + 1));
             obs_candidate_group_csr_row_pos = std::vector<int>((num_obs + 1), int(0));
             stan::math::fill(obs_candidate_group_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 651;
+            current_statement_begin__ = 650;
             validate_non_negative_index("entity_abducted_prob_ids", "(sum(abducted_prob_size) * num_unique_entities)", (sum(abducted_prob_size) * num_unique_entities));
             entity_abducted_prob_ids = std::vector<int>((sum(abducted_prob_size) * num_unique_entities), int(0));
             stan::math::fill(entity_abducted_prob_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 652;
+            current_statement_begin__ = 651;
             validate_non_negative_index("entity_abducted_prob_csr_row_pos", "(num_abducted_estimands ? ((num_unique_entities * num_abducted_estimands) + 1) : 0 )", (num_abducted_estimands ? ((num_unique_entities * num_abducted_estimands) + 1) : 0 ));
             entity_abducted_prob_csr_row_pos = std::vector<int>((num_abducted_estimands ? ((num_unique_entities * num_abducted_estimands) + 1) : 0 ), int(0));
             stan::math::fill(entity_abducted_prob_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 654;
+            current_statement_begin__ = 653;
             validate_non_negative_index("long_entity_abducted_index", "(num_unique_entities * num_abducted_estimands)", (num_unique_entities * num_abducted_estimands));
             long_entity_abducted_index = std::vector<int>((num_unique_entities * num_abducted_estimands), int(0));
             stan::math::fill(long_entity_abducted_index, std::numeric_limits<int>::min());
-            current_statement_begin__ = 656;
+            current_statement_begin__ = 655;
             validate_non_negative_index("entity_est_prob_ids", "(sum(est_prob_size) * num_unique_entities)", (sum(est_prob_size) * num_unique_entities));
             entity_est_prob_ids = std::vector<int>((sum(est_prob_size) * num_unique_entities), int(0));
             stan::math::fill(entity_est_prob_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 657;
+            current_statement_begin__ = 656;
             validate_non_negative_index("entity_est_prob_csr_row_pos", "(logical_gt(num_atom_estimands, 0) ? ((num_unique_entities * num_atom_estimands) + 1) : 0 )", (logical_gt(num_atom_estimands, 0) ? ((num_unique_entities * num_atom_estimands) + 1) : 0 ));
             entity_est_prob_csr_row_pos = std::vector<int>((logical_gt(num_atom_estimands, 0) ? ((num_unique_entities * num_atom_estimands) + 1) : 0 ), int(0));
             stan::math::fill(entity_est_prob_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 659;
+            current_statement_begin__ = 658;
             validate_non_negative_index("entity_diff_estimand_ids", "((num_diff_estimands * 2) * num_unique_entities)", ((num_diff_estimands * 2) * num_unique_entities));
             entity_diff_estimand_ids = std::vector<int>(((num_diff_estimands * 2) * num_unique_entities), int(0));
             stan::math::fill(entity_diff_estimand_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 660;
+            current_statement_begin__ = 659;
             validate_non_negative_index("entity_diff_estimand_csr_row_pos", "(logical_gt(num_diff_estimands, 0) ? ((num_unique_entities * num_diff_estimands) + 1) : 0 )", (logical_gt(num_diff_estimands, 0) ? ((num_unique_entities * num_diff_estimands) + 1) : 0 ));
             entity_diff_estimand_csr_row_pos = std::vector<int>((logical_gt(num_diff_estimands, 0) ? ((num_unique_entities * num_diff_estimands) + 1) : 0 ), int(0));
             stan::math::fill(entity_diff_estimand_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 662;
+            current_statement_begin__ = 661;
             validate_non_negative_index("entity_mean_diff_estimand_ids", "((num_mean_diff_estimands * 2) * num_unique_entities)", ((num_mean_diff_estimands * 2) * num_unique_entities));
             entity_mean_diff_estimand_ids = std::vector<int>(((num_mean_diff_estimands * 2) * num_unique_entities), int(0));
             stan::math::fill(entity_mean_diff_estimand_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 663;
+            current_statement_begin__ = 662;
             validate_non_negative_index("entity_mean_diff_estimand_csr_row_pos", "(logical_gt(num_mean_diff_estimands, 0) ? ((num_unique_entities * num_mean_diff_estimands) + 1) : 0 )", (logical_gt(num_mean_diff_estimands, 0) ? ((num_unique_entities * num_mean_diff_estimands) + 1) : 0 ));
             entity_mean_diff_estimand_csr_row_pos = std::vector<int>((logical_gt(num_mean_diff_estimands, 0) ? ((num_unique_entities * num_mean_diff_estimands) + 1) : 0 ), int(0));
             stan::math::fill(entity_mean_diff_estimand_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 665;
+            current_statement_begin__ = 664;
             validate_non_negative_index("entity_utility_diff_estimand_ids", "((num_utility_diff_estimands * 2) * num_unique_entities)", ((num_utility_diff_estimands * 2) * num_unique_entities));
             entity_utility_diff_estimand_ids = std::vector<int>(((num_utility_diff_estimands * 2) * num_unique_entities), int(0));
             stan::math::fill(entity_utility_diff_estimand_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 666;
+            current_statement_begin__ = 665;
             validate_non_negative_index("entity_utility_diff_estimand_csr_row_pos", "(logical_gt(num_utility_diff_estimands, 0) ? ((num_unique_entities * num_utility_diff_estimands) + 1) : 0 )", (logical_gt(num_utility_diff_estimands, 0) ? ((num_unique_entities * num_utility_diff_estimands) + 1) : 0 ));
             entity_utility_diff_estimand_csr_row_pos = std::vector<int>((logical_gt(num_utility_diff_estimands, 0) ? ((num_unique_entities * num_utility_diff_estimands) + 1) : 0 ), int(0));
             stan::math::fill(entity_utility_diff_estimand_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 668;
+            current_statement_begin__ = 667;
             total_num_bg_variable_types = int(0);
             stan::math::fill(total_num_bg_variable_types, std::numeric_limits<int>::min());
             stan::math::assign(total_num_bg_variable_types,sum(num_bg_variable_types));
-            current_statement_begin__ = 670;
+            current_statement_begin__ = 669;
             validate_non_negative_index("marginal_prob_csr_vec", "(sum(num_bg_variable_type_combo_members) * num_unique_entities)", (sum(num_bg_variable_type_combo_members) * num_unique_entities));
             marginal_prob_csr_vec = Eigen::Matrix<double, Eigen::Dynamic, 1>((sum(num_bg_variable_type_combo_members) * num_unique_entities));
             stan::math::fill(marginal_prob_csr_vec, DUMMY_VAR__);
-            current_statement_begin__ = 671;
+            current_statement_begin__ = 670;
             validate_non_negative_index("entity_marginal_prob_ids", "(sum(num_bg_variable_type_combo_members) * num_unique_entities)", (sum(num_bg_variable_type_combo_members) * num_unique_entities));
             entity_marginal_prob_ids = std::vector<int>((sum(num_bg_variable_type_combo_members) * num_unique_entities), int(0));
             stan::math::fill(entity_marginal_prob_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 672;
+            current_statement_begin__ = 671;
             validate_non_negative_index("entity_marginal_prob_csr_row_pos", "(total_num_bg_variable_types + 1)", (total_num_bg_variable_types + 1));
             entity_marginal_prob_csr_row_pos = std::vector<int>((total_num_bg_variable_types + 1), int(0));
             stan::math::fill(entity_marginal_prob_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 674;
+            current_statement_begin__ = 673;
             validate_non_negative_index("level_estimands_csr_vec", "((num_all_estimands * num_unique_entities) * num_estimand_levels)", ((num_all_estimands * num_unique_entities) * num_estimand_levels));
             level_estimands_csr_vec = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_all_estimands * num_unique_entities) * num_estimand_levels));
             stan::math::fill(level_estimands_csr_vec, DUMMY_VAR__);
-            current_statement_begin__ = 675;
+            current_statement_begin__ = 674;
             validate_non_negative_index("entity_estimand_ids", "((num_all_estimands * num_unique_entities) * num_estimand_levels)", ((num_all_estimands * num_unique_entities) * num_estimand_levels));
             entity_estimand_ids = std::vector<int>(((num_all_estimands * num_unique_entities) * num_estimand_levels), int(0));
             stan::math::fill(entity_estimand_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 676;
+            current_statement_begin__ = 675;
             validate_non_negative_index("entity_estimand_csr_row_pos", "(logical_gt(num_estimand_levels, 0) ? ((num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), \"level_size\"))) + 1) : 0 )", (logical_gt(num_estimand_levels, 0) ? ((num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))) + 1) : 0 ));
             entity_estimand_csr_row_pos = std::vector<int>((logical_gt(num_estimand_levels, 0) ? ((num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))) + 1) : 0 ), int(0));
             stan::math::fill(entity_estimand_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 678;
+            current_statement_begin__ = 677;
             validate_non_negative_index("entity_histogram_vec", "((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities)", ((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities));
             entity_histogram_vec = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities));
             stan::math::fill(entity_histogram_vec, DUMMY_VAR__);
-            current_statement_begin__ = 679;
+            current_statement_begin__ = 678;
             validate_non_negative_index("entity_histogram_ids", "((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities)", ((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities));
             entity_histogram_ids = std::vector<int>(((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities), int(0));
             stan::math::fill(entity_histogram_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 680;
+            current_statement_begin__ = 679;
             validate_non_negative_index("entity_histogram_csr_row_pos", "(logical_gt(num_discretized_groups, 0) ? (((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) + 1) : 0 )", (logical_gt(num_discretized_groups, 0) ? (((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) + 1) : 0 ));
             entity_histogram_csr_row_pos = std::vector<int>((logical_gt(num_discretized_groups, 0) ? (((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) + 1) : 0 ), int(0));
             stan::math::fill(entity_histogram_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 682;
+            current_statement_begin__ = 681;
             validate_non_negative_index("entity_midpoint_vec", "((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities)", ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities));
             entity_midpoint_vec = Eigen::Matrix<double, Eigen::Dynamic, 1>(((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities));
             stan::math::fill(entity_midpoint_vec, DUMMY_VAR__);
-            current_statement_begin__ = 683;
+            current_statement_begin__ = 682;
             validate_non_negative_index("entity_midpoint_ids", "((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities)", ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities));
             entity_midpoint_ids = std::vector<int>(((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities), int(0));
             stan::math::fill(entity_midpoint_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 684;
+            current_statement_begin__ = 683;
             validate_non_negative_index("entity_midpoint_csr_row_pos", "(logical_gt(num_discretized_groups, 0) ? ((num_discretized_groups * num_unique_entities) + 1) : 0 )", (logical_gt(num_discretized_groups, 0) ? ((num_discretized_groups * num_unique_entities) + 1) : 0 ));
             entity_midpoint_csr_row_pos = std::vector<int>((logical_gt(num_discretized_groups, 0) ? ((num_discretized_groups * num_unique_entities) + 1) : 0 ), int(0));
             stan::math::fill(entity_midpoint_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 686;
+            current_statement_begin__ = 685;
             validate_non_negative_index("entity_utility_vec", "(logical_gt(num_discrete_utility_values, 0) ? ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) : 0 )", (logical_gt(num_discrete_utility_values, 0) ? ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) : 0 ));
             entity_utility_vec = Eigen::Matrix<double, Eigen::Dynamic, 1>((logical_gt(num_discrete_utility_values, 0) ? ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) : 0 ));
             stan::math::fill(entity_utility_vec, DUMMY_VAR__);
-            current_statement_begin__ = 688;
+            current_statement_begin__ = 687;
             validate_non_negative_index("between_entity_diff_csr_vec", "((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), \"level_size\")) - num_between_entity_diff_levels))", ((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)));
             between_entity_diff_csr_vec = Eigen::Matrix<double, Eigen::Dynamic, 1>(((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)));
             stan::math::fill(between_entity_diff_csr_vec, DUMMY_VAR__);
             stan::math::assign(between_entity_diff_csr_vec,to_vector(rep_matrix(transpose(stan::math::to_row_vector(stan::math::array_builder<double >().add(-(1)).add(1).array())), (num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)))));
-            current_statement_begin__ = 690;
+            current_statement_begin__ = 689;
             validate_non_negative_index("between_entity_diff_csr_ids", "((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), \"level_size\")) - num_between_entity_diff_levels))", ((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)));
             between_entity_diff_csr_ids = std::vector<int>(((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)), int(0));
             stan::math::fill(between_entity_diff_csr_ids, std::numeric_limits<int>::min());
-            current_statement_begin__ = 691;
+            current_statement_begin__ = 690;
             validate_non_negative_index("between_entity_diff_csr_row_pos", "(logical_gt(num_between_entity_diff_levels, 0) ? ((num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), \"level_size\")) - num_between_entity_diff_levels)) + 1) : 0 )", (logical_gt(num_between_entity_diff_levels, 0) ? ((num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)) + 1) : 0 ));
             between_entity_diff_csr_row_pos = std::vector<int>((logical_gt(num_between_entity_diff_levels, 0) ? ((num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)) + 1) : 0 ), int(0));
             stan::math::fill(between_entity_diff_csr_row_pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 693;
+            current_statement_begin__ = 692;
             validate_non_negative_index("nonzero_beta_offsets", "(std::max((num_discretized_r_types - 1), 0) * num_discrete_r_types)", (std::max((num_discretized_r_types - 1), 0) * num_discrete_r_types));
             nonzero_beta_offsets = std::vector<int>((std::max((num_discretized_r_types - 1), 0) * num_discrete_r_types), int(0));
             stan::math::fill(nonzero_beta_offsets, std::numeric_limits<int>::min());
             // execute transformed data statements
-            current_statement_begin__ = 695;
+            current_statement_begin__ = 694;
             if (as_bool(logical_gt(num_discretized_r_types, 0))) {
                 {
-                current_statement_begin__ = 696;
+                current_statement_begin__ = 695;
                 int index_pos(0);
                 (void) index_pos;  // dummy to suppress unused var warning
                 stan::math::fill(index_pos, std::numeric_limits<int>::min());
                 stan::math::assign(index_pos,1);
-                current_statement_begin__ = 697;
+                current_statement_begin__ = 696;
                 for (int offset_index = 2; offset_index <= (num_discretized_r_types * num_discrete_r_types); ++offset_index) {
-                    current_statement_begin__ = 698;
+                    current_statement_begin__ = 697;
                     if (as_bool(logical_neq(modulus(offset_index, num_discretized_r_types), 1))) {
-                        current_statement_begin__ = 699;
+                        current_statement_begin__ = 698;
                         stan::model::assign(nonzero_beta_offsets, 
                                     stan::model::cons_list(stan::model::index_uni(index_pos), stan::model::nil_index_list()), 
                                     offset_index, 
                                     "assigning variable nonzero_beta_offsets");
-                        current_statement_begin__ = 700;
+                        current_statement_begin__ = 699;
                         stan::math::assign(index_pos, (index_pos + 1));
                     }
                 }
                 }
             }
-            current_statement_begin__ = 710;
+            current_statement_begin__ = 709;
             for (int cutpoint_index = 2; cutpoint_index <= num_cutpoints; ++cutpoint_index) {
-                current_statement_begin__ = 711;
+                current_statement_begin__ = 710;
                 stan::model::assign(cutpoint_midpoints, 
                             stan::model::cons_list(stan::model::index_uni((cutpoint_index - 1)), stan::model::nil_index_list()), 
                             mean(stan::model::rvalue(cutpoints, stan::model::cons_list(stan::model::index_min_max((cutpoint_index - 1), cutpoint_index), stan::model::nil_index_list()), "cutpoints")), 
                             "assigning variable cutpoint_midpoints");
-                current_statement_begin__ = 713;
+                current_statement_begin__ = 712;
                 stan::model::assign(discretized_binwidth, 
                             stan::model::cons_list(stan::model::index_uni((cutpoint_index - 1)), stan::model::nil_index_list()), 
                             (get_base1(cutpoints, cutpoint_index, "cutpoints", 1) - get_base1(cutpoints, (cutpoint_index - 1), "cutpoints", 1)), 
                             "assigning variable discretized_binwidth");
-                current_statement_begin__ = 715;
+                current_statement_begin__ = 714;
                 stan::model::assign(discretize_bin_alpha, 
                             stan::model::cons_list(stan::model::index_uni((cutpoint_index - 1)), stan::model::nil_index_list()), 
                             get_base1(cutpoints, (cutpoint_index - 1), "cutpoints", 1), 
                             "assigning variable discretize_bin_alpha");
-                current_statement_begin__ = 716;
+                current_statement_begin__ = 715;
                 stan::model::assign(discretize_bin_beta, 
                             stan::model::cons_list(stan::model::index_uni((cutpoint_index - 1)), stan::model::nil_index_list()), 
                             get_base1(cutpoints, cutpoint_index, "cutpoints", 1), 
                             "assigning variable discretize_bin_beta");
             }
-            current_statement_begin__ = 724;
+            current_statement_begin__ = 723;
             for (int level_index = 1; level_index <= num_levels; ++level_index) {
-                current_statement_begin__ = 725;
+                current_statement_begin__ = 724;
                 stan::model::assign(unique_entities_in_level_entities, 
                             stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), 
                             sort_indices_asc(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids")), 
                             "assigning variable unique_entities_in_level_entities");
             }
-            current_statement_begin__ = 734;
+            current_statement_begin__ = 733;
             if (as_bool(logical_gt(num_abducted_estimands, 0))) {
-                current_statement_begin__ = 735;
+                current_statement_begin__ = 734;
                 stan::math::assign(entity_abducted_prob_ids, csr_shift_expand_v(abducted_prob_index, num_r_types_full, num_unique_entities, pstream__));
-                current_statement_begin__ = 736;
+                current_statement_begin__ = 735;
                 stan::math::assign(entity_abducted_prob_csr_row_pos, csr_shift_expand_u(abducted_prob_size, num_unique_entities, pstream__));
             }
-            current_statement_begin__ = 739;
+            current_statement_begin__ = 738;
             if (as_bool(logical_gt(num_atom_estimands, 0))) {
-                current_statement_begin__ = 740;
+                current_statement_begin__ = 739;
                 stan::math::assign(entity_est_prob_ids, csr_shift_expand_v(est_prob_index, num_r_types_full, num_unique_entities, pstream__));
-                current_statement_begin__ = 741;
+                current_statement_begin__ = 740;
                 stan::math::assign(entity_est_prob_csr_row_pos, csr_shift_expand_u(est_prob_size, num_unique_entities, pstream__));
             }
-            current_statement_begin__ = 744;
+            current_statement_begin__ = 743;
             if (as_bool(logical_gt(num_diff_estimands, 0))) {
-                current_statement_begin__ = 745;
+                current_statement_begin__ = 744;
                 stan::math::assign(entity_diff_estimand_ids, csr_shift_expand_v(diff_estimand_atoms, num_atom_estimands, num_unique_entities, pstream__));
-                current_statement_begin__ = 746;
+                current_statement_begin__ = 745;
                 stan::math::assign(entity_diff_estimand_csr_row_pos, csr_shift_expand_u(rep_array(2, num_diff_estimands), num_unique_entities, pstream__));
             }
-            current_statement_begin__ = 749;
+            current_statement_begin__ = 748;
             if (as_bool(logical_gt(num_mean_diff_estimands, 0))) {
-                current_statement_begin__ = 750;
+                current_statement_begin__ = 749;
                 stan::math::assign(entity_mean_diff_estimand_ids, csr_shift_expand_v(mean_diff_estimand_atoms, num_discretized_groups, num_unique_entities, pstream__));
-                current_statement_begin__ = 751;
+                current_statement_begin__ = 750;
                 stan::math::assign(entity_mean_diff_estimand_csr_row_pos, csr_shift_expand_u(rep_array(2, num_mean_diff_estimands), num_unique_entities, pstream__));
             }
-            current_statement_begin__ = 754;
+            current_statement_begin__ = 753;
             if (as_bool(logical_gt(num_utility_diff_estimands, 0))) {
-                current_statement_begin__ = 755;
+                current_statement_begin__ = 754;
                 stan::math::assign(entity_utility_diff_estimand_ids, csr_shift_expand_v(utility_diff_estimand_atoms, num_discretized_groups, num_unique_entities, pstream__));
-                current_statement_begin__ = 756;
+                current_statement_begin__ = 755;
                 stan::math::assign(entity_utility_diff_estimand_csr_row_pos, csr_shift_expand_u(rep_array(2, num_utility_diff_estimands), num_unique_entities, pstream__));
             }
-            current_statement_begin__ = 759;
+            current_statement_begin__ = 758;
             if (as_bool(logical_gt(num_obs, 0))) {
                 {
-                current_statement_begin__ = 761;
+                current_statement_begin__ = 760;
                 int entity_candidate_group_pos(0);
                 (void) entity_candidate_group_pos;  // dummy to suppress unused var warning
                 stan::math::fill(entity_candidate_group_pos, std::numeric_limits<int>::min());
                 stan::math::assign(entity_candidate_group_pos,1);
-                current_statement_begin__ = 762;
+                current_statement_begin__ = 761;
                 int entity_candidate_pos(0);
                 (void) entity_candidate_pos;  // dummy to suppress unused var warning
                 stan::math::fill(entity_candidate_pos, std::numeric_limits<int>::min());
                 stan::math::assign(entity_candidate_pos,1);
-                current_statement_begin__ = 763;
+                current_statement_begin__ = 762;
                 int entity_candidate_group_csr_row_pos_pos(0);
                 (void) entity_candidate_group_csr_row_pos_pos;  // dummy to suppress unused var warning
                 stan::math::fill(entity_candidate_group_csr_row_pos_pos, std::numeric_limits<int>::min());
                 stan::math::assign(entity_candidate_group_csr_row_pos_pos,1);
-                current_statement_begin__ = 764;
+                current_statement_begin__ = 763;
                 int last_candidate_group_size(0);
                 (void) last_candidate_group_size;  // dummy to suppress unused var warning
                 stan::math::fill(last_candidate_group_size, std::numeric_limits<int>::min());
-                current_statement_begin__ = 766;
+                current_statement_begin__ = 765;
                 int long_entity_abducted_index_pos(0);
                 (void) long_entity_abducted_index_pos;  // dummy to suppress unused var warning
                 stan::math::fill(long_entity_abducted_index_pos, std::numeric_limits<int>::min());
                 stan::math::assign(long_entity_abducted_index_pos,1);
-                current_statement_begin__ = 768;
+                current_statement_begin__ = 767;
                 for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
                     {
-                    current_statement_begin__ = 769;
+                    current_statement_begin__ = 768;
                     int num_entity_candidate_groups(0);
                     (void) num_entity_candidate_groups;  // dummy to suppress unused var warning
                     stan::math::fill(num_entity_candidate_groups, std::numeric_limits<int>::min());
                     stan::math::assign(num_entity_candidate_groups,get_base1(num_unique_entity_candidate_groups, entity_index, "num_unique_entity_candidate_groups", 1));
-                    current_statement_begin__ = 770;
+                    current_statement_begin__ = 769;
                     int entity_candidate_group_end(0);
                     (void) entity_candidate_group_end;  // dummy to suppress unused var warning
                     stan::math::fill(entity_candidate_group_end, std::numeric_limits<int>::min());
                     stan::math::assign(entity_candidate_group_end,((entity_candidate_group_pos + num_entity_candidate_groups) - 1));
-                    current_statement_begin__ = 772;
+                    current_statement_begin__ = 771;
                     validate_non_negative_index("curr_candidate_groups", "num_entity_candidate_groups", num_entity_candidate_groups);
                     std::vector<int  > curr_candidate_groups(num_entity_candidate_groups, int(0));
                     stan::math::fill(curr_candidate_groups, std::numeric_limits<int>::min());
                     stan::math::assign(curr_candidate_groups,stan::model::rvalue(unique_entity_candidate_groups, stan::model::cons_list(stan::model::index_min_max(entity_candidate_group_pos, entity_candidate_group_end), stan::model::nil_index_list()), "unique_entity_candidate_groups"));
-                    current_statement_begin__ = 774;
+                    current_statement_begin__ = 773;
                     stan::model::assign(num_obs_in_unique_entity, 
                                 stan::model::cons_list(stan::model::index_uni(entity_index), stan::model::nil_index_list()), 
                                 num_equals(obs_unique_entity_id, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(entity_index).array()), pstream__), 
                                 "assigning variable num_obs_in_unique_entity");
-                    current_statement_begin__ = 778;
+                    current_statement_begin__ = 777;
                     for (int candidate_group_index = 1; candidate_group_index <= num_entity_candidate_groups; ++candidate_group_index) {
                         {
-                        current_statement_begin__ = 779;
+                        current_statement_begin__ = 778;
                         int curr_candidate_group(0);
                         (void) curr_candidate_group;  // dummy to suppress unused var warning
                         stan::math::fill(curr_candidate_group, std::numeric_limits<int>::min());
                         stan::math::assign(curr_candidate_group,get_base1(curr_candidate_groups, candidate_group_index, "curr_candidate_groups", 1));
-                        current_statement_begin__ = 780;
+                        current_statement_begin__ = 779;
                         int candidate_pos(0);
                         (void) candidate_pos;  // dummy to suppress unused var warning
                         stan::math::fill(candidate_pos, std::numeric_limits<int>::min());
                         stan::math::assign(candidate_pos,(logical_gt(curr_candidate_group, 1) ? (sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_min_max(1, (curr_candidate_group - 1)), stan::model::nil_index_list()), "candidate_group_size")) + 1) : 1 ));
-                        current_statement_begin__ = 781;
+                        current_statement_begin__ = 780;
                         int candidate_end(0);
                         (void) candidate_end;  // dummy to suppress unused var warning
                         stan::math::fill(candidate_end, std::numeric_limits<int>::min());
                         stan::math::assign(candidate_end,sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_min_max(1, curr_candidate_group), stan::model::nil_index_list()), "candidate_group_size")));
-                        current_statement_begin__ = 783;
+                        current_statement_begin__ = 782;
                         int entity_candidate_end(0);
                         (void) entity_candidate_end;  // dummy to suppress unused var warning
                         stan::math::fill(entity_candidate_end, std::numeric_limits<int>::min());
                         stan::math::assign(entity_candidate_end,((entity_candidate_pos + get_base1(candidate_group_size, curr_candidate_group, "candidate_group_size", 1)) - 1));
-                        current_statement_begin__ = 785;
+                        current_statement_begin__ = 784;
                         stan::model::assign(entity_candidate_group_ids, 
                                     stan::model::cons_list(stan::model::index_min_max(entity_candidate_pos, entity_candidate_end), stan::model::nil_index_list()), 
                                     array_add(stan::model::rvalue(candidate_group_ids, stan::model::cons_list(stan::model::index_min_max(candidate_pos, candidate_end), stan::model::nil_index_list()), "candidate_group_ids"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * num_r_types)).array()), pstream__), 
                                     "assigning variable entity_candidate_group_ids");
-                        current_statement_begin__ = 787;
+                        current_statement_begin__ = 786;
                         stan::model::assign(entity_candidate_group_csr_row_pos, 
                                     stan::model::cons_list(stan::model::index_uni(entity_candidate_group_csr_row_pos_pos), stan::model::nil_index_list()), 
                                     (logical_gt(entity_candidate_group_csr_row_pos_pos, 1) ? (get_base1(entity_candidate_group_csr_row_pos, (entity_candidate_group_csr_row_pos_pos - 1), "entity_candidate_group_csr_row_pos", 1) + last_candidate_group_size) : 1 ), 
                                     "assigning variable entity_candidate_group_csr_row_pos");
-                        current_statement_begin__ = 791;
+                        current_statement_begin__ = 790;
                         stan::math::assign(last_candidate_group_size, get_base1(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(curr_candidate_groups), stan::model::nil_index_list()), "candidate_group_size"), candidate_group_index, "stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(curr_candidate_groups), stan::model::nil_index_list()), \"candidate_group_size\")", 1));
-                        current_statement_begin__ = 793;
+                        current_statement_begin__ = 792;
                         stan::math::assign(entity_candidate_pos, (entity_candidate_end + 1));
-                        current_statement_begin__ = 794;
+                        current_statement_begin__ = 793;
                         stan::math::assign(entity_candidate_group_csr_row_pos_pos, (entity_candidate_group_csr_row_pos_pos + 1));
                         }
                     }
-                    current_statement_begin__ = 797;
+                    current_statement_begin__ = 796;
                     stan::model::assign(entity_candidate_group_csr_row_pos, 
                                 stan::model::cons_list(stan::model::index_uni(entity_candidate_group_csr_row_pos_pos), stan::model::nil_index_list()), 
                                 (get_base1(entity_candidate_group_csr_row_pos, (entity_candidate_group_csr_row_pos_pos - 1), "entity_candidate_group_csr_row_pos", 1) + last_candidate_group_size), 
                                 "assigning variable entity_candidate_group_csr_row_pos");
-                    current_statement_begin__ = 799;
+                    current_statement_begin__ = 798;
                     stan::math::assign(entity_candidate_group_pos, (entity_candidate_group_end + 1));
-                    current_statement_begin__ = 801;
+                    current_statement_begin__ = 800;
                     if (as_bool(logical_gt(num_abducted_estimands, 0))) {
                         {
-                        current_statement_begin__ = 802;
+                        current_statement_begin__ = 801;
                         int long_entity_abducted_index_end(0);
                         (void) long_entity_abducted_index_end;  // dummy to suppress unused var warning
                         stan::math::fill(long_entity_abducted_index_end, std::numeric_limits<int>::min());
                         stan::math::assign(long_entity_abducted_index_end,((long_entity_abducted_index_pos + num_abducted_estimands) - 1));
-                        current_statement_begin__ = 804;
+                        current_statement_begin__ = 803;
                         stan::model::assign(long_entity_abducted_index, 
                                     stan::model::cons_list(stan::model::index_min_max(long_entity_abducted_index_pos, long_entity_abducted_index_end), stan::model::nil_index_list()), 
                                     array_add(abducted_estimand_ids, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * num_atom_estimands)).array()), pstream__), 
                                     "assigning variable long_entity_abducted_index");
-                        current_statement_begin__ = 806;
+                        current_statement_begin__ = 805;
                         stan::math::assign(long_entity_abducted_index_pos, (long_entity_abducted_index_end + 1));
                         }
                     }
@@ -2983,486 +2983,486 @@ public:
                 }
                 }
                 {
-                current_statement_begin__ = 812;
+                current_statement_begin__ = 811;
                 int obs_candidate_pos(0);
                 (void) obs_candidate_pos;  // dummy to suppress unused var warning
                 stan::math::fill(obs_candidate_pos, std::numeric_limits<int>::min());
                 stan::math::assign(obs_candidate_pos,1);
-                current_statement_begin__ = 813;
+                current_statement_begin__ = 812;
                 int last_candidate_group_size(0);
                 (void) last_candidate_group_size;  // dummy to suppress unused var warning
                 stan::math::fill(last_candidate_group_size, std::numeric_limits<int>::min());
-                current_statement_begin__ = 815;
+                current_statement_begin__ = 814;
                 for (int obs_index = 1; obs_index <= num_obs; ++obs_index) {
                     {
-                    current_statement_begin__ = 816;
+                    current_statement_begin__ = 815;
                     int entity_index(0);
                     (void) entity_index;  // dummy to suppress unused var warning
                     stan::math::fill(entity_index, std::numeric_limits<int>::min());
                     stan::math::assign(entity_index,get_base1(obs_unique_entity_id, obs_index, "obs_unique_entity_id", 1));
-                    current_statement_begin__ = 817;
+                    current_statement_begin__ = 816;
                     int obs_candidate_end(0);
                     (void) obs_candidate_end;  // dummy to suppress unused var warning
                     stan::math::fill(obs_candidate_end, std::numeric_limits<int>::min());
                     stan::math::assign(obs_candidate_end,((obs_candidate_pos + get_base1(candidate_group_size, get_base1(obs_candidate_group, obs_index, "obs_candidate_group", 1), "candidate_group_size", 1)) - 1));
-                    current_statement_begin__ = 819;
+                    current_statement_begin__ = 818;
                     int curr_candidate_group(0);
                     (void) curr_candidate_group;  // dummy to suppress unused var warning
                     stan::math::fill(curr_candidate_group, std::numeric_limits<int>::min());
                     stan::math::assign(curr_candidate_group,get_base1(obs_candidate_group, obs_index, "obs_candidate_group", 1));
-                    current_statement_begin__ = 821;
+                    current_statement_begin__ = 820;
                     int candidate_pos(0);
                     (void) candidate_pos;  // dummy to suppress unused var warning
                     stan::math::fill(candidate_pos, std::numeric_limits<int>::min());
                     stan::math::assign(candidate_pos,(logical_gt(curr_candidate_group, 1) ? (sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_min_max(1, (curr_candidate_group - 1)), stan::model::nil_index_list()), "candidate_group_size")) + 1) : 1 ));
-                    current_statement_begin__ = 822;
+                    current_statement_begin__ = 821;
                     int candidate_end(0);
                     (void) candidate_end;  // dummy to suppress unused var warning
                     stan::math::fill(candidate_end, std::numeric_limits<int>::min());
                     stan::math::assign(candidate_end,sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_min_max(1, curr_candidate_group), stan::model::nil_index_list()), "candidate_group_size")));
-                    current_statement_begin__ = 824;
+                    current_statement_begin__ = 823;
                     stan::model::assign(obs_candidate_group_ids, 
                                 stan::model::cons_list(stan::model::index_min_max(obs_candidate_pos, obs_candidate_end), stan::model::nil_index_list()), 
                                 array_add(stan::model::rvalue(candidate_group_ids, stan::model::cons_list(stan::model::index_min_max(candidate_pos, candidate_end), stan::model::nil_index_list()), "candidate_group_ids"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * num_r_types)).array()), pstream__), 
                                 "assigning variable obs_candidate_group_ids");
-                    current_statement_begin__ = 826;
+                    current_statement_begin__ = 825;
                     stan::model::assign(obs_candidate_group_csr_row_pos, 
                                 stan::model::cons_list(stan::model::index_uni(obs_index), stan::model::nil_index_list()), 
                                 (logical_gt(obs_index, 1) ? (get_base1(obs_candidate_group_csr_row_pos, (obs_index - 1), "obs_candidate_group_csr_row_pos", 1) + last_candidate_group_size) : 1 ), 
                                 "assigning variable obs_candidate_group_csr_row_pos");
-                    current_statement_begin__ = 828;
+                    current_statement_begin__ = 827;
                     stan::math::assign(last_candidate_group_size, get_base1(candidate_group_size, curr_candidate_group, "candidate_group_size", 1));
-                    current_statement_begin__ = 830;
+                    current_statement_begin__ = 829;
                     stan::math::assign(obs_candidate_pos, (obs_candidate_end + 1));
                     }
                 }
-                current_statement_begin__ = 833;
+                current_statement_begin__ = 832;
                 stan::model::assign(obs_candidate_group_csr_row_pos, 
                             stan::model::cons_list(stan::model::index_uni((num_obs + 1)), stan::model::nil_index_list()), 
                             (get_base1(obs_candidate_group_csr_row_pos, num_obs, "obs_candidate_group_csr_row_pos", 1) + last_candidate_group_size), 
                             "assigning variable obs_candidate_group_csr_row_pos");
-                current_statement_begin__ = 835;
+                current_statement_begin__ = 834;
                 stan::math::assign(unique_entity_prop, divide(num_obs_in_unique_entity, num_obs));
                 }
             } else {
-                current_statement_begin__ = 838;
+                current_statement_begin__ = 837;
                 stan::model::assign(obs_candidate_group_csr_row_pos, 
                             stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
                             1, 
                             "assigning variable obs_candidate_group_csr_row_pos");
-                current_statement_begin__ = 840;
+                current_statement_begin__ = 839;
                 stan::math::assign(unique_entity_prop, rep_vector((1.0 / num_unique_entities), num_unique_entities));
-                current_statement_begin__ = 842;
+                current_statement_begin__ = 841;
                 stan::model::assign(entity_candidate_group_csr_row_pos, 
                             stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
                             1, 
                             "assigning variable entity_candidate_group_csr_row_pos");
-                current_statement_begin__ = 844;
+                current_statement_begin__ = 843;
                 stan::math::assign(num_obs_in_unique_entity, rep_vector(0, num_unique_entities));
             }
             {
-            current_statement_begin__ = 849;
+            current_statement_begin__ = 848;
             int latent_type_marginal_members_pos(0);
             (void) latent_type_marginal_members_pos;  // dummy to suppress unused var warning
             stan::math::fill(latent_type_marginal_members_pos, std::numeric_limits<int>::min());
             stan::math::assign(latent_type_marginal_members_pos,1);
-            current_statement_begin__ = 850;
+            current_statement_begin__ = 849;
             int entity_marginal_prob_pos(0);
             (void) entity_marginal_prob_pos;  // dummy to suppress unused var warning
             stan::math::fill(entity_marginal_prob_pos, std::numeric_limits<int>::min());
             stan::math::assign(entity_marginal_prob_pos,1);
-            current_statement_begin__ = 851;
+            current_statement_begin__ = 850;
             int entity_marginal_prob_csr_row_pos_pos(0);
             (void) entity_marginal_prob_csr_row_pos_pos;  // dummy to suppress unused var warning
             stan::math::fill(entity_marginal_prob_csr_row_pos_pos, std::numeric_limits<int>::min());
             stan::math::assign(entity_marginal_prob_csr_row_pos_pos,1);
-            current_statement_begin__ = 852;
+            current_statement_begin__ = 851;
             int last_entity_marginal_prob_size(0);
             (void) last_entity_marginal_prob_size;  // dummy to suppress unused var warning
             stan::math::fill(last_entity_marginal_prob_size, std::numeric_limits<int>::min());
-            current_statement_begin__ = 854;
+            current_statement_begin__ = 853;
             for (int latent_type_index = 1; latent_type_index <= total_num_bg_variable_types; ++latent_type_index) {
                 {
-                current_statement_begin__ = 855;
+                current_statement_begin__ = 854;
                 int curr_var_size(0);
                 (void) curr_var_size;  // dummy to suppress unused var warning
                 stan::math::fill(curr_var_size, std::numeric_limits<int>::min());
                 stan::math::assign(curr_var_size,get_base1(num_bg_variable_type_combo_members, latent_type_index, "num_bg_variable_type_combo_members", 1));
-                current_statement_begin__ = 856;
+                current_statement_begin__ = 855;
                 int latent_type_marginal_members_end(0);
                 (void) latent_type_marginal_members_end;  // dummy to suppress unused var warning
                 stan::math::fill(latent_type_marginal_members_end, std::numeric_limits<int>::min());
                 stan::math::assign(latent_type_marginal_members_end,((latent_type_marginal_members_pos + curr_var_size) - 1));
-                current_statement_begin__ = 858;
+                current_statement_begin__ = 857;
                 stan::model::assign(entity_marginal_prob_csr_row_pos, 
                             stan::model::cons_list(stan::model::index_uni(entity_marginal_prob_csr_row_pos_pos), stan::model::nil_index_list()), 
                             (logical_gt(entity_marginal_prob_csr_row_pos_pos, 1) ? (get_base1(entity_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size) : 1 ), 
                             "assigning variable entity_marginal_prob_csr_row_pos");
-                current_statement_begin__ = 862;
+                current_statement_begin__ = 861;
                 stan::math::assign(last_entity_marginal_prob_size, (curr_var_size * num_unique_entities));
-                current_statement_begin__ = 864;
+                current_statement_begin__ = 863;
                 for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
                     {
-                    current_statement_begin__ = 865;
+                    current_statement_begin__ = 864;
                     local_scalar_t__ entity_prop(DUMMY_VAR__);
                     (void) entity_prop;  // dummy to suppress unused var warning
                     stan::math::initialize(entity_prop, DUMMY_VAR__);
                     stan::math::fill(entity_prop, DUMMY_VAR__);
                     stan::math::assign(entity_prop,(get_base1(num_obs_in_unique_entity, entity_index, "num_obs_in_unique_entity", 1) / std::max(num_obs, 1)));
-                    current_statement_begin__ = 866;
+                    current_statement_begin__ = 865;
                     int entity_marginal_prob_end(0);
                     (void) entity_marginal_prob_end;  // dummy to suppress unused var warning
                     stan::math::fill(entity_marginal_prob_end, std::numeric_limits<int>::min());
                     stan::math::assign(entity_marginal_prob_end,((entity_marginal_prob_pos + curr_var_size) - 1));
-                    current_statement_begin__ = 868;
+                    current_statement_begin__ = 867;
                     stan::model::assign(marginal_prob_csr_vec, 
                                 stan::model::cons_list(stan::model::index_min_max(entity_marginal_prob_pos, entity_marginal_prob_end), stan::model::nil_index_list()), 
                                 rep_vector(entity_prop, curr_var_size), 
                                 "assigning variable marginal_prob_csr_vec");
-                    current_statement_begin__ = 870;
+                    current_statement_begin__ = 869;
                     stan::model::assign(entity_marginal_prob_ids, 
                                 stan::model::cons_list(stan::model::index_min_max(entity_marginal_prob_pos, entity_marginal_prob_end), stan::model::nil_index_list()), 
                                 array_add(stan::model::rvalue(bg_variable_type_combo_members, stan::model::cons_list(stan::model::index_min_max(latent_type_marginal_members_pos, latent_type_marginal_members_end), stan::model::nil_index_list()), "bg_variable_type_combo_members"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * num_r_types)).array()), pstream__), 
                                 "assigning variable entity_marginal_prob_ids");
-                    current_statement_begin__ = 873;
+                    current_statement_begin__ = 872;
                     stan::math::assign(entity_marginal_prob_pos, (entity_marginal_prob_end + 1));
                     }
                 }
-                current_statement_begin__ = 876;
+                current_statement_begin__ = 875;
                 stan::math::assign(latent_type_marginal_members_pos, (latent_type_marginal_members_end + 1));
-                current_statement_begin__ = 877;
+                current_statement_begin__ = 876;
                 stan::math::assign(entity_marginal_prob_csr_row_pos_pos, (entity_marginal_prob_csr_row_pos_pos + 1));
                 }
             }
-            current_statement_begin__ = 880;
+            current_statement_begin__ = 879;
             stan::model::assign(entity_marginal_prob_csr_row_pos, 
                         stan::model::cons_list(stan::model::index_uni(entity_marginal_prob_csr_row_pos_pos), stan::model::nil_index_list()), 
                         (get_base1(entity_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size), 
                         "assigning variable entity_marginal_prob_csr_row_pos");
             }
-            current_statement_begin__ = 883;
+            current_statement_begin__ = 882;
             if (as_bool(logical_gt(num_estimand_levels, 0))) {
                 {
-                current_statement_begin__ = 884;
+                current_statement_begin__ = 883;
                 int estimand_entity_pos(0);
                 (void) estimand_entity_pos;  // dummy to suppress unused var warning
                 stan::math::fill(estimand_entity_pos, std::numeric_limits<int>::min());
                 stan::math::assign(estimand_entity_pos,1);
-                current_statement_begin__ = 885;
+                current_statement_begin__ = 884;
                 int level_estimands_csr_vec_pos(0);
                 (void) level_estimands_csr_vec_pos;  // dummy to suppress unused var warning
                 stan::math::fill(level_estimands_csr_vec_pos, std::numeric_limits<int>::min());
                 stan::math::assign(level_estimands_csr_vec_pos,1);
-                current_statement_begin__ = 886;
+                current_statement_begin__ = 885;
                 int entity_estimand_csr_row_pos_pos(0);
                 (void) entity_estimand_csr_row_pos_pos;  // dummy to suppress unused var warning
                 stan::math::fill(entity_estimand_csr_row_pos_pos, std::numeric_limits<int>::min());
                 stan::math::assign(entity_estimand_csr_row_pos_pos,1);
-                current_statement_begin__ = 887;
+                current_statement_begin__ = 886;
                 int last_num_unique_entities(0);
                 (void) last_num_unique_entities;  // dummy to suppress unused var warning
                 stan::math::fill(last_num_unique_entities, std::numeric_limits<int>::min());
-                current_statement_begin__ = 889;
+                current_statement_begin__ = 888;
                 for (int estimand_level_index = 1; estimand_level_index <= num_estimand_levels; ++estimand_level_index) {
                     {
-                    current_statement_begin__ = 890;
+                    current_statement_begin__ = 889;
                     int curr_estimand_level(0);
                     (void) curr_estimand_level;  // dummy to suppress unused var warning
                     stan::math::fill(curr_estimand_level, std::numeric_limits<int>::min());
                     stan::math::assign(curr_estimand_level,get_base1(estimand_levels, estimand_level_index, "estimand_levels", 1));
-                    current_statement_begin__ = 891;
+                    current_statement_begin__ = 890;
                     int curr_estimand_level_size(0);
                     (void) curr_estimand_level_size;  // dummy to suppress unused var warning
                     stan::math::fill(curr_estimand_level_size, std::numeric_limits<int>::min());
                     stan::math::assign(curr_estimand_level_size,get_base1(level_size, curr_estimand_level, "level_size", 1));
-                    current_statement_begin__ = 892;
+                    current_statement_begin__ = 891;
                     validate_non_negative_index("curr_num_unique_entities", "curr_estimand_level_size", curr_estimand_level_size);
                     std::vector<int  > curr_num_unique_entities(curr_estimand_level_size, int(0));
                     stan::math::fill(curr_num_unique_entities, std::numeric_limits<int>::min());
                     stan::math::assign(curr_num_unique_entities,array_extract_group_values(num_unique_entities_in_estimand_level_entities, stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(estimand_level_index).array()), pstream__));
-                    current_statement_begin__ = 894;
+                    current_statement_begin__ = 893;
                     for (int estimand_level_entity_index = 1; estimand_level_entity_index <= curr_estimand_level_size; ++estimand_level_entity_index) {
                         {
-                        current_statement_begin__ = 895;
+                        current_statement_begin__ = 894;
                         validate_non_negative_index("unique_entities_in_curr_level_entity", "get_base1(curr_num_unique_entities, estimand_level_entity_index, \"curr_num_unique_entities\", 1)", get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1));
                         std::vector<int  > unique_entities_in_curr_level_entity(get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1), int(0));
                         stan::math::fill(unique_entities_in_curr_level_entity, std::numeric_limits<int>::min());
                         stan::math::assign(unique_entities_in_curr_level_entity,array_extract_group_values(stan::model::rvalue(unique_entities_in_level_entities, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(curr_estimand_level), stan::model::nil_index_list())), "unique_entities_in_level_entities"), curr_num_unique_entities, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(estimand_level_entity_index).array()), pstream__));
-                        current_statement_begin__ = 898;
+                        current_statement_begin__ = 897;
                         validate_non_negative_index("unique_entities_estimand_offset", "get_base1(curr_num_unique_entities, estimand_level_entity_index, \"curr_num_unique_entities\", 1)", get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1));
                         std::vector<int  > unique_entities_estimand_offset(get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1), int(0));
                         stan::math::fill(unique_entities_estimand_offset, std::numeric_limits<int>::min());
                         stan::math::assign(unique_entities_estimand_offset,array_product(array_add(unique_entities_in_curr_level_entity, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(-(1)).array()), pstream__), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(num_all_estimands).array()), pstream__));
-                        current_statement_begin__ = 901;
+                        current_statement_begin__ = 900;
                         validate_non_negative_index("curr_num_obs_in_unique_entity", "get_base1(curr_num_unique_entities, estimand_level_entity_index, \"curr_num_unique_entities\", 1)", get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1));
                         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> curr_num_obs_in_unique_entity(get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1));
                         stan::math::initialize(curr_num_obs_in_unique_entity, DUMMY_VAR__);
                         stan::math::fill(curr_num_obs_in_unique_entity, DUMMY_VAR__);
                         stan::math::assign(curr_num_obs_in_unique_entity,stan::model::rvalue(num_obs_in_unique_entity, stan::model::cons_list(stan::model::index_multi(unique_entities_in_curr_level_entity), stan::model::nil_index_list()), "num_obs_in_unique_entity"));
-                        current_statement_begin__ = 903;
+                        current_statement_begin__ = 902;
                         for (int estimand_index = 1; estimand_index <= num_all_estimands; ++estimand_index) {
                             {
-                            current_statement_begin__ = 904;
+                            current_statement_begin__ = 903;
                             int level_estimands_csr_vec_end(0);
                             (void) level_estimands_csr_vec_end;  // dummy to suppress unused var warning
                             stan::math::fill(level_estimands_csr_vec_end, std::numeric_limits<int>::min());
                             stan::math::assign(level_estimands_csr_vec_end,((level_estimands_csr_vec_pos + get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1)) - 1));
-                            current_statement_begin__ = 906;
+                            current_statement_begin__ = 905;
                             stan::model::assign(entity_estimand_ids, 
                                         stan::model::cons_list(stan::model::index_min_max(level_estimands_csr_vec_pos, level_estimands_csr_vec_end), stan::model::nil_index_list()), 
                                         array_add(unique_entities_estimand_offset, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(estimand_index).array()), pstream__), 
                                         "assigning variable entity_estimand_ids");
-                            current_statement_begin__ = 907;
+                            current_statement_begin__ = 906;
                             stan::model::assign(level_estimands_csr_vec, 
                                         stan::model::cons_list(stan::model::index_min_max(level_estimands_csr_vec_pos, level_estimands_csr_vec_end), stan::model::nil_index_list()), 
                                         divide(curr_num_obs_in_unique_entity, sum(curr_num_obs_in_unique_entity)), 
                                         "assigning variable level_estimands_csr_vec");
-                            current_statement_begin__ = 909;
+                            current_statement_begin__ = 908;
                             stan::model::assign(entity_estimand_csr_row_pos, 
                                         stan::model::cons_list(stan::model::index_uni(entity_estimand_csr_row_pos_pos), stan::model::nil_index_list()), 
                                         (logical_gt(entity_estimand_csr_row_pos_pos, 1) ? (get_base1(entity_estimand_csr_row_pos, (entity_estimand_csr_row_pos_pos - 1), "entity_estimand_csr_row_pos", 1) + last_num_unique_entities) : 1 ), 
                                         "assigning variable entity_estimand_csr_row_pos");
-                            current_statement_begin__ = 913;
+                            current_statement_begin__ = 912;
                             stan::math::assign(last_num_unique_entities, get_base1(curr_num_unique_entities, estimand_level_entity_index, "curr_num_unique_entities", 1));
-                            current_statement_begin__ = 915;
+                            current_statement_begin__ = 914;
                             stan::math::assign(entity_estimand_csr_row_pos_pos, (entity_estimand_csr_row_pos_pos + 1));
-                            current_statement_begin__ = 916;
+                            current_statement_begin__ = 915;
                             stan::math::assign(level_estimands_csr_vec_pos, (level_estimands_csr_vec_end + 1));
                             }
                         }
-                        current_statement_begin__ = 919;
+                        current_statement_begin__ = 918;
                         stan::math::assign(estimand_entity_pos, (estimand_entity_pos + 1));
                         }
                     }
                     }
                 }
-                current_statement_begin__ = 923;
+                current_statement_begin__ = 922;
                 stan::model::assign(entity_estimand_csr_row_pos, 
                             stan::model::cons_list(stan::model::index_uni(entity_estimand_csr_row_pos_pos), stan::model::nil_index_list()), 
                             (get_base1(entity_estimand_csr_row_pos, (entity_estimand_csr_row_pos_pos - 1), "entity_estimand_csr_row_pos", 1) + last_num_unique_entities), 
                             "assigning variable entity_estimand_csr_row_pos");
                 }
             }
-            current_statement_begin__ = 926;
+            current_statement_begin__ = 925;
             if (as_bool(logical_gt(num_discretized_groups, 0))) {
                 {
-                current_statement_begin__ = 927;
+                current_statement_begin__ = 926;
                 int discretized_group_pos(0);
                 (void) discretized_group_pos;  // dummy to suppress unused var warning
                 stan::math::fill(discretized_group_pos, std::numeric_limits<int>::min());
                 stan::math::assign(discretized_group_pos,1);
-                current_statement_begin__ = 928;
+                current_statement_begin__ = 927;
                 int histogram_vec_pos(0);
                 (void) histogram_vec_pos;  // dummy to suppress unused var warning
                 stan::math::fill(histogram_vec_pos, std::numeric_limits<int>::min());
                 stan::math::assign(histogram_vec_pos,1);
-                current_statement_begin__ = 929;
+                current_statement_begin__ = 928;
                 int histogram_ids_pos(0);
                 (void) histogram_ids_pos;  // dummy to suppress unused var warning
                 stan::math::fill(histogram_ids_pos, std::numeric_limits<int>::min());
                 stan::math::assign(histogram_ids_pos,1);
-                current_statement_begin__ = 931;
+                current_statement_begin__ = 930;
                 int midpoint_vec_pos(0);
                 (void) midpoint_vec_pos;  // dummy to suppress unused var warning
                 stan::math::fill(midpoint_vec_pos, std::numeric_limits<int>::min());
                 stan::math::assign(midpoint_vec_pos,1);
-                current_statement_begin__ = 932;
+                current_statement_begin__ = 931;
                 int midpoint_ids_pos(0);
                 (void) midpoint_ids_pos;  // dummy to suppress unused var warning
                 stan::math::fill(midpoint_ids_pos, std::numeric_limits<int>::min());
                 stan::math::assign(midpoint_ids_pos,1);
-                current_statement_begin__ = 934;
+                current_statement_begin__ = 933;
                 int histogram_ids_size(0);
                 (void) histogram_ids_size;  // dummy to suppress unused var warning
                 stan::math::fill(histogram_ids_size, std::numeric_limits<int>::min());
                 stan::math::assign(histogram_ids_size,(num_discretized_groups * ((2 * num_discretized_variables) + 1)));
-                current_statement_begin__ = 935;
+                current_statement_begin__ = 934;
                 validate_non_negative_index("histogram_last_id_pos", "num_discretized_groups", num_discretized_groups);
                 std::vector<int  > histogram_last_id_pos(num_discretized_groups, int(0));
                 stan::math::fill(histogram_last_id_pos, std::numeric_limits<int>::min());
-                current_statement_begin__ = 936;
+                current_statement_begin__ = 935;
                 int last_histogram_one_pos(0);
                 (void) last_histogram_one_pos;  // dummy to suppress unused var warning
                 stan::math::fill(last_histogram_one_pos, std::numeric_limits<int>::min());
                 stan::math::assign(last_histogram_one_pos,((num_unique_entities * num_atom_estimands) + 1));
-                current_statement_begin__ = 938;
+                current_statement_begin__ = 937;
                 validate_non_negative_index("histogram_ids", "histogram_ids_size", histogram_ids_size);
                 std::vector<int  > histogram_ids(histogram_ids_size, int(0));
                 stan::math::fill(histogram_ids, std::numeric_limits<int>::min());
-                current_statement_begin__ = 940;
+                current_statement_begin__ = 939;
                 validate_non_negative_index("midpoint_ids", "(num_discretized_groups * (num_cutpoints - 1))", (num_discretized_groups * (num_cutpoints - 1)));
                 std::vector<int  > midpoint_ids((num_discretized_groups * (num_cutpoints - 1)), int(0));
                 stan::math::fill(midpoint_ids, std::numeric_limits<int>::min());
-                current_statement_begin__ = 943;
+                current_statement_begin__ = 942;
                 validate_non_negative_index("histogram_row_sizes", "((num_cutpoints - 1) * num_discretized_groups)", ((num_cutpoints - 1) * num_discretized_groups));
                 std::vector<int  > histogram_row_sizes(((num_cutpoints - 1) * num_discretized_groups), int(0));
                 stan::math::fill(histogram_row_sizes, std::numeric_limits<int>::min());
                 stan::math::assign(histogram_row_sizes,to_array_1d(rep_array(append_array(static_cast<std::vector<int> >(stan::math::array_builder<int >().add(1).array()), rep_array(2, num_discretized_variables)), num_discretized_groups)));
-                current_statement_begin__ = 945;
+                current_statement_begin__ = 944;
                 stan::math::assign(entity_histogram_csr_row_pos, csr_shift_expand_u(histogram_row_sizes, num_unique_entities, pstream__));
-                current_statement_begin__ = 946;
+                current_statement_begin__ = 945;
                 stan::math::assign(entity_midpoint_csr_row_pos, csr_shift_expand_u(rep_array((num_cutpoints - 1), num_discretized_groups), num_unique_entities, pstream__));
-                current_statement_begin__ = 948;
+                current_statement_begin__ = 947;
                 for (int discretized_group_index = 1; discretized_group_index <= num_discretized_groups; ++discretized_group_index) {
                     {
-                    current_statement_begin__ = 949;
+                    current_statement_begin__ = 948;
                     int histogram_ids_end(0);
                     (void) histogram_ids_end;  // dummy to suppress unused var warning
                     stan::math::fill(histogram_ids_end, std::numeric_limits<int>::min());
                     stan::math::assign(histogram_ids_end,((histogram_ids_pos + ((2 * num_discretized_variables) + 1)) - 1));
-                    current_statement_begin__ = 950;
+                    current_statement_begin__ = 949;
                     int discretized_group_end(0);
                     (void) discretized_group_end;  // dummy to suppress unused var warning
                     stan::math::fill(discretized_group_end, std::numeric_limits<int>::min());
                     stan::math::assign(discretized_group_end,((discretized_group_pos + num_discretized_variables) - 1));
-                    current_statement_begin__ = 951;
+                    current_statement_begin__ = 950;
                     int midpoint_ids_end(0);
                     (void) midpoint_ids_end;  // dummy to suppress unused var warning
                     stan::math::fill(midpoint_ids_end, std::numeric_limits<int>::min());
                     stan::math::assign(midpoint_ids_end,((midpoint_ids_pos + (num_cutpoints - 1)) - 1));
-                    current_statement_begin__ = 953;
+                    current_statement_begin__ = 952;
                     validate_non_negative_index("curr_group_members", "num_discretized_variables", num_discretized_variables);
                     std::vector<int  > curr_group_members(num_discretized_variables, int(0));
                     stan::math::fill(curr_group_members, std::numeric_limits<int>::min());
                     stan::math::assign(curr_group_members,stan::model::rvalue(discretized_group_ids, stan::model::cons_list(stan::model::index_min_max(discretized_group_pos, discretized_group_end), stan::model::nil_index_list()), "discretized_group_ids"));
-                    current_statement_begin__ = 955;
+                    current_statement_begin__ = 954;
                     stan::model::assign(histogram_last_id_pos, 
                                 stan::model::cons_list(stan::model::index_uni(discretized_group_index), stan::model::nil_index_list()), 
                                 histogram_ids_end, 
                                 "assigning variable histogram_last_id_pos");
-                    current_statement_begin__ = 957;
+                    current_statement_begin__ = 956;
                     for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
                         {
-                        current_statement_begin__ = 958;
+                        current_statement_begin__ = 957;
                         int histogram_vec_end(0);
                         (void) histogram_vec_end;  // dummy to suppress unused var warning
                         stan::math::fill(histogram_vec_end, std::numeric_limits<int>::min());
                         stan::math::assign(histogram_vec_end,((histogram_vec_pos + ((2 * num_discretized_variables) + 1)) - 1));
-                        current_statement_begin__ = 959;
+                        current_statement_begin__ = 958;
                         int midpoint_vec_end(0);
                         (void) midpoint_vec_end;  // dummy to suppress unused var warning
                         stan::math::fill(midpoint_vec_end, std::numeric_limits<int>::min());
                         stan::math::assign(midpoint_vec_end,((midpoint_vec_pos + (num_cutpoints - 1)) - 1));
-                        current_statement_begin__ = 961;
+                        current_statement_begin__ = 960;
                         stan::model::assign(entity_histogram_vec, 
                                     stan::model::cons_list(stan::model::index_min_max(histogram_vec_pos, histogram_vec_end), stan::model::nil_index_list()), 
                                     append_row(to_vector(rep_matrix(transpose(stan::math::to_row_vector(stan::math::array_builder<double >().add(1).add(-(1)).array())), num_discretized_variables)), 1), 
                                     "assigning variable entity_histogram_vec");
-                        current_statement_begin__ = 962;
+                        current_statement_begin__ = 961;
                         stan::model::assign(entity_midpoint_vec, 
                                     stan::model::cons_list(stan::model::index_min_max(midpoint_vec_pos, midpoint_vec_end), stan::model::nil_index_list()), 
                                     cutpoint_midpoints, 
                                     "assigning variable entity_midpoint_vec");
-                        current_statement_begin__ = 964;
+                        current_statement_begin__ = 963;
                         if (as_bool(logical_gt(num_discrete_utility_values, 0))) {
-                            current_statement_begin__ = 965;
+                            current_statement_begin__ = 964;
                             stan::model::assign(entity_utility_vec, 
                                         stan::model::cons_list(stan::model::index_min_max(midpoint_vec_pos, midpoint_vec_end), stan::model::nil_index_list()), 
                                         utility, 
                                         "assigning variable entity_utility_vec");
                         }
-                        current_statement_begin__ = 968;
+                        current_statement_begin__ = 967;
                         stan::model::assign(entity_discretize_bin_alpha, 
                                     stan::model::cons_list(stan::model::index_min_max(midpoint_vec_pos, midpoint_vec_end), stan::model::nil_index_list()), 
                                     discretize_bin_alpha, 
                                     "assigning variable entity_discretize_bin_alpha");
-                        current_statement_begin__ = 969;
+                        current_statement_begin__ = 968;
                         stan::model::assign(entity_discretize_bin_beta, 
                                     stan::model::cons_list(stan::model::index_min_max(midpoint_vec_pos, midpoint_vec_end), stan::model::nil_index_list()), 
                                     discretize_bin_beta, 
                                     "assigning variable entity_discretize_bin_beta");
-                        current_statement_begin__ = 971;
+                        current_statement_begin__ = 970;
                         stan::math::assign(histogram_vec_pos, (histogram_vec_end + 1));
-                        current_statement_begin__ = 972;
+                        current_statement_begin__ = 971;
                         stan::math::assign(midpoint_vec_pos, (midpoint_vec_end + 1));
                         }
                     }
-                    current_statement_begin__ = 975;
+                    current_statement_begin__ = 974;
                     for (int group_member_index = 1; group_member_index <= num_discretized_variables; ++group_member_index) {
                         {
-                        current_statement_begin__ = 976;
+                        current_statement_begin__ = 975;
                         int offset(0);
                         (void) offset;  // dummy to suppress unused var warning
                         stan::math::fill(offset, std::numeric_limits<int>::min());
                         stan::math::assign(offset,(2 * (group_member_index - 1)));
-                        current_statement_begin__ = 978;
+                        current_statement_begin__ = 977;
                         stan::model::assign(histogram_ids, 
                                     stan::model::cons_list(stan::model::index_min_max((histogram_ids_pos + offset), ((histogram_ids_pos + offset) + 1)), stan::model::nil_index_list()), 
                                     rep_array(get_base1(curr_group_members, group_member_index, "curr_group_members", 1), 2), 
                                     "assigning variable histogram_ids");
                         }
                     }
-                    current_statement_begin__ = 981;
+                    current_statement_begin__ = 980;
                     stan::model::assign(histogram_ids, 
                                 stan::model::cons_list(stan::model::index_min_max((histogram_ids_end - 1), histogram_ids_end), stan::model::nil_index_list()), 
                                 static_cast<std::vector<int> >(stan::math::array_builder<int >().add(get_base1(curr_group_members, num_discretized_variables, "curr_group_members", 1)).add(0).array()), 
                                 "assigning variable histogram_ids");
-                    current_statement_begin__ = 983;
+                    current_statement_begin__ = 982;
                     stan::model::assign(midpoint_ids, 
                                 stan::model::cons_list(stan::model::index_min_max(midpoint_ids_pos, midpoint_ids_end), stan::model::nil_index_list()), 
                                 seq((1 + ((discretized_group_index - 1) * (num_cutpoints - 1))), (discretized_group_index * (num_cutpoints - 1)), 1, pstream__), 
                                 "assigning variable midpoint_ids");
-                    current_statement_begin__ = 985;
+                    current_statement_begin__ = 984;
                     stan::math::assign(histogram_ids_pos, (histogram_ids_end + 1));
-                    current_statement_begin__ = 986;
+                    current_statement_begin__ = 985;
                     stan::math::assign(discretized_group_pos, (discretized_group_end + 1));
-                    current_statement_begin__ = 987;
+                    current_statement_begin__ = 986;
                     stan::math::assign(midpoint_ids_pos, (midpoint_ids_end + 1));
                     }
                 }
-                current_statement_begin__ = 990;
+                current_statement_begin__ = 989;
                 stan::math::assign(entity_histogram_ids, csr_shift_expand_v(histogram_ids, num_atom_estimands, num_unique_entities, pstream__));
-                current_statement_begin__ = 992;
+                current_statement_begin__ = 991;
                 for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
-                    current_statement_begin__ = 993;
+                    current_statement_begin__ = 992;
                     stan::model::assign(entity_histogram_ids, 
                                 stan::model::cons_list(stan::model::index_multi(array_add(histogram_last_id_pos, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * histogram_ids_size)).array()), pstream__)), stan::model::nil_index_list()), 
                                 rep_array(last_histogram_one_pos, num_discretized_groups), 
                                 "assigning variable entity_histogram_ids");
                 }
-                current_statement_begin__ = 996;
+                current_statement_begin__ = 995;
                 stan::math::assign(entity_midpoint_ids, csr_shift_expand_v(midpoint_ids, (num_discretized_groups * (num_cutpoints - 1)), num_unique_entities, pstream__));
                 }
             }
-            current_statement_begin__ = 999;
+            current_statement_begin__ = 998;
             if (as_bool(logical_gt(num_between_entity_diff_levels, 0))) {
                 {
-                current_statement_begin__ = 1000;
+                current_statement_begin__ = 999;
                 int between_csr_ids_pos(0);
                 (void) between_csr_ids_pos;  // dummy to suppress unused var warning
                 stan::math::fill(between_csr_ids_pos, std::numeric_limits<int>::min());
                 stan::math::assign(between_csr_ids_pos,1);
-                current_statement_begin__ = 1002;
+                current_statement_begin__ = 1001;
                 stan::math::assign(between_entity_diff_csr_row_pos, seq(1, (((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)) + 1), 2, pstream__));
-                current_statement_begin__ = 1004;
+                current_statement_begin__ = 1003;
                 for (int between_diff_level_index_index = 1; between_diff_level_index_index <= num_between_entity_diff_levels; ++between_diff_level_index_index) {
                     {
-                    current_statement_begin__ = 1005;
+                    current_statement_begin__ = 1004;
                     int between_diff_level_index(0);
                     (void) between_diff_level_index;  // dummy to suppress unused var warning
                     stan::math::fill(between_diff_level_index, std::numeric_limits<int>::min());
                     stan::math::assign(between_diff_level_index,get_base1(between_entity_diff_levels, between_diff_level_index_index, "between_entity_diff_levels", 1));
-                    current_statement_begin__ = 1006;
+                    current_statement_begin__ = 1005;
                     int between_diff_level_offset(0);
                     (void) between_diff_level_offset;  // dummy to suppress unused var warning
                     stan::math::fill(between_diff_level_offset, std::numeric_limits<int>::min());
                     stan::math::assign(between_diff_level_offset,(logical_gt(between_diff_level_index, 1) ? (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_max((between_diff_level_index - 1)), stan::model::nil_index_list()), "level_size")) * num_all_estimands) : 0 ));
-                    current_statement_begin__ = 1008;
+                    current_statement_begin__ = 1007;
                     for (int between_diff_entity_index = 1; between_diff_entity_index <= (get_base1(level_size, between_diff_level_index, "level_size", 1) - 1); ++between_diff_entity_index) {
                         {
-                        current_statement_begin__ = 1009;
+                        current_statement_begin__ = 1008;
                         validate_non_negative_index("diff_pair", "2", 2);
                         std::vector<int  > diff_pair(2, int(0));
                         stan::math::fill(diff_pair, std::numeric_limits<int>::min());
                         stan::math::assign(diff_pair,static_cast<std::vector<int> >(stan::math::array_builder<int >().add(between_diff_level_offset).add((between_diff_level_offset + (num_all_estimands * between_diff_entity_index))).array()));
-                        current_statement_begin__ = 1011;
+                        current_statement_begin__ = 1010;
                         for (int estimand_index = 1; estimand_index <= num_atom_estimands; ++estimand_index) {
-                            current_statement_begin__ = 1012;
+                            current_statement_begin__ = 1011;
                             stan::model::assign(between_entity_diff_csr_ids, 
                                         stan::model::cons_list(stan::model::index_min_max(between_csr_ids_pos, (between_csr_ids_pos + 1)), stan::model::nil_index_list()), 
                                         array_add(diff_pair, static_cast<std::vector<int> >(stan::math::array_builder<int >().add(estimand_index).array()), pstream__), 
                                         "assigning variable between_entity_diff_csr_ids");
-                            current_statement_begin__ = 1013;
+                            current_statement_begin__ = 1012;
                             stan::math::assign(between_csr_ids_pos, (between_csr_ids_pos + 2));
                         }
                         }
@@ -3472,58 +3472,58 @@ public:
                 }
             }
             {
-            current_statement_begin__ = 1020;
+            current_statement_begin__ = 1019;
             int exp_r_pos(0);
             (void) exp_r_pos;  // dummy to suppress unused var warning
             stan::math::fill(exp_r_pos, std::numeric_limits<int>::min());
             stan::math::assign(exp_r_pos,1);
-            current_statement_begin__ = 1022;
+            current_statement_begin__ = 1021;
             for (int r_type_index = 1; r_type_index <= num_r_types; ++r_type_index) {
                 {
-                current_statement_begin__ = 1023;
+                current_statement_begin__ = 1022;
                 int exp_r_end(0);
                 (void) exp_r_end;  // dummy to suppress unused var warning
                 stan::math::fill(exp_r_end, std::numeric_limits<int>::min());
                 stan::math::assign(exp_r_end,((exp_r_pos + num_experiment_types) - 1));
-                current_statement_begin__ = 1025;
+                current_statement_begin__ = 1024;
                 stan::model::assign(experiment_r_type_index, 
                             stan::model::cons_list(stan::model::index_min_max(exp_r_pos, exp_r_end), stan::model::nil_index_list()), 
                             rep_array(r_type_index, num_experiment_types), 
                             "assigning variable experiment_r_type_index");
-                current_statement_begin__ = 1027;
+                current_statement_begin__ = 1026;
                 stan::math::assign(exp_r_pos, (exp_r_end + 1));
                 }
             }
             }
             // validate transformed data
-            current_statement_begin__ = 608;
+            current_statement_begin__ = 607;
             check_greater_or_equal(function__, "num_r_types_full", num_r_types_full, num_r_types);
-            current_statement_begin__ = 609;
+            current_statement_begin__ = 608;
             size_t experiment_r_type_index_i_0_max__ = num_r_types_full;
             for (size_t i_0__ = 0; i_0__ < experiment_r_type_index_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "experiment_r_type_index[i_0__]", experiment_r_type_index[i_0__], 1);
                 check_less_or_equal(function__, "experiment_r_type_index[i_0__]", experiment_r_type_index[i_0__], num_r_types);
             }
-            current_statement_begin__ = 611;
+            current_statement_begin__ = 610;
             check_greater_or_equal(function__, "full_experiment_types_prob", full_experiment_types_prob, 0);
             check_less_or_equal(function__, "full_experiment_types_prob", full_experiment_types_prob, 1);
-            current_statement_begin__ = 613;
+            current_statement_begin__ = 612;
             size_t level_size_i_0_max__ = num_levels;
             for (size_t i_0__ = 0; i_0__ < level_size_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "level_size[i_0__]", level_size[i_0__], 1);
             }
-            current_statement_begin__ = 614;
+            current_statement_begin__ = 613;
             check_greater_or_equal(function__, "num_obs_in_unique_entity", num_obs_in_unique_entity, 0);
             check_less_or_equal(function__, "num_obs_in_unique_entity", num_obs_in_unique_entity, num_obs);
-            current_statement_begin__ = 615;
+            current_statement_begin__ = 614;
             stan::math::check_simplex(function__, "unique_entity_prop", unique_entity_prop);
-            current_statement_begin__ = 617;
+            current_statement_begin__ = 616;
             size_t num_unique_entities_in_estimand_level_entities_i_0_max__ = sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"));
             for (size_t i_0__ = 0; i_0__ < num_unique_entities_in_estimand_level_entities_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "num_unique_entities_in_estimand_level_entities[i_0__]", num_unique_entities_in_estimand_level_entities[i_0__], 1);
                 check_less_or_equal(function__, "num_unique_entities_in_estimand_level_entities[i_0__]", num_unique_entities_in_estimand_level_entities[i_0__], num_unique_entities);
             }
-            current_statement_begin__ = 620;
+            current_statement_begin__ = 619;
             size_t unique_entities_in_level_entities_i_0_max__ = num_unique_entities;
             size_t unique_entities_in_level_entities_i_1_max__ = num_levels;
             for (size_t i_0__ = 0; i_0__ < unique_entities_in_level_entities_i_0_max__; ++i_0__) {
@@ -3532,183 +3532,183 @@ public:
                     check_less_or_equal(function__, "unique_entities_in_level_entities[i_0__][i_1__]", unique_entities_in_level_entities[i_0__][i_1__], num_unique_entities);
                 }
             }
-            current_statement_begin__ = 625;
+            current_statement_begin__ = 624;
             check_greater_or_equal(function__, "vec_diff", vec_diff, -(1));
             check_less_or_equal(function__, "vec_diff", vec_diff, 1);
-            current_statement_begin__ = 626;
+            current_statement_begin__ = 625;
             check_greater_or_equal(function__, "vec_mean_diff", vec_mean_diff, -(1));
             check_less_or_equal(function__, "vec_mean_diff", vec_mean_diff, 1);
-            current_statement_begin__ = 627;
+            current_statement_begin__ = 626;
             check_greater_or_equal(function__, "vec_utility_diff", vec_utility_diff, -(1));
             check_less_or_equal(function__, "vec_utility_diff", vec_utility_diff, 1);
-            current_statement_begin__ = 634;
+            current_statement_begin__ = 633;
             check_greater_or_equal(function__, "vec_1", vec_1, 1);
             check_less_or_equal(function__, "vec_1", vec_1, 1);
-            current_statement_begin__ = 636;
+            current_statement_begin__ = 635;
             size_t entity_total_num_candidates_i_0_max__ = (logical_gt(num_obs, 0) ? num_unique_entities : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_total_num_candidates_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_total_num_candidates[i_0__]", entity_total_num_candidates[i_0__], 1);
             }
-            current_statement_begin__ = 645;
+            current_statement_begin__ = 644;
             size_t entity_candidate_group_ids_i_0_max__ = sum(entity_total_num_candidates);
             for (size_t i_0__ = 0; i_0__ < entity_candidate_group_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_candidate_group_ids[i_0__]", entity_candidate_group_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_candidate_group_ids[i_0__]", entity_candidate_group_ids[i_0__], (num_r_types * num_unique_entities));
             }
-            current_statement_begin__ = 646;
+            current_statement_begin__ = 645;
             size_t entity_candidate_group_csr_row_pos_i_0_max__ = (sum(num_unique_entity_candidate_groups) + 1);
             for (size_t i_0__ = 0; i_0__ < entity_candidate_group_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_candidate_group_csr_row_pos[i_0__]", entity_candidate_group_csr_row_pos[i_0__], 1);
                 check_less_or_equal(function__, "entity_candidate_group_csr_row_pos[i_0__]", entity_candidate_group_csr_row_pos[i_0__], (sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(unique_entity_candidate_groups), stan::model::nil_index_list()), "candidate_group_size")) + 1));
             }
-            current_statement_begin__ = 648;
+            current_statement_begin__ = 647;
             size_t obs_candidate_group_ids_i_0_max__ = sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(obs_candidate_group), stan::model::nil_index_list()), "candidate_group_size"));
             for (size_t i_0__ = 0; i_0__ < obs_candidate_group_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "obs_candidate_group_ids[i_0__]", obs_candidate_group_ids[i_0__], 1);
                 check_less_or_equal(function__, "obs_candidate_group_ids[i_0__]", obs_candidate_group_ids[i_0__], (num_r_types * num_unique_entities));
             }
-            current_statement_begin__ = 649;
+            current_statement_begin__ = 648;
             size_t obs_candidate_group_csr_row_pos_i_0_max__ = (num_obs + 1);
             for (size_t i_0__ = 0; i_0__ < obs_candidate_group_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "obs_candidate_group_csr_row_pos[i_0__]", obs_candidate_group_csr_row_pos[i_0__], 1);
                 check_less_or_equal(function__, "obs_candidate_group_csr_row_pos[i_0__]", obs_candidate_group_csr_row_pos[i_0__], (sum(stan::model::rvalue(candidate_group_size, stan::model::cons_list(stan::model::index_multi(obs_candidate_group), stan::model::nil_index_list()), "candidate_group_size")) + 1));
             }
-            current_statement_begin__ = 651;
+            current_statement_begin__ = 650;
             size_t entity_abducted_prob_ids_i_0_max__ = (sum(abducted_prob_size) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_abducted_prob_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_abducted_prob_ids[i_0__]", entity_abducted_prob_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_abducted_prob_ids[i_0__]", entity_abducted_prob_ids[i_0__], (num_r_types_full * num_unique_entities));
             }
-            current_statement_begin__ = 652;
+            current_statement_begin__ = 651;
             size_t entity_abducted_prob_csr_row_pos_i_0_max__ = (num_abducted_estimands ? ((num_unique_entities * num_abducted_estimands) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_abducted_prob_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_abducted_prob_csr_row_pos[i_0__]", entity_abducted_prob_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 654;
+            current_statement_begin__ = 653;
             size_t long_entity_abducted_index_i_0_max__ = (num_unique_entities * num_abducted_estimands);
             for (size_t i_0__ = 0; i_0__ < long_entity_abducted_index_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "long_entity_abducted_index[i_0__]", long_entity_abducted_index[i_0__], 1);
             }
-            current_statement_begin__ = 656;
+            current_statement_begin__ = 655;
             size_t entity_est_prob_ids_i_0_max__ = (sum(est_prob_size) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_est_prob_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_est_prob_ids[i_0__]", entity_est_prob_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_est_prob_ids[i_0__]", entity_est_prob_ids[i_0__], (num_r_types_full * num_unique_entities));
             }
-            current_statement_begin__ = 657;
+            current_statement_begin__ = 656;
             size_t entity_est_prob_csr_row_pos_i_0_max__ = (logical_gt(num_atom_estimands, 0) ? ((num_unique_entities * num_atom_estimands) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_est_prob_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_est_prob_csr_row_pos[i_0__]", entity_est_prob_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 659;
+            current_statement_begin__ = 658;
             size_t entity_diff_estimand_ids_i_0_max__ = ((num_diff_estimands * 2) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_diff_estimand_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_diff_estimand_ids[i_0__]", entity_diff_estimand_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_diff_estimand_ids[i_0__]", entity_diff_estimand_ids[i_0__], (num_atom_estimands * num_unique_entities));
             }
-            current_statement_begin__ = 660;
+            current_statement_begin__ = 659;
             size_t entity_diff_estimand_csr_row_pos_i_0_max__ = (logical_gt(num_diff_estimands, 0) ? ((num_unique_entities * num_diff_estimands) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_diff_estimand_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_diff_estimand_csr_row_pos[i_0__]", entity_diff_estimand_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 662;
+            current_statement_begin__ = 661;
             size_t entity_mean_diff_estimand_ids_i_0_max__ = ((num_mean_diff_estimands * 2) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_mean_diff_estimand_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_mean_diff_estimand_ids[i_0__]", entity_mean_diff_estimand_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_mean_diff_estimand_ids[i_0__]", entity_mean_diff_estimand_ids[i_0__], (num_discretized_groups * num_unique_entities));
             }
-            current_statement_begin__ = 663;
+            current_statement_begin__ = 662;
             size_t entity_mean_diff_estimand_csr_row_pos_i_0_max__ = (logical_gt(num_mean_diff_estimands, 0) ? ((num_unique_entities * num_mean_diff_estimands) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_mean_diff_estimand_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_mean_diff_estimand_csr_row_pos[i_0__]", entity_mean_diff_estimand_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 665;
+            current_statement_begin__ = 664;
             size_t entity_utility_diff_estimand_ids_i_0_max__ = ((num_utility_diff_estimands * 2) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_utility_diff_estimand_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_utility_diff_estimand_ids[i_0__]", entity_utility_diff_estimand_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_utility_diff_estimand_ids[i_0__]", entity_utility_diff_estimand_ids[i_0__], (num_discretized_groups * num_unique_entities));
             }
-            current_statement_begin__ = 666;
+            current_statement_begin__ = 665;
             size_t entity_utility_diff_estimand_csr_row_pos_i_0_max__ = (logical_gt(num_utility_diff_estimands, 0) ? ((num_unique_entities * num_utility_diff_estimands) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_utility_diff_estimand_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_utility_diff_estimand_csr_row_pos[i_0__]", entity_utility_diff_estimand_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 668;
+            current_statement_begin__ = 667;
             check_greater_or_equal(function__, "total_num_bg_variable_types", total_num_bg_variable_types, 1);
-            current_statement_begin__ = 670;
+            current_statement_begin__ = 669;
             check_greater_or_equal(function__, "marginal_prob_csr_vec", marginal_prob_csr_vec, 0);
             check_less_or_equal(function__, "marginal_prob_csr_vec", marginal_prob_csr_vec, 1);
-            current_statement_begin__ = 671;
+            current_statement_begin__ = 670;
             size_t entity_marginal_prob_ids_i_0_max__ = (sum(num_bg_variable_type_combo_members) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_marginal_prob_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_marginal_prob_ids[i_0__]", entity_marginal_prob_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_marginal_prob_ids[i_0__]", entity_marginal_prob_ids[i_0__], (num_r_types * num_unique_entities));
             }
-            current_statement_begin__ = 672;
+            current_statement_begin__ = 671;
             size_t entity_marginal_prob_csr_row_pos_i_0_max__ = (total_num_bg_variable_types + 1);
             for (size_t i_0__ = 0; i_0__ < entity_marginal_prob_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_marginal_prob_csr_row_pos[i_0__]", entity_marginal_prob_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 674;
+            current_statement_begin__ = 673;
             check_greater_or_equal(function__, "level_estimands_csr_vec", level_estimands_csr_vec, 0);
             check_less_or_equal(function__, "level_estimands_csr_vec", level_estimands_csr_vec, 1);
-            current_statement_begin__ = 675;
+            current_statement_begin__ = 674;
             size_t entity_estimand_ids_i_0_max__ = ((num_all_estimands * num_unique_entities) * num_estimand_levels);
             for (size_t i_0__ = 0; i_0__ < entity_estimand_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_estimand_ids[i_0__]", entity_estimand_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_estimand_ids[i_0__]", entity_estimand_ids[i_0__], (num_all_estimands * num_unique_entities));
             }
-            current_statement_begin__ = 676;
+            current_statement_begin__ = 675;
             size_t entity_estimand_csr_row_pos_i_0_max__ = (logical_gt(num_estimand_levels, 0) ? ((num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_estimand_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_estimand_csr_row_pos[i_0__]", entity_estimand_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 678;
+            current_statement_begin__ = 677;
             check_greater_or_equal(function__, "entity_histogram_vec", entity_histogram_vec, -(1));
             check_less_or_equal(function__, "entity_histogram_vec", entity_histogram_vec, 1);
-            current_statement_begin__ = 679;
+            current_statement_begin__ = 678;
             size_t entity_histogram_ids_i_0_max__ = ((num_discretized_groups * ((2 * num_discretized_variables) + 1)) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_histogram_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_histogram_ids[i_0__]", entity_histogram_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_histogram_ids[i_0__]", entity_histogram_ids[i_0__], ((num_atom_estimands * num_unique_entities) + 1));
             }
-            current_statement_begin__ = 680;
+            current_statement_begin__ = 679;
             size_t entity_histogram_csr_row_pos_i_0_max__ = (logical_gt(num_discretized_groups, 0) ? (((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_histogram_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_histogram_csr_row_pos[i_0__]", entity_histogram_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 682;
+            current_statement_begin__ = 681;
             check_greater_or_equal(function__, "entity_midpoint_vec", entity_midpoint_vec, min(cutpoint_midpoints));
             check_less_or_equal(function__, "entity_midpoint_vec", entity_midpoint_vec, max(cutpoint_midpoints));
-            current_statement_begin__ = 683;
+            current_statement_begin__ = 682;
             size_t entity_midpoint_ids_i_0_max__ = ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities);
             for (size_t i_0__ = 0; i_0__ < entity_midpoint_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_midpoint_ids[i_0__]", entity_midpoint_ids[i_0__], 1);
                 check_less_or_equal(function__, "entity_midpoint_ids[i_0__]", entity_midpoint_ids[i_0__], ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities));
             }
-            current_statement_begin__ = 684;
+            current_statement_begin__ = 683;
             size_t entity_midpoint_csr_row_pos_i_0_max__ = (logical_gt(num_discretized_groups, 0) ? ((num_discretized_groups * num_unique_entities) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_midpoint_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_midpoint_csr_row_pos[i_0__]", entity_midpoint_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 686;
+            current_statement_begin__ = 685;
             check_greater_or_equal(function__, "entity_utility_vec", entity_utility_vec, min(utility));
             check_less_or_equal(function__, "entity_utility_vec", entity_utility_vec, max(utility));
-            current_statement_begin__ = 688;
+            current_statement_begin__ = 687;
             check_greater_or_equal(function__, "between_entity_diff_csr_vec", between_entity_diff_csr_vec, -(1));
             check_less_or_equal(function__, "between_entity_diff_csr_vec", between_entity_diff_csr_vec, 1);
-            current_statement_begin__ = 690;
+            current_statement_begin__ = 689;
             size_t between_entity_diff_csr_ids_i_0_max__ = ((2 * num_atom_estimands) * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels));
             for (size_t i_0__ = 0; i_0__ < between_entity_diff_csr_ids_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "between_entity_diff_csr_ids[i_0__]", between_entity_diff_csr_ids[i_0__], 1);
                 check_less_or_equal(function__, "between_entity_diff_csr_ids[i_0__]", between_entity_diff_csr_ids[i_0__], (num_all_estimands * sum(level_size)));
             }
-            current_statement_begin__ = 691;
+            current_statement_begin__ = 690;
             size_t between_entity_diff_csr_row_pos_i_0_max__ = (logical_gt(num_between_entity_diff_levels, 0) ? ((num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)) + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < between_entity_diff_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "between_entity_diff_csr_row_pos[i_0__]", between_entity_diff_csr_row_pos[i_0__], 1);
             }
-            current_statement_begin__ = 693;
+            current_statement_begin__ = 692;
             size_t nonzero_beta_offsets_i_0_max__ = (std::max((num_discretized_r_types - 1), 0) * num_discrete_r_types);
             for (size_t i_0__ = 0; i_0__ < nonzero_beta_offsets_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "nonzero_beta_offsets[i_0__]", nonzero_beta_offsets[i_0__], 2);
@@ -3716,28 +3716,28 @@ public:
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 1033;
+            current_statement_begin__ = 1032;
             validate_non_negative_index("toplevel_discrete_beta", "num_discrete_r_types", num_discrete_r_types);
             num_params_r__ += num_discrete_r_types;
-            current_statement_begin__ = 1038;
+            current_statement_begin__ = 1034;
             validate_non_negative_index("discrete_level_beta_raw", "num_discrete_r_types", num_discrete_r_types);
             validate_non_negative_index("discrete_level_beta_raw", "sum(level_size)", sum(level_size));
             num_params_r__ += (num_discrete_r_types * sum(level_size));
-            current_statement_begin__ = 1039;
+            current_statement_begin__ = 1035;
             validate_non_negative_index("discrete_level_beta_sigma", "num_discrete_r_types", num_discrete_r_types);
             validate_non_negative_index("discrete_level_beta_sigma", "num_levels", num_levels);
             num_params_r__ += (num_discrete_r_types * num_levels);
-            current_statement_begin__ = 1042;
+            current_statement_begin__ = 1037;
             validate_non_negative_index("toplevel_discretized_beta", "std::max(0, num_discretized_r_types)", std::max(0, num_discretized_r_types));
             validate_non_negative_index("toplevel_discretized_beta", "num_discrete_r_types", num_discrete_r_types);
             validate_non_negative_index("toplevel_discretized_beta", "num_discretized_variables", num_discretized_variables);
             num_params_r__ += ((std::max(0, num_discretized_r_types) * num_discrete_r_types) * num_discretized_variables);
-            current_statement_begin__ = 1046;
+            current_statement_begin__ = 1039;
             validate_non_negative_index("discretized_level_beta_raw", "(std::max(num_discretized_r_types, 0) * num_discrete_r_types)", (std::max(num_discretized_r_types, 0) * num_discrete_r_types));
             validate_non_negative_index("discretized_level_beta_raw", "sum(level_size)", sum(level_size));
             validate_non_negative_index("discretized_level_beta_raw", "num_discretized_variables", num_discretized_variables);
             num_params_r__ += (((std::max(num_discretized_r_types, 0) * num_discrete_r_types) * sum(level_size)) * num_discretized_variables);
-            current_statement_begin__ = 1047;
+            current_statement_begin__ = 1040;
             validate_non_negative_index("discretized_level_beta_sigma", "std::max(num_discretized_r_types, 0)", std::max(num_discretized_r_types, 0));
             validate_non_negative_index("discretized_level_beta_sigma", "num_levels", num_levels);
             validate_non_negative_index("discretized_level_beta_sigma", "num_discretized_variables", num_discretized_variables);
@@ -3759,7 +3759,7 @@ public:
         (void) pos__; // dummy call to supress warning
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
-        current_statement_begin__ = 1033;
+        current_statement_begin__ = 1032;
         if (!(context__.contains_r("toplevel_discrete_beta")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable toplevel_discrete_beta missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("toplevel_discrete_beta");
@@ -3776,7 +3776,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable toplevel_discrete_beta: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 1038;
+        current_statement_begin__ = 1034;
         if (!(context__.contains_r("discrete_level_beta_raw")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable discrete_level_beta_raw missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("discrete_level_beta_raw");
@@ -3797,7 +3797,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable discrete_level_beta_raw: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 1039;
+        current_statement_begin__ = 1035;
         if (!(context__.contains_r("discrete_level_beta_sigma")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable discrete_level_beta_sigma missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("discrete_level_beta_sigma");
@@ -3818,7 +3818,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable discrete_level_beta_sigma: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 1042;
+        current_statement_begin__ = 1037;
         if (!(context__.contains_r("toplevel_discretized_beta")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable toplevel_discretized_beta missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("toplevel_discretized_beta");
@@ -3846,7 +3846,7 @@ public:
                 stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable toplevel_discretized_beta: ") + e.what()), current_statement_begin__, prog_reader__());
             }
         }
-        current_statement_begin__ = 1046;
+        current_statement_begin__ = 1039;
         if (!(context__.contains_r("discretized_level_beta_raw")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable discretized_level_beta_raw missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("discretized_level_beta_raw");
@@ -3874,7 +3874,7 @@ public:
                 stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable discretized_level_beta_raw: ") + e.what()), current_statement_begin__, prog_reader__());
             }
         }
-        current_statement_begin__ = 1047;
+        current_statement_begin__ = 1040;
         if (!(context__.contains_r("discretized_level_beta_sigma")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable discretized_level_beta_sigma missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("discretized_level_beta_sigma");
@@ -3927,28 +3927,28 @@ public:
         try {
             stan::io::reader<local_scalar_t__> in__(params_r__, params_i__);
             // model parameters
-            current_statement_begin__ = 1033;
+            current_statement_begin__ = 1032;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> toplevel_discrete_beta;
             (void) toplevel_discrete_beta;  // dummy to suppress unused var warning
             if (jacobian__)
                 toplevel_discrete_beta = in__.vector_constrain(num_discrete_r_types, lp__);
             else
                 toplevel_discrete_beta = in__.vector_constrain(num_discrete_r_types);
-            current_statement_begin__ = 1038;
+            current_statement_begin__ = 1034;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> discrete_level_beta_raw;
             (void) discrete_level_beta_raw;  // dummy to suppress unused var warning
             if (jacobian__)
                 discrete_level_beta_raw = in__.matrix_constrain(num_discrete_r_types, sum(level_size), lp__);
             else
                 discrete_level_beta_raw = in__.matrix_constrain(num_discrete_r_types, sum(level_size));
-            current_statement_begin__ = 1039;
+            current_statement_begin__ = 1035;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> discrete_level_beta_sigma;
             (void) discrete_level_beta_sigma;  // dummy to suppress unused var warning
             if (jacobian__)
                 discrete_level_beta_sigma = in__.matrix_lb_constrain(0, num_discrete_r_types, num_levels, lp__);
             else
                 discrete_level_beta_sigma = in__.matrix_lb_constrain(0, num_discrete_r_types, num_levels);
-            current_statement_begin__ = 1042;
+            current_statement_begin__ = 1037;
             std::vector<Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> > toplevel_discretized_beta;
             size_t toplevel_discretized_beta_d_0_max__ = num_discretized_variables;
             toplevel_discretized_beta.reserve(toplevel_discretized_beta_d_0_max__);
@@ -3958,7 +3958,7 @@ public:
                 else
                     toplevel_discretized_beta.push_back(in__.matrix_constrain(std::max(0, num_discretized_r_types), num_discrete_r_types));
             }
-            current_statement_begin__ = 1046;
+            current_statement_begin__ = 1039;
             std::vector<Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> > discretized_level_beta_raw;
             size_t discretized_level_beta_raw_d_0_max__ = num_discretized_variables;
             discretized_level_beta_raw.reserve(discretized_level_beta_raw_d_0_max__);
@@ -3968,7 +3968,7 @@ public:
                 else
                     discretized_level_beta_raw.push_back(in__.matrix_constrain((std::max(num_discretized_r_types, 0) * num_discrete_r_types), sum(level_size)));
             }
-            current_statement_begin__ = 1047;
+            current_statement_begin__ = 1040;
             std::vector<Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> > discretized_level_beta_sigma;
             size_t discretized_level_beta_sigma_d_0_max__ = num_discretized_variables;
             discretized_level_beta_sigma.reserve(discretized_level_beta_sigma_d_0_max__);
@@ -3979,24 +3979,24 @@ public:
                     discretized_level_beta_sigma.push_back(in__.matrix_lb_constrain(0, std::max(num_discretized_r_types, 0), num_levels));
             }
             // transformed parameters
-            current_statement_begin__ = 1052;
+            current_statement_begin__ = 1044;
             validate_non_negative_index("r_log_prob", "(num_r_types * num_unique_entities)", (num_r_types * num_unique_entities));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> r_log_prob((num_r_types * num_unique_entities));
             stan::math::initialize(r_log_prob, DUMMY_VAR__);
             stan::math::fill(r_log_prob, DUMMY_VAR__);
-            current_statement_begin__ = 1054;
+            current_statement_begin__ = 1046;
             validate_non_negative_index("entity_candidates_group_logp", "(logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 )", (logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 ));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> entity_candidates_group_logp((logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 ));
             stan::math::initialize(entity_candidates_group_logp, DUMMY_VAR__);
             stan::math::fill(entity_candidates_group_logp, DUMMY_VAR__);
-            current_statement_begin__ = 1056;
+            current_statement_begin__ = 1048;
             validate_non_negative_index("discrete_beta", "num_discrete_r_types", num_discrete_r_types);
             validate_non_negative_index("discrete_beta", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> discrete_beta(num_discrete_r_types, num_unique_entities);
             stan::math::initialize(discrete_beta, DUMMY_VAR__);
             stan::math::fill(discrete_beta, DUMMY_VAR__);
             stan::math::assign(discrete_beta,rep_matrix(toplevel_discrete_beta, num_unique_entities));
-            current_statement_begin__ = 1058;
+            current_statement_begin__ = 1050;
             validate_non_negative_index("discretized_beta", "(num_discretized_r_types * num_discrete_r_types)", (num_discretized_r_types * num_discrete_r_types));
             validate_non_negative_index("discretized_beta", "num_unique_entities", num_unique_entities);
             validate_non_negative_index("discretized_beta", "num_discretized_variables", num_discretized_variables);
@@ -4004,94 +4004,94 @@ public:
             stan::math::initialize(discretized_beta, DUMMY_VAR__);
             stan::math::fill(discretized_beta, DUMMY_VAR__);
             // transformed parameters block statements
-            current_statement_begin__ = 1060;
+            current_statement_begin__ = 1052;
             for (int discretized_var_index = 1; discretized_var_index <= num_discretized_variables; ++discretized_var_index) {
                 {
-                current_statement_begin__ = 1061;
+                current_statement_begin__ = 1053;
                 validate_non_negative_index("curr_discretized_beta", "num_discretized_r_types", num_discretized_r_types);
                 validate_non_negative_index("curr_discretized_beta", "num_discrete_r_types", num_discrete_r_types);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> curr_discretized_beta(num_discretized_r_types, num_discrete_r_types);
                 stan::math::initialize(curr_discretized_beta, DUMMY_VAR__);
                 stan::math::fill(curr_discretized_beta, DUMMY_VAR__);
                 stan::math::assign(curr_discretized_beta,get_base1(toplevel_discretized_beta, discretized_var_index, "toplevel_discretized_beta", 1));
-                current_statement_begin__ = 1065;
+                current_statement_begin__ = 1056;
                 stan::model::assign(discretized_beta, 
                             stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::nil_index_list()), 
                             rep_matrix(to_vector(curr_discretized_beta), num_unique_entities), 
                             "assigning variable discretized_beta");
                 }
             }
-            current_statement_begin__ = 1068;
+            current_statement_begin__ = 1059;
             if (as_bool(logical_gt(num_levels, 0))) {
                 {
-                current_statement_begin__ = 1069;
+                current_statement_begin__ = 1060;
                 int level_entity_pos(0);
                 (void) level_entity_pos;  // dummy to suppress unused var warning
                 stan::math::fill(level_entity_pos, std::numeric_limits<int>::min());
                 stan::math::assign(level_entity_pos,1);
-                current_statement_begin__ = 1071;
+                current_statement_begin__ = 1062;
                 for (int level_index = 1; level_index <= num_levels; ++level_index) {
                     {
-                    current_statement_begin__ = 1072;
+                    current_statement_begin__ = 1063;
                     int level_entity_end(0);
                     (void) level_entity_end;  // dummy to suppress unused var warning
                     stan::math::fill(level_entity_end, std::numeric_limits<int>::min());
                     stan::math::assign(level_entity_end,((level_entity_pos + get_base1(level_size, level_index, "level_size", 1)) - 1));
-                    current_statement_begin__ = 1074;
+                    current_statement_begin__ = 1065;
                     validate_non_negative_index("curr_discrete_level_beta", "num_discrete_r_types", num_discrete_r_types);
                     validate_non_negative_index("curr_discrete_level_beta", "get_base1(level_size, level_index, \"level_size\", 1)", get_base1(level_size, level_index, "level_size", 1));
                     Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> curr_discrete_level_beta(num_discrete_r_types, get_base1(level_size, level_index, "level_size", 1));
                     stan::math::initialize(curr_discrete_level_beta, DUMMY_VAR__);
                     stan::math::fill(curr_discrete_level_beta, DUMMY_VAR__);
                     stan::math::assign(curr_discrete_level_beta,elt_multiply(stan::model::rvalue(discrete_level_beta_raw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list())), "discrete_level_beta_raw"), rep_matrix(stan::model::rvalue(discrete_level_beta_sigma, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "discrete_level_beta_sigma"), get_base1(level_size, level_index, "level_size", 1))));
-                    current_statement_begin__ = 1077;
+                    current_statement_begin__ = 1068;
                     stan::math::assign(discrete_beta, add(discrete_beta, stan::model::rvalue(curr_discrete_level_beta, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_multi(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids")), stan::model::nil_index_list())), "curr_discrete_level_beta")));
-                    current_statement_begin__ = 1079;
+                    current_statement_begin__ = 1070;
                     for (int discretized_var_index = 1; discretized_var_index <= num_discretized_variables; ++discretized_var_index) {
                         {
-                        current_statement_begin__ = 1080;
+                        current_statement_begin__ = 1071;
                         validate_non_negative_index("curr_discretized_level_beta", "(std::max(num_discretized_r_types, 0) * num_discrete_r_types)", (std::max(num_discretized_r_types, 0) * num_discrete_r_types));
                         validate_non_negative_index("curr_discretized_level_beta", "get_base1(level_size, level_index, \"level_size\", 1)", get_base1(level_size, level_index, "level_size", 1));
                         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> curr_discretized_level_beta((std::max(num_discretized_r_types, 0) * num_discrete_r_types), get_base1(level_size, level_index, "level_size", 1));
                         stan::math::initialize(curr_discretized_level_beta, DUMMY_VAR__);
                         stan::math::fill(curr_discretized_level_beta, DUMMY_VAR__);
                         stan::math::assign(curr_discretized_level_beta,elt_multiply(stan::model::rvalue(discretized_level_beta_raw, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list()))), "discretized_level_beta_raw"), rep_matrix(to_vector(rep_matrix(stan::model::rvalue(discretized_level_beta_sigma, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list()))), "discretized_level_beta_sigma"), num_discrete_r_types)), get_base1(level_size, level_index, "level_size", 1))));
-                        current_statement_begin__ = 1085;
+                        current_statement_begin__ = 1075;
                         stan::model::assign(discretized_beta, 
                                     stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), 
                                     add(stan::model::rvalue(discretized_beta, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "discretized_beta"), stan::model::rvalue(curr_discretized_level_beta, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_multi(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids")), stan::model::nil_index_list())), "curr_discretized_level_beta")), 
                                     "assigning variable discretized_beta");
                         }
                     }
-                    current_statement_begin__ = 1088;
+                    current_statement_begin__ = 1078;
                     stan::math::assign(level_entity_pos, (level_entity_end + 1));
                     }
                 }
                 }
             }
-            current_statement_begin__ = 1092;
+            current_statement_begin__ = 1082;
             for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
                 {
-                current_statement_begin__ = 1093;
+                current_statement_begin__ = 1083;
                 validate_non_negative_index("curr_discrete_log_prob", "num_discrete_r_types", num_discrete_r_types);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> curr_discrete_log_prob(num_discrete_r_types);
                 stan::math::initialize(curr_discrete_log_prob, DUMMY_VAR__);
                 stan::math::fill(curr_discrete_log_prob, DUMMY_VAR__);
                 stan::math::assign(curr_discrete_log_prob,log_softmax(stan::model::rvalue(discrete_beta, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(entity_index), stan::model::nil_index_list())), "discrete_beta")));
-                current_statement_begin__ = 1098;
+                current_statement_begin__ = 1085;
                 if (as_bool(logical_gt(num_discretized_r_types, 0))) {
                     {
-                    current_statement_begin__ = 1099;
+                    current_statement_begin__ = 1086;
                     int r_prob_pos(0);
                     (void) r_prob_pos;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_pos, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_pos,(((entity_index - 1) * num_r_types) + 1));
-                    current_statement_begin__ = 1100;
+                    current_statement_begin__ = 1087;
                     int r_prob_end(0);
                     (void) r_prob_end;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_end, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_end,(entity_index * num_r_types));
-                    current_statement_begin__ = 1102;
+                    current_statement_begin__ = 1089;
                     stan::model::assign(r_log_prob, 
                                 stan::model::cons_list(stan::model::index_min_max(r_prob_pos, r_prob_end), stan::model::nil_index_list()), 
                                 calculate_r_type_joint_log_prob(num_r_types, num_discrete_r_types, num_discretized_r_types, discrete_group_size, num_compatible_discretized_r_types, compatible_discretized_r_types, compatible_discretized_pair_ids, curr_discrete_log_prob, discretized_beta, entity_index, pstream__), 
@@ -4099,17 +4099,17 @@ public:
                     }
                 } else {
                     {
-                    current_statement_begin__ = 1106;
+                    current_statement_begin__ = 1093;
                     int r_prob_pos(0);
                     (void) r_prob_pos;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_pos, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_pos,(((entity_index - 1) * num_r_types) + 1));
-                    current_statement_begin__ = 1107;
+                    current_statement_begin__ = 1094;
                     int r_prob_end(0);
                     (void) r_prob_end;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_end, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_end,(entity_index * num_r_types));
-                    current_statement_begin__ = 1109;
+                    current_statement_begin__ = 1096;
                     stan::model::assign(r_log_prob, 
                                 stan::model::cons_list(stan::model::index_min_max(r_prob_pos, r_prob_end), stan::model::nil_index_list()), 
                                 stan::model::rvalue(curr_discrete_log_prob, stan::model::cons_list(stan::model::index_multi(discrete_r_type_id), stan::model::nil_index_list()), "curr_discrete_log_prob"), 
@@ -4118,15 +4118,15 @@ public:
                 }
                 }
             }
-            current_statement_begin__ = 1113;
+            current_statement_begin__ = 1100;
             if (as_bool(logical_eq(run_type, RUN_TYPE_FIT))) {
-                current_statement_begin__ = 1120;
+                current_statement_begin__ = 1101;
                 stan::math::assign(entity_candidates_group_logp, csr_log_sum_exp(sum(num_unique_entity_candidate_groups), (num_r_types * num_unique_entities), entity_candidate_group_ids, entity_candidate_group_csr_row_pos, r_log_prob, pstream__));
             }
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 1052;
+            current_statement_begin__ = 1044;
             size_t r_log_prob_j_1_max__ = (num_r_types * num_unique_entities);
             for (size_t j_1__ = 0; j_1__ < r_log_prob_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(r_log_prob(j_1__))) {
@@ -4136,7 +4136,7 @@ public:
                 }
             }
             check_less_or_equal(function__, "r_log_prob", r_log_prob, 0);
-            current_statement_begin__ = 1054;
+            current_statement_begin__ = 1046;
             size_t entity_candidates_group_logp_j_1_max__ = (logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 );
             for (size_t j_1__ = 0; j_1__ < entity_candidates_group_logp_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(entity_candidates_group_logp(j_1__))) {
@@ -4145,7 +4145,7 @@ public:
                     stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable entity_candidates_group_logp: ") + msg__.str()), current_statement_begin__, prog_reader__());
                 }
             }
-            current_statement_begin__ = 1056;
+            current_statement_begin__ = 1048;
             size_t discrete_beta_j_1_max__ = num_discrete_r_types;
             size_t discrete_beta_j_2_max__ = num_unique_entities;
             for (size_t j_1__ = 0; j_1__ < discrete_beta_j_1_max__; ++j_1__) {
@@ -4157,7 +4157,7 @@ public:
                     }
                 }
             }
-            current_statement_begin__ = 1058;
+            current_statement_begin__ = 1050;
             size_t discretized_beta_k_0_max__ = num_discretized_variables;
             size_t discretized_beta_j_1_max__ = (num_discretized_r_types * num_discrete_r_types);
             size_t discretized_beta_j_2_max__ = num_unique_entities;
@@ -4173,36 +4173,36 @@ public:
                 }
             }
             // model body
-            current_statement_begin__ = 1129;
+            current_statement_begin__ = 1110;
             lp_accum__.add(normal_log<propto__>(toplevel_discrete_beta, 0, discrete_beta_hyper_sd));
-            current_statement_begin__ = 1131;
+            current_statement_begin__ = 1112;
             if (as_bool(logical_gt(num_levels, 0))) {
-                current_statement_begin__ = 1132;
+                current_statement_begin__ = 1113;
                 lp_accum__.add(std_normal_log<propto__>(to_vector(discrete_level_beta_raw)));
-                current_statement_begin__ = 1134;
+                current_statement_begin__ = 1115;
                 for (int level_index = 1; level_index <= num_levels; ++level_index) {
-                    current_statement_begin__ = 1135;
+                    current_statement_begin__ = 1116;
                     lp_accum__.add(normal_log<propto__>(stan::model::rvalue(discrete_level_beta_sigma, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "discrete_level_beta_sigma"), 0, get_base1(tau_level_sigma, level_index, "tau_level_sigma", 1)));
                 }
             }
-            current_statement_begin__ = 1139;
+            current_statement_begin__ = 1120;
             for (int discretized_var_index = 1; discretized_var_index <= num_discretized_variables; ++discretized_var_index) {
-                current_statement_begin__ = 1140;
+                current_statement_begin__ = 1121;
                 lp_accum__.add(normal_log<propto__>(to_vector(get_base1(toplevel_discretized_beta, discretized_var_index, "toplevel_discretized_beta", 1)), 0, discretized_beta_hyper_sd));
-                current_statement_begin__ = 1142;
+                current_statement_begin__ = 1123;
                 if (as_bool(logical_gt(num_levels, 0))) {
-                    current_statement_begin__ = 1143;
+                    current_statement_begin__ = 1124;
                     lp_accum__.add(std_normal_log<propto__>(to_vector(get_base1(discretized_level_beta_raw, discretized_var_index, "discretized_level_beta_raw", 1))));
-                    current_statement_begin__ = 1145;
+                    current_statement_begin__ = 1126;
                     for (int level_index = 1; level_index <= num_levels; ++level_index) {
-                        current_statement_begin__ = 1146;
+                        current_statement_begin__ = 1127;
                         lp_accum__.add(normal_log<propto__>(stan::model::rvalue(discretized_level_beta_sigma, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list()))), "discretized_level_beta_sigma"), 0, get_base1(tau_level_sigma, level_index, "tau_level_sigma", 1)));
                     }
                 }
             }
-            current_statement_begin__ = 1151;
+            current_statement_begin__ = 1132;
             if (as_bool(logical_eq(run_type, RUN_TYPE_FIT))) {
-                current_statement_begin__ = 1152;
+                current_statement_begin__ = 1133;
                 lp_accum__.add(multiply(num_unique_entity_in_candidate_groups, entity_candidates_group_logp));
             }
         } catch (const std::exception& e) {
@@ -4442,24 +4442,24 @@ public:
         if (!include_tparams__ && !include_gqs__) return;
         try {
             // declare and define transformed parameters
-            current_statement_begin__ = 1052;
+            current_statement_begin__ = 1044;
             validate_non_negative_index("r_log_prob", "(num_r_types * num_unique_entities)", (num_r_types * num_unique_entities));
             Eigen::Matrix<double, Eigen::Dynamic, 1> r_log_prob((num_r_types * num_unique_entities));
             stan::math::initialize(r_log_prob, DUMMY_VAR__);
             stan::math::fill(r_log_prob, DUMMY_VAR__);
-            current_statement_begin__ = 1054;
+            current_statement_begin__ = 1046;
             validate_non_negative_index("entity_candidates_group_logp", "(logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 )", (logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 ));
             Eigen::Matrix<double, Eigen::Dynamic, 1> entity_candidates_group_logp((logical_eq(run_type, RUN_TYPE_FIT) ? sum(num_unique_entity_candidate_groups) : 0 ));
             stan::math::initialize(entity_candidates_group_logp, DUMMY_VAR__);
             stan::math::fill(entity_candidates_group_logp, DUMMY_VAR__);
-            current_statement_begin__ = 1056;
+            current_statement_begin__ = 1048;
             validate_non_negative_index("discrete_beta", "num_discrete_r_types", num_discrete_r_types);
             validate_non_negative_index("discrete_beta", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> discrete_beta(num_discrete_r_types, num_unique_entities);
             stan::math::initialize(discrete_beta, DUMMY_VAR__);
             stan::math::fill(discrete_beta, DUMMY_VAR__);
             stan::math::assign(discrete_beta,rep_matrix(toplevel_discrete_beta, num_unique_entities));
-            current_statement_begin__ = 1058;
+            current_statement_begin__ = 1050;
             validate_non_negative_index("discretized_beta", "(num_discretized_r_types * num_discrete_r_types)", (num_discretized_r_types * num_discrete_r_types));
             validate_non_negative_index("discretized_beta", "num_unique_entities", num_unique_entities);
             validate_non_negative_index("discretized_beta", "num_discretized_variables", num_discretized_variables);
@@ -4467,94 +4467,94 @@ public:
             stan::math::initialize(discretized_beta, DUMMY_VAR__);
             stan::math::fill(discretized_beta, DUMMY_VAR__);
             // do transformed parameters statements
-            current_statement_begin__ = 1060;
+            current_statement_begin__ = 1052;
             for (int discretized_var_index = 1; discretized_var_index <= num_discretized_variables; ++discretized_var_index) {
                 {
-                current_statement_begin__ = 1061;
+                current_statement_begin__ = 1053;
                 validate_non_negative_index("curr_discretized_beta", "num_discretized_r_types", num_discretized_r_types);
                 validate_non_negative_index("curr_discretized_beta", "num_discrete_r_types", num_discrete_r_types);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> curr_discretized_beta(num_discretized_r_types, num_discrete_r_types);
                 stan::math::initialize(curr_discretized_beta, DUMMY_VAR__);
                 stan::math::fill(curr_discretized_beta, DUMMY_VAR__);
                 stan::math::assign(curr_discretized_beta,get_base1(toplevel_discretized_beta, discretized_var_index, "toplevel_discretized_beta", 1));
-                current_statement_begin__ = 1065;
+                current_statement_begin__ = 1056;
                 stan::model::assign(discretized_beta, 
                             stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::nil_index_list()), 
                             rep_matrix(to_vector(curr_discretized_beta), num_unique_entities), 
                             "assigning variable discretized_beta");
                 }
             }
-            current_statement_begin__ = 1068;
+            current_statement_begin__ = 1059;
             if (as_bool(logical_gt(num_levels, 0))) {
                 {
-                current_statement_begin__ = 1069;
+                current_statement_begin__ = 1060;
                 int level_entity_pos(0);
                 (void) level_entity_pos;  // dummy to suppress unused var warning
                 stan::math::fill(level_entity_pos, std::numeric_limits<int>::min());
                 stan::math::assign(level_entity_pos,1);
-                current_statement_begin__ = 1071;
+                current_statement_begin__ = 1062;
                 for (int level_index = 1; level_index <= num_levels; ++level_index) {
                     {
-                    current_statement_begin__ = 1072;
+                    current_statement_begin__ = 1063;
                     int level_entity_end(0);
                     (void) level_entity_end;  // dummy to suppress unused var warning
                     stan::math::fill(level_entity_end, std::numeric_limits<int>::min());
                     stan::math::assign(level_entity_end,((level_entity_pos + get_base1(level_size, level_index, "level_size", 1)) - 1));
-                    current_statement_begin__ = 1074;
+                    current_statement_begin__ = 1065;
                     validate_non_negative_index("curr_discrete_level_beta", "num_discrete_r_types", num_discrete_r_types);
                     validate_non_negative_index("curr_discrete_level_beta", "get_base1(level_size, level_index, \"level_size\", 1)", get_base1(level_size, level_index, "level_size", 1));
                     Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> curr_discrete_level_beta(num_discrete_r_types, get_base1(level_size, level_index, "level_size", 1));
                     stan::math::initialize(curr_discrete_level_beta, DUMMY_VAR__);
                     stan::math::fill(curr_discrete_level_beta, DUMMY_VAR__);
                     stan::math::assign(curr_discrete_level_beta,elt_multiply(stan::model::rvalue(discrete_level_beta_raw, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list())), "discrete_level_beta_raw"), rep_matrix(stan::model::rvalue(discrete_level_beta_sigma, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "discrete_level_beta_sigma"), get_base1(level_size, level_index, "level_size", 1))));
-                    current_statement_begin__ = 1077;
+                    current_statement_begin__ = 1068;
                     stan::math::assign(discrete_beta, add(discrete_beta, stan::model::rvalue(curr_discrete_level_beta, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_multi(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids")), stan::model::nil_index_list())), "curr_discrete_level_beta")));
-                    current_statement_begin__ = 1079;
+                    current_statement_begin__ = 1070;
                     for (int discretized_var_index = 1; discretized_var_index <= num_discretized_variables; ++discretized_var_index) {
                         {
-                        current_statement_begin__ = 1080;
+                        current_statement_begin__ = 1071;
                         validate_non_negative_index("curr_discretized_level_beta", "(std::max(num_discretized_r_types, 0) * num_discrete_r_types)", (std::max(num_discretized_r_types, 0) * num_discrete_r_types));
                         validate_non_negative_index("curr_discretized_level_beta", "get_base1(level_size, level_index, \"level_size\", 1)", get_base1(level_size, level_index, "level_size", 1));
                         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> curr_discretized_level_beta((std::max(num_discretized_r_types, 0) * num_discrete_r_types), get_base1(level_size, level_index, "level_size", 1));
                         stan::math::initialize(curr_discretized_level_beta, DUMMY_VAR__);
                         stan::math::fill(curr_discretized_level_beta, DUMMY_VAR__);
                         stan::math::assign(curr_discretized_level_beta,elt_multiply(stan::model::rvalue(discretized_level_beta_raw, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list()))), "discretized_level_beta_raw"), rep_matrix(to_vector(rep_matrix(stan::model::rvalue(discretized_level_beta_sigma, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list()))), "discretized_level_beta_sigma"), num_discrete_r_types)), get_base1(level_size, level_index, "level_size", 1))));
-                        current_statement_begin__ = 1085;
+                        current_statement_begin__ = 1075;
                         stan::model::assign(discretized_beta, 
                                     stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), 
                                     add(stan::model::rvalue(discretized_beta, stan::model::cons_list(stan::model::index_uni(discretized_var_index), stan::model::cons_list(stan::model::index_omni(), stan::model::nil_index_list())), "discretized_beta"), stan::model::rvalue(curr_discretized_level_beta, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_multi(stan::model::rvalue(unique_entity_ids, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(level_index), stan::model::nil_index_list())), "unique_entity_ids")), stan::model::nil_index_list())), "curr_discretized_level_beta")), 
                                     "assigning variable discretized_beta");
                         }
                     }
-                    current_statement_begin__ = 1088;
+                    current_statement_begin__ = 1078;
                     stan::math::assign(level_entity_pos, (level_entity_end + 1));
                     }
                 }
                 }
             }
-            current_statement_begin__ = 1092;
+            current_statement_begin__ = 1082;
             for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
                 {
-                current_statement_begin__ = 1093;
+                current_statement_begin__ = 1083;
                 validate_non_negative_index("curr_discrete_log_prob", "num_discrete_r_types", num_discrete_r_types);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> curr_discrete_log_prob(num_discrete_r_types);
                 stan::math::initialize(curr_discrete_log_prob, DUMMY_VAR__);
                 stan::math::fill(curr_discrete_log_prob, DUMMY_VAR__);
                 stan::math::assign(curr_discrete_log_prob,log_softmax(stan::model::rvalue(discrete_beta, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(entity_index), stan::model::nil_index_list())), "discrete_beta")));
-                current_statement_begin__ = 1098;
+                current_statement_begin__ = 1085;
                 if (as_bool(logical_gt(num_discretized_r_types, 0))) {
                     {
-                    current_statement_begin__ = 1099;
+                    current_statement_begin__ = 1086;
                     int r_prob_pos(0);
                     (void) r_prob_pos;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_pos, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_pos,(((entity_index - 1) * num_r_types) + 1));
-                    current_statement_begin__ = 1100;
+                    current_statement_begin__ = 1087;
                     int r_prob_end(0);
                     (void) r_prob_end;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_end, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_end,(entity_index * num_r_types));
-                    current_statement_begin__ = 1102;
+                    current_statement_begin__ = 1089;
                     stan::model::assign(r_log_prob, 
                                 stan::model::cons_list(stan::model::index_min_max(r_prob_pos, r_prob_end), stan::model::nil_index_list()), 
                                 calculate_r_type_joint_log_prob(num_r_types, num_discrete_r_types, num_discretized_r_types, discrete_group_size, num_compatible_discretized_r_types, compatible_discretized_r_types, compatible_discretized_pair_ids, curr_discrete_log_prob, discretized_beta, entity_index, pstream__), 
@@ -4562,17 +4562,17 @@ public:
                     }
                 } else {
                     {
-                    current_statement_begin__ = 1106;
+                    current_statement_begin__ = 1093;
                     int r_prob_pos(0);
                     (void) r_prob_pos;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_pos, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_pos,(((entity_index - 1) * num_r_types) + 1));
-                    current_statement_begin__ = 1107;
+                    current_statement_begin__ = 1094;
                     int r_prob_end(0);
                     (void) r_prob_end;  // dummy to suppress unused var warning
                     stan::math::fill(r_prob_end, std::numeric_limits<int>::min());
                     stan::math::assign(r_prob_end,(entity_index * num_r_types));
-                    current_statement_begin__ = 1109;
+                    current_statement_begin__ = 1096;
                     stan::model::assign(r_log_prob, 
                                 stan::model::cons_list(stan::model::index_min_max(r_prob_pos, r_prob_end), stan::model::nil_index_list()), 
                                 stan::model::rvalue(curr_discrete_log_prob, stan::model::cons_list(stan::model::index_multi(discrete_r_type_id), stan::model::nil_index_list()), "curr_discrete_log_prob"), 
@@ -4581,16 +4581,16 @@ public:
                 }
                 }
             }
-            current_statement_begin__ = 1113;
+            current_statement_begin__ = 1100;
             if (as_bool(logical_eq(run_type, RUN_TYPE_FIT))) {
-                current_statement_begin__ = 1120;
+                current_statement_begin__ = 1101;
                 stan::math::assign(entity_candidates_group_logp, csr_log_sum_exp(sum(num_unique_entity_candidate_groups), (num_r_types * num_unique_entities), entity_candidate_group_ids, entity_candidate_group_csr_row_pos, r_log_prob, pstream__));
             }
             if (!include_gqs__ && !include_tparams__) return;
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 1052;
+            current_statement_begin__ = 1044;
             check_less_or_equal(function__, "r_log_prob", r_log_prob, 0);
             // write transformed parameters
             if (include_tparams__) {
@@ -4622,261 +4622,261 @@ public:
             }
             if (!include_gqs__) return;
             // declare and define generated quantities
-            current_statement_begin__ = 1157;
+            current_statement_begin__ = 1138;
             validate_non_negative_index("log_lik", "((primitive_value(logical_eq(run_type, RUN_TYPE_FIT)) && primitive_value(logical_gt(log_lik_level, -(1)))) ? (logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, \"level_size\", 1) : num_obs ) : 0 )", ((primitive_value(logical_eq(run_type, RUN_TYPE_FIT)) && primitive_value(logical_gt(log_lik_level, -(1)))) ? (logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, "level_size", 1) : num_obs ) : 0 ));
             Eigen::Matrix<double, Eigen::Dynamic, 1> log_lik(((primitive_value(logical_eq(run_type, RUN_TYPE_FIT)) && primitive_value(logical_gt(log_lik_level, -(1)))) ? (logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, "level_size", 1) : num_obs ) : 0 ));
             stan::math::initialize(log_lik, DUMMY_VAR__);
             stan::math::fill(log_lik, DUMMY_VAR__);
-            current_statement_begin__ = 1160;
+            current_statement_begin__ = 1140;
             validate_non_negative_index("total_abducted_log_prob", "(num_abducted_estimands * num_unique_entities)", (num_abducted_estimands * num_unique_entities));
             Eigen::Matrix<double, Eigen::Dynamic, 1> total_abducted_log_prob((num_abducted_estimands * num_unique_entities));
             stan::math::initialize(total_abducted_log_prob, DUMMY_VAR__);
             stan::math::fill(total_abducted_log_prob, DUMMY_VAR__);
-            current_statement_begin__ = 1164;
+            current_statement_begin__ = 1144;
             validate_non_negative_index("iter_atom_estimand", "num_atom_estimands", num_atom_estimands);
             validate_non_negative_index("iter_atom_estimand", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_atom_estimand(num_atom_estimands, num_unique_entities);
             stan::math::initialize(iter_atom_estimand, DUMMY_VAR__);
             stan::math::fill(iter_atom_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1166;
+            current_statement_begin__ = 1146;
             validate_non_negative_index("iter_diff_estimand", "num_diff_estimands", num_diff_estimands);
             validate_non_negative_index("iter_diff_estimand", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_diff_estimand(num_diff_estimands, num_unique_entities);
             stan::math::initialize(iter_diff_estimand, DUMMY_VAR__);
             stan::math::fill(iter_diff_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1168;
+            current_statement_begin__ = 1148;
             validate_non_negative_index("iter_entity_estimand", "num_all_estimands", num_all_estimands);
             validate_non_negative_index("iter_entity_estimand", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_entity_estimand(num_all_estimands, num_unique_entities);
             stan::math::initialize(iter_entity_estimand, DUMMY_VAR__);
             stan::math::fill(iter_entity_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1169;
+            current_statement_begin__ = 1149;
             validate_non_negative_index("iter_estimand", "num_all_estimands", num_all_estimands);
             Eigen::Matrix<double, Eigen::Dynamic, 1> iter_estimand(num_all_estimands);
             stan::math::initialize(iter_estimand, DUMMY_VAR__);
             stan::math::fill(iter_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1170;
+            current_statement_begin__ = 1150;
             validate_non_negative_index("iter_level_entity_estimand", "num_all_estimands", num_all_estimands);
             validate_non_negative_index("iter_level_entity_estimand", "sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), \"level_size\"))", sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size")));
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_level_entity_estimand(num_all_estimands, sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size")));
             stan::math::initialize(iter_level_entity_estimand, DUMMY_VAR__);
             stan::math::fill(iter_level_entity_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1171;
+            current_statement_begin__ = 1151;
             validate_non_negative_index("iter_level_entity_estimand_sd", "num_all_estimands", num_all_estimands);
             validate_non_negative_index("iter_level_entity_estimand_sd", "(logical_eq(run_type, RUN_TYPE_PRIOR_PREDICT) ? num_estimand_levels : 0 )", (logical_eq(run_type, RUN_TYPE_PRIOR_PREDICT) ? num_estimand_levels : 0 ));
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_level_entity_estimand_sd(num_all_estimands, (logical_eq(run_type, RUN_TYPE_PRIOR_PREDICT) ? num_estimand_levels : 0 ));
             stan::math::initialize(iter_level_entity_estimand_sd, DUMMY_VAR__);
             stan::math::fill(iter_level_entity_estimand_sd, DUMMY_VAR__);
-            current_statement_begin__ = 1172;
+            current_statement_begin__ = 1152;
             validate_non_negative_index("iter_between_level_entity_diff_estimand", "num_atom_estimands", num_atom_estimands);
             validate_non_negative_index("iter_between_level_entity_diff_estimand", "(sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), \"level_size\")) - num_between_entity_diff_levels)", (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels));
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_between_level_entity_diff_estimand(num_atom_estimands, (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels));
             stan::math::initialize(iter_between_level_entity_diff_estimand, DUMMY_VAR__);
             stan::math::fill(iter_between_level_entity_diff_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1176;
+            current_statement_begin__ = 1156;
             validate_non_negative_index("iter_entity_discretized_histogram_vec", "((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities)", ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities));
             Eigen::Matrix<double, Eigen::Dynamic, 1> iter_entity_discretized_histogram_vec(((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities));
             stan::math::initialize(iter_entity_discretized_histogram_vec, DUMMY_VAR__);
             stan::math::fill(iter_entity_discretized_histogram_vec, DUMMY_VAR__);
-            current_statement_begin__ = 1177;
+            current_statement_begin__ = 1157;
             validate_non_negative_index("iter_entity_discretized_mean", "num_discretized_groups", num_discretized_groups);
             validate_non_negative_index("iter_entity_discretized_mean", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_entity_discretized_mean(num_discretized_groups, num_unique_entities);
             stan::math::initialize(iter_entity_discretized_mean, DUMMY_VAR__);
             stan::math::fill(iter_entity_discretized_mean, DUMMY_VAR__);
-            current_statement_begin__ = 1178;
+            current_statement_begin__ = 1158;
             validate_non_negative_index("iter_entity_discretized_utility", "(logical_gt(num_discrete_utility_values, 0) ? num_discretized_groups : 0 )", (logical_gt(num_discrete_utility_values, 0) ? num_discretized_groups : 0 ));
             validate_non_negative_index("iter_entity_discretized_utility", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_entity_discretized_utility((logical_gt(num_discrete_utility_values, 0) ? num_discretized_groups : 0 ), num_unique_entities);
             stan::math::initialize(iter_entity_discretized_utility, DUMMY_VAR__);
             stan::math::fill(iter_entity_discretized_utility, DUMMY_VAR__);
-            current_statement_begin__ = 1179;
+            current_statement_begin__ = 1159;
             validate_non_negative_index("iter_mean_diff_estimand", "num_mean_diff_estimands", num_mean_diff_estimands);
             validate_non_negative_index("iter_mean_diff_estimand", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_mean_diff_estimand(num_mean_diff_estimands, num_unique_entities);
             stan::math::initialize(iter_mean_diff_estimand, DUMMY_VAR__);
             stan::math::fill(iter_mean_diff_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1180;
+            current_statement_begin__ = 1160;
             validate_non_negative_index("iter_utility_diff_estimand", "num_mean_diff_estimands", num_mean_diff_estimands);
             validate_non_negative_index("iter_utility_diff_estimand", "num_unique_entities", num_unique_entities);
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> iter_utility_diff_estimand(num_mean_diff_estimands, num_unique_entities);
             stan::math::initialize(iter_utility_diff_estimand, DUMMY_VAR__);
             stan::math::fill(iter_utility_diff_estimand, DUMMY_VAR__);
-            current_statement_begin__ = 1182;
+            current_statement_begin__ = 1163;
             validate_non_negative_index("marginal_p_r", "(calculate_marginal_prob ? total_num_bg_variable_types : 0 )", (calculate_marginal_prob ? total_num_bg_variable_types : 0 ));
             Eigen::Matrix<double, Eigen::Dynamic, 1> marginal_p_r((calculate_marginal_prob ? total_num_bg_variable_types : 0 ));
             stan::math::initialize(marginal_p_r, DUMMY_VAR__);
             stan::math::fill(marginal_p_r, DUMMY_VAR__);
             // generated quantities statements
-            current_statement_begin__ = 1188;
+            current_statement_begin__ = 1169;
             if (as_bool((primitive_value(logical_eq(run_type, RUN_TYPE_FIT)) && primitive_value(logical_gt(log_lik_level, -(1)))))) {
-                current_statement_begin__ = 1189;
+                current_statement_begin__ = 1170;
                 stan::math::assign(log_lik, csr_log_sum_exp(num_obs, (num_r_types * num_unique_entities), obs_candidate_group_ids, obs_candidate_group_csr_row_pos, r_log_prob, pstream__));
             }
-            current_statement_begin__ = 1203;
+            current_statement_begin__ = 1184;
             if (as_bool(logical_gt(num_discrete_estimands, 0))) {
                 {
-                current_statement_begin__ = 1206;
+                current_statement_begin__ = 1187;
                 validate_non_negative_index("full_r_log_prob", "num_experiment_types", num_experiment_types);
                 validate_non_negative_index("full_r_log_prob", "(num_r_types * num_unique_entities)", (num_r_types * num_unique_entities));
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, Eigen::Dynamic> full_r_log_prob(num_experiment_types, (num_r_types * num_unique_entities));
                 stan::math::initialize(full_r_log_prob, DUMMY_VAR__);
                 stan::math::fill(full_r_log_prob, DUMMY_VAR__);
                 stan::math::assign(full_r_log_prob,add(rep_matrix(transpose(r_log_prob), num_experiment_types), rep_matrix(stan::math::log(experiment_types_prob), (num_r_types * num_unique_entities))));
-                current_statement_begin__ = 1207;
+                current_statement_begin__ = 1188;
                 validate_non_negative_index("full_r_log_prob_vec", "(num_r_types_full * num_unique_entities)", (num_r_types_full * num_unique_entities));
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> full_r_log_prob_vec((num_r_types_full * num_unique_entities));
                 stan::math::initialize(full_r_log_prob_vec, DUMMY_VAR__);
                 stan::math::fill(full_r_log_prob_vec, DUMMY_VAR__);
                 stan::math::assign(full_r_log_prob_vec,to_vector(full_r_log_prob));
-                current_statement_begin__ = 1209;
+                current_statement_begin__ = 1190;
                 validate_non_negative_index("iter_atom_log_estimand_vec", "(num_atom_estimands * num_unique_entities)", (num_atom_estimands * num_unique_entities));
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_atom_log_estimand_vec((num_atom_estimands * num_unique_entities));
                 stan::math::initialize(iter_atom_log_estimand_vec, DUMMY_VAR__);
                 stan::math::fill(iter_atom_log_estimand_vec, DUMMY_VAR__);
                 stan::math::assign(iter_atom_log_estimand_vec,csr_log_sum_exp((num_atom_estimands * num_unique_entities), (num_r_types_full * num_unique_entities), entity_est_prob_ids, entity_est_prob_csr_row_pos, full_r_log_prob_vec, pstream__));
-                current_statement_begin__ = 1222;
+                current_statement_begin__ = 1203;
                 validate_non_negative_index("iter_diff_estimand_vec", "(num_diff_estimands * num_unique_entities)", (num_diff_estimands * num_unique_entities));
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_diff_estimand_vec((num_diff_estimands * num_unique_entities));
                 stan::math::initialize(iter_diff_estimand_vec, DUMMY_VAR__);
                 stan::math::fill(iter_diff_estimand_vec, DUMMY_VAR__);
-                current_statement_begin__ = 1224;
+                current_statement_begin__ = 1205;
                 if (as_bool(logical_gt(num_abducted_estimands, 0))) {
-                    current_statement_begin__ = 1225;
+                    current_statement_begin__ = 1206;
                     stan::math::assign(total_abducted_log_prob, csr_log_sum_exp((num_abducted_estimands * num_unique_entities), (num_r_types_full * num_unique_entities), entity_abducted_prob_ids, entity_abducted_prob_csr_row_pos, full_r_log_prob_vec, pstream__));
-                    current_statement_begin__ = 1240;
+                    current_statement_begin__ = 1221;
                     stan::model::assign(iter_atom_log_estimand_vec, 
                                 stan::model::cons_list(stan::model::index_multi(long_entity_abducted_index), stan::model::nil_index_list()), 
                                 subtract(stan::model::rvalue(iter_atom_log_estimand_vec, stan::model::cons_list(stan::model::index_multi(long_entity_abducted_index), stan::model::nil_index_list()), "iter_atom_log_estimand_vec"), total_abducted_log_prob), 
                                 "assigning variable iter_atom_log_estimand_vec");
                 }
-                current_statement_begin__ = 1243;
+                current_statement_begin__ = 1224;
                 stan::math::assign(iter_atom_estimand, to_matrix(stan::math::exp(iter_atom_log_estimand_vec), num_atom_estimands, num_unique_entities));
-                current_statement_begin__ = 1245;
+                current_statement_begin__ = 1226;
                 if (as_bool(logical_gt(num_diff_estimands, 0))) {
-                    current_statement_begin__ = 1246;
+                    current_statement_begin__ = 1227;
                     stan::math::assign(iter_diff_estimand_vec, csr_diff_exp((num_diff_estimands * num_unique_entities), (num_atom_estimands * num_unique_entities), entity_diff_estimand_ids, iter_atom_log_estimand_vec, pstream__));
-                    current_statement_begin__ = 1273;
+                    current_statement_begin__ = 1254;
                     stan::math::assign(iter_diff_estimand, to_matrix(iter_diff_estimand_vec, num_diff_estimands, num_unique_entities));
                 }
-                current_statement_begin__ = 1276;
+                current_statement_begin__ = 1257;
                 if (as_bool(logical_gt(num_discretized_groups, 0))) {
                     {
-                    current_statement_begin__ = 1277;
+                    current_statement_begin__ = 1258;
                     validate_non_negative_index("iter_entity_discretized_mean_vec", "(num_discretized_groups * num_unique_entities)", (num_discretized_groups * num_unique_entities));
                     Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_entity_discretized_mean_vec((num_discretized_groups * num_unique_entities));
                     stan::math::initialize(iter_entity_discretized_mean_vec, DUMMY_VAR__);
                     stan::math::fill(iter_entity_discretized_mean_vec, DUMMY_VAR__);
-                    current_statement_begin__ = 1279;
+                    current_statement_begin__ = 1260;
                     stan::math::assign(iter_entity_discretized_histogram_vec, csr_matrix_times_vector(((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities), ((num_atom_estimands * num_unique_entities) + 1), entity_histogram_vec, entity_histogram_ids, entity_histogram_csr_row_pos, append_row(stan::math::exp(iter_atom_log_estimand_vec), 1)));
-                    current_statement_begin__ = 1289;
+                    current_statement_begin__ = 1270;
                     stan::math::assign(iter_entity_discretized_mean_vec, csr_matrix_times_vector((num_discretized_groups * num_unique_entities), ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities), (use_random_binpoint ? stan::math::promote_scalar<double>(to_vector(uniform_rng(entity_discretize_bin_alpha, entity_discretize_bin_beta, base_rng__))) : stan::math::promote_scalar<double>(entity_midpoint_vec) ), entity_midpoint_ids, entity_midpoint_csr_row_pos, iter_entity_discretized_histogram_vec));
-                    current_statement_begin__ = 1298;
+                    current_statement_begin__ = 1279;
                     if (as_bool(logical_gt(num_discrete_utility_values, 0))) {
                         {
-                        current_statement_begin__ = 1299;
+                        current_statement_begin__ = 1280;
                         validate_non_negative_index("iter_entity_discretized_utility_vec", "(num_discretized_groups * num_unique_entities)", (num_discretized_groups * num_unique_entities));
                         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_entity_discretized_utility_vec((num_discretized_groups * num_unique_entities));
                         stan::math::initialize(iter_entity_discretized_utility_vec, DUMMY_VAR__);
                         stan::math::fill(iter_entity_discretized_utility_vec, DUMMY_VAR__);
                         stan::math::assign(iter_entity_discretized_utility_vec,csr_matrix_times_vector((num_discretized_groups * num_unique_entities), ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities), entity_utility_vec, entity_midpoint_ids, entity_midpoint_csr_row_pos, iter_entity_discretized_histogram_vec));
-                        current_statement_begin__ = 1309;
+                        current_statement_begin__ = 1290;
                         stan::math::assign(iter_entity_discretized_utility, to_matrix(iter_entity_discretized_utility_vec, num_discretized_groups, num_unique_entities));
-                        current_statement_begin__ = 1311;
+                        current_statement_begin__ = 1292;
                         if (as_bool(logical_gt(num_utility_diff_estimands, 0))) {
                             {
-                            current_statement_begin__ = 1312;
+                            current_statement_begin__ = 1293;
                             validate_non_negative_index("iter_utility_diff_estimand_vec", "(num_utility_diff_estimands * num_unique_entities)", (num_utility_diff_estimands * num_unique_entities));
                             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_utility_diff_estimand_vec((num_utility_diff_estimands * num_unique_entities));
                             stan::math::initialize(iter_utility_diff_estimand_vec, DUMMY_VAR__);
                             stan::math::fill(iter_utility_diff_estimand_vec, DUMMY_VAR__);
                             stan::math::assign(iter_utility_diff_estimand_vec,csr_matrix_times_vector((num_utility_diff_estimands * num_unique_entities), (num_discretized_groups * num_unique_entities), vec_utility_diff, entity_utility_diff_estimand_ids, entity_utility_diff_estimand_csr_row_pos, iter_entity_discretized_utility_vec));
-                            current_statement_begin__ = 1320;
+                            current_statement_begin__ = 1301;
                             stan::math::assign(iter_utility_diff_estimand, to_matrix(iter_utility_diff_estimand_vec, num_utility_diff_estimands, num_unique_entities));
                             }
                         }
                         }
                     }
-                    current_statement_begin__ = 1324;
+                    current_statement_begin__ = 1305;
                     stan::math::assign(iter_entity_discretized_mean, to_matrix(iter_entity_discretized_mean_vec, num_discretized_groups, num_unique_entities));
-                    current_statement_begin__ = 1326;
+                    current_statement_begin__ = 1307;
                     if (as_bool(logical_gt(num_mean_diff_estimands, 0))) {
                         {
-                        current_statement_begin__ = 1327;
+                        current_statement_begin__ = 1308;
                         validate_non_negative_index("iter_mean_diff_estimand_vec", "(num_mean_diff_estimands * num_unique_entities)", (num_mean_diff_estimands * num_unique_entities));
                         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_mean_diff_estimand_vec((num_mean_diff_estimands * num_unique_entities));
                         stan::math::initialize(iter_mean_diff_estimand_vec, DUMMY_VAR__);
                         stan::math::fill(iter_mean_diff_estimand_vec, DUMMY_VAR__);
                         stan::math::assign(iter_mean_diff_estimand_vec,csr_matrix_times_vector((num_mean_diff_estimands * num_unique_entities), (num_discretized_groups * num_unique_entities), vec_mean_diff, entity_mean_diff_estimand_ids, entity_mean_diff_estimand_csr_row_pos, iter_entity_discretized_mean_vec));
-                        current_statement_begin__ = 1335;
+                        current_statement_begin__ = 1316;
                         stan::math::assign(iter_mean_diff_estimand, to_matrix(iter_mean_diff_estimand_vec, num_mean_diff_estimands, num_unique_entities));
                         }
                     }
                     }
                 }
-                current_statement_begin__ = 1340;
+                current_statement_begin__ = 1321;
                 stan::math::assign(iter_entity_estimand, append_row(append_row(iter_atom_estimand, append_row(iter_diff_estimand, append_row(iter_entity_discretized_mean, iter_entity_discretized_utility))), append_row(iter_mean_diff_estimand, iter_utility_diff_estimand)));
-                current_statement_begin__ = 1354;
+                current_statement_begin__ = 1335;
                 stan::math::assign(iter_estimand, multiply(iter_entity_estimand, unique_entity_prop));
-                current_statement_begin__ = 1356;
+                current_statement_begin__ = 1337;
                 if (as_bool(logical_gt(num_estimand_levels, 0))) {
                     {
-                    current_statement_begin__ = 1357;
+                    current_statement_begin__ = 1338;
                     validate_non_negative_index("iter_level_entity_estimand_vec", "(num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), \"level_size\")))", (num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))));
                     Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_level_entity_estimand_vec((num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))));
                     stan::math::initialize(iter_level_entity_estimand_vec, DUMMY_VAR__);
                     stan::math::fill(iter_level_entity_estimand_vec, DUMMY_VAR__);
                     stan::math::assign(iter_level_entity_estimand_vec,csr_matrix_times_vector((num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))), (num_all_estimands * num_unique_entities), level_estimands_csr_vec, entity_estimand_ids, entity_estimand_csr_row_pos, to_vector(iter_entity_estimand)));
-                    current_statement_begin__ = 1367;
+                    current_statement_begin__ = 1348;
                     stan::math::assign(iter_level_entity_estimand, to_matrix(iter_level_entity_estimand_vec, num_all_estimands, sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))));
-                    current_statement_begin__ = 1369;
+                    current_statement_begin__ = 1350;
                     if (as_bool(logical_eq(run_type, RUN_TYPE_PRIOR_PREDICT))) {
                         {
-                        current_statement_begin__ = 1370;
+                        current_statement_begin__ = 1351;
                         int level_entity_pos(0);
                         (void) level_entity_pos;  // dummy to suppress unused var warning
                         stan::math::fill(level_entity_pos, std::numeric_limits<int>::min());
                         stan::math::assign(level_entity_pos,1);
-                        current_statement_begin__ = 1372;
+                        current_statement_begin__ = 1353;
                         for (int est_level_index_index = 1; est_level_index_index <= num_estimand_levels; ++est_level_index_index) {
                             {
-                            current_statement_begin__ = 1373;
+                            current_statement_begin__ = 1354;
                             int est_level_index(0);
                             (void) est_level_index;  // dummy to suppress unused var warning
                             stan::math::fill(est_level_index, std::numeric_limits<int>::min());
                             stan::math::assign(est_level_index,get_base1(estimand_levels, est_level_index_index, "estimand_levels", 1));
-                            current_statement_begin__ = 1374;
+                            current_statement_begin__ = 1355;
                             int level_entity_end(0);
                             (void) level_entity_end;  // dummy to suppress unused var warning
                             stan::math::fill(level_entity_end, std::numeric_limits<int>::min());
                             stan::math::assign(level_entity_end,((level_entity_pos + get_base1(level_size, est_level_index, "level_size", 1)) - 1));
-                            current_statement_begin__ = 1376;
+                            current_statement_begin__ = 1357;
                             validate_non_negative_index("level_entity_means", "num_all_estimands", num_all_estimands);
                             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> level_entity_means(num_all_estimands);
                             stan::math::initialize(level_entity_means, DUMMY_VAR__);
                             stan::math::fill(level_entity_means, DUMMY_VAR__);
                             stan::math::assign(level_entity_means,multiply(stan::model::rvalue(iter_level_entity_estimand, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list())), "iter_level_entity_estimand"), rep_vector((1.0 / get_base1(level_size, est_level_index, "level_size", 1)), get_base1(level_size, est_level_index, "level_size", 1))));
-                            current_statement_begin__ = 1378;
+                            current_statement_begin__ = 1359;
                             stan::model::assign(iter_level_entity_estimand_sd, 
                                         stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_uni(est_level_index), stan::model::nil_index_list())), 
                                         stan::math::sqrt(multiply(square(subtract(stan::model::rvalue(iter_level_entity_estimand, stan::model::cons_list(stan::model::index_omni(), stan::model::cons_list(stan::model::index_min_max(level_entity_pos, level_entity_end), stan::model::nil_index_list())), "iter_level_entity_estimand"), rep_matrix(level_entity_means, get_base1(level_size, est_level_index, "level_size", 1)))), rep_vector((1.0 / (get_base1(level_size, est_level_index, "level_size", 1) - 1)), get_base1(level_size, est_level_index, "level_size", 1)))), 
                                         "assigning variable iter_level_entity_estimand_sd");
-                            current_statement_begin__ = 1384;
+                            current_statement_begin__ = 1365;
                             stan::math::assign(level_entity_pos, (level_entity_end + 1));
                             }
                         }
                         }
                     }
-                    current_statement_begin__ = 1388;
+                    current_statement_begin__ = 1369;
                     if (as_bool(logical_gt(num_between_entity_diff_levels, 0))) {
                         {
-                        current_statement_begin__ = 1389;
+                        current_statement_begin__ = 1370;
                         validate_non_negative_index("iter_between_level_entity_diff_estimand_vec", "(num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), \"level_size\")) - num_between_entity_diff_levels))", (num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)));
                         Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> iter_between_level_entity_diff_estimand_vec((num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)));
                         stan::math::initialize(iter_between_level_entity_diff_estimand_vec, DUMMY_VAR__);
                         stan::math::fill(iter_between_level_entity_diff_estimand_vec, DUMMY_VAR__);
                         stan::math::assign(iter_between_level_entity_diff_estimand_vec,csr_matrix_times_vector((num_atom_estimands * (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)), (num_all_estimands * sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"))), between_entity_diff_csr_vec, between_entity_diff_csr_ids, between_entity_diff_csr_row_pos, iter_level_entity_estimand_vec));
-                        current_statement_begin__ = 1399;
+                        current_statement_begin__ = 1380;
                         stan::math::assign(iter_between_level_entity_diff_estimand, to_matrix(iter_between_level_entity_diff_estimand_vec, num_atom_estimands, (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels)));
                         }
                     }
@@ -4884,32 +4884,32 @@ public:
                 }
                 }
             }
-            current_statement_begin__ = 1404;
+            current_statement_begin__ = 1385;
             if (as_bool(calculate_marginal_prob)) {
                 {
-                current_statement_begin__ = 1422;
+                current_statement_begin__ = 1403;
                 validate_non_negative_index("marginal_log_p_r", "total_num_bg_variable_types", total_num_bg_variable_types);
                 Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> marginal_log_p_r(total_num_bg_variable_types);
                 stan::math::initialize(marginal_log_p_r, DUMMY_VAR__);
                 stan::math::fill(marginal_log_p_r, DUMMY_VAR__);
                 stan::math::assign(marginal_log_p_r,csr_log_sum_exp2(total_num_bg_variable_types, (num_r_types * num_unique_entities), marginal_prob_csr_vec, entity_marginal_prob_ids, entity_marginal_prob_csr_row_pos, r_log_prob, pstream__));
-                current_statement_begin__ = 1436;
+                current_statement_begin__ = 1417;
                 stan::math::assign(marginal_p_r, stan::math::exp(marginal_log_p_r));
                 }
             }
             // validate, write generated quantities
-            current_statement_begin__ = 1157;
+            current_statement_begin__ = 1138;
             size_t log_lik_j_1_max__ = ((primitive_value(logical_eq(run_type, RUN_TYPE_FIT)) && primitive_value(logical_gt(log_lik_level, -(1)))) ? (logical_gt(log_lik_level, 0) ? get_base1(level_size, log_lik_level, "level_size", 1) : num_obs ) : 0 );
             for (size_t j_1__ = 0; j_1__ < log_lik_j_1_max__; ++j_1__) {
                 vars__.push_back(log_lik(j_1__));
             }
-            current_statement_begin__ = 1160;
+            current_statement_begin__ = 1140;
             check_less_or_equal(function__, "total_abducted_log_prob", total_abducted_log_prob, 0);
             size_t total_abducted_log_prob_j_1_max__ = (num_abducted_estimands * num_unique_entities);
             for (size_t j_1__ = 0; j_1__ < total_abducted_log_prob_j_1_max__; ++j_1__) {
                 vars__.push_back(total_abducted_log_prob(j_1__));
             }
-            current_statement_begin__ = 1164;
+            current_statement_begin__ = 1144;
             size_t iter_atom_estimand_j_2_max__ = num_unique_entities;
             size_t iter_atom_estimand_j_1_max__ = num_atom_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_atom_estimand_j_2_max__; ++j_2__) {
@@ -4917,7 +4917,7 @@ public:
                     vars__.push_back(iter_atom_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1166;
+            current_statement_begin__ = 1146;
             size_t iter_diff_estimand_j_2_max__ = num_unique_entities;
             size_t iter_diff_estimand_j_1_max__ = num_diff_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_diff_estimand_j_2_max__; ++j_2__) {
@@ -4925,7 +4925,7 @@ public:
                     vars__.push_back(iter_diff_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1168;
+            current_statement_begin__ = 1148;
             size_t iter_entity_estimand_j_2_max__ = num_unique_entities;
             size_t iter_entity_estimand_j_1_max__ = num_all_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_entity_estimand_j_2_max__; ++j_2__) {
@@ -4933,12 +4933,12 @@ public:
                     vars__.push_back(iter_entity_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1169;
+            current_statement_begin__ = 1149;
             size_t iter_estimand_j_1_max__ = num_all_estimands;
             for (size_t j_1__ = 0; j_1__ < iter_estimand_j_1_max__; ++j_1__) {
                 vars__.push_back(iter_estimand(j_1__));
             }
-            current_statement_begin__ = 1170;
+            current_statement_begin__ = 1150;
             size_t iter_level_entity_estimand_j_2_max__ = sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(estimand_levels), stan::model::nil_index_list()), "level_size"));
             size_t iter_level_entity_estimand_j_1_max__ = num_all_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_level_entity_estimand_j_2_max__; ++j_2__) {
@@ -4946,7 +4946,7 @@ public:
                     vars__.push_back(iter_level_entity_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1171;
+            current_statement_begin__ = 1151;
             size_t iter_level_entity_estimand_sd_j_2_max__ = (logical_eq(run_type, RUN_TYPE_PRIOR_PREDICT) ? num_estimand_levels : 0 );
             size_t iter_level_entity_estimand_sd_j_1_max__ = num_all_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_level_entity_estimand_sd_j_2_max__; ++j_2__) {
@@ -4954,7 +4954,7 @@ public:
                     vars__.push_back(iter_level_entity_estimand_sd(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1172;
+            current_statement_begin__ = 1152;
             size_t iter_between_level_entity_diff_estimand_j_2_max__ = (sum(stan::model::rvalue(level_size, stan::model::cons_list(stan::model::index_multi(between_entity_diff_levels), stan::model::nil_index_list()), "level_size")) - num_between_entity_diff_levels);
             size_t iter_between_level_entity_diff_estimand_j_1_max__ = num_atom_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_between_level_entity_diff_estimand_j_2_max__; ++j_2__) {
@@ -4962,12 +4962,12 @@ public:
                     vars__.push_back(iter_between_level_entity_diff_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1176;
+            current_statement_begin__ = 1156;
             size_t iter_entity_discretized_histogram_vec_j_1_max__ = ((num_discretized_groups * (num_cutpoints - 1)) * num_unique_entities);
             for (size_t j_1__ = 0; j_1__ < iter_entity_discretized_histogram_vec_j_1_max__; ++j_1__) {
                 vars__.push_back(iter_entity_discretized_histogram_vec(j_1__));
             }
-            current_statement_begin__ = 1177;
+            current_statement_begin__ = 1157;
             size_t iter_entity_discretized_mean_j_2_max__ = num_unique_entities;
             size_t iter_entity_discretized_mean_j_1_max__ = num_discretized_groups;
             for (size_t j_2__ = 0; j_2__ < iter_entity_discretized_mean_j_2_max__; ++j_2__) {
@@ -4975,7 +4975,7 @@ public:
                     vars__.push_back(iter_entity_discretized_mean(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1178;
+            current_statement_begin__ = 1158;
             check_greater_or_equal(function__, "iter_entity_discretized_utility", iter_entity_discretized_utility, min(utility));
             check_less_or_equal(function__, "iter_entity_discretized_utility", iter_entity_discretized_utility, max(utility));
             size_t iter_entity_discretized_utility_j_2_max__ = num_unique_entities;
@@ -4985,7 +4985,7 @@ public:
                     vars__.push_back(iter_entity_discretized_utility(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1179;
+            current_statement_begin__ = 1159;
             size_t iter_mean_diff_estimand_j_2_max__ = num_unique_entities;
             size_t iter_mean_diff_estimand_j_1_max__ = num_mean_diff_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_mean_diff_estimand_j_2_max__; ++j_2__) {
@@ -4993,7 +4993,7 @@ public:
                     vars__.push_back(iter_mean_diff_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1180;
+            current_statement_begin__ = 1160;
             size_t iter_utility_diff_estimand_j_2_max__ = num_unique_entities;
             size_t iter_utility_diff_estimand_j_1_max__ = num_mean_diff_estimands;
             for (size_t j_2__ = 0; j_2__ < iter_utility_diff_estimand_j_2_max__; ++j_2__) {
@@ -5001,9 +5001,7 @@ public:
                     vars__.push_back(iter_utility_diff_estimand(j_1__, j_2__));
                 }
             }
-            current_statement_begin__ = 1182;
-            check_greater_or_equal(function__, "marginal_p_r", marginal_p_r, 0);
-            check_less_or_equal(function__, "marginal_p_r", marginal_p_r, 1);
+            current_statement_begin__ = 1163;
             size_t marginal_p_r_j_1_max__ = (calculate_marginal_prob ? total_num_bg_variable_types : 0 );
             for (size_t j_1__ = 0; j_1__ < marginal_p_r_j_1_max__; ++j_1__) {
                 vars__.push_back(marginal_p_r(j_1__));

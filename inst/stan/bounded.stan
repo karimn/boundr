@@ -32,7 +32,6 @@ functions {
   }
 
   int[] calculate_level_size(int num_levels, int[,] unique_entity_ids) {
-    // int num_levels = dims(unique_entity_ids)[2];
     int level_size[num_levels];
 
     for (level_index in 1:num_levels) {
@@ -719,35 +718,27 @@ transformed data {
 
 parameters {
   vector[num_discrete_r_types] toplevel_discrete_beta;
-  // vector[num_discrete_r_types - 1] toplevel_discrete_beta;
 
-  // matrix[num_discrete_r_types - 1, sum(level_size)] discrete_level_beta_raw;
-  // matrix<lower = 0>[num_discrete_r_types - 1, num_levels] discrete_level_beta_sigma;
   matrix[num_discrete_r_types, sum(level_size)] discrete_level_beta_raw;
   matrix<lower = 0>[num_discrete_r_types, num_levels] discrete_level_beta_sigma;
 
-  // matrix[max(0, num_discretized_r_types - 1), num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
   matrix[max(0, num_discretized_r_types), num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
 
-  // matrix[max(num_discretized_r_types - 1, 0) * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
-  // matrix<lower = 0>[max(num_discretized_r_types - 1, 0), num_levels] discretized_level_beta_sigma[num_discretized_variables];
   matrix[max(num_discretized_r_types, 0) * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
   matrix<lower = 0>[max(num_discretized_r_types, 0), num_levels] discretized_level_beta_sigma[num_discretized_variables];
 }
 
 transformed parameters {
-  // vector<lower = 0, upper = 1>[num_r_types * num_unique_entities] r_prob; // Entities first, Types second
   vector<upper = 0>[num_r_types * num_unique_entities] r_log_prob; // Entities first, Types second
 
   vector[run_type == RUN_TYPE_FIT ? sum(num_unique_entity_candidate_groups) : 0] entity_candidates_group_logp;
 
-  matrix[num_discrete_r_types, num_unique_entities] discrete_beta = rep_matrix(toplevel_discrete_beta, num_unique_entities); // rep_matrix(append_row(0, toplevel_discrete_beta), num_unique_entities);
+  matrix[num_discrete_r_types, num_unique_entities] discrete_beta = rep_matrix(toplevel_discrete_beta, num_unique_entities);
 
   matrix[num_discretized_r_types * num_discrete_r_types, num_unique_entities] discretized_beta[num_discretized_variables];
 
   for (discretized_var_index in 1:num_discretized_variables) {
     matrix[num_discretized_r_types, num_discrete_r_types] curr_discretized_beta =
-      // append_row(rep_row_vector(0, num_discrete_r_types), toplevel_discretized_beta[discretized_var_index]);
       toplevel_discretized_beta[discretized_var_index];
 
     discretized_beta[discretized_var_index] = rep_matrix(to_vector(curr_discretized_beta), num_unique_entities);
@@ -769,7 +760,6 @@ transformed parameters {
           discretized_level_beta_raw[discretized_var_index, , level_entity_pos:level_entity_end] .*
           rep_matrix(to_vector(rep_matrix(discretized_level_beta_sigma[discretized_var_index, , level_index], num_discrete_r_types)), level_size[level_index]);
 
-        // discretized_beta[discretized_var_index, nonzero_beta_offsets] += curr_discretized_level_beta[, unique_entity_ids[, level_index]];
         discretized_beta[discretized_var_index, ] += curr_discretized_level_beta[, unique_entity_ids[, level_index]];
       }
 
@@ -779,9 +769,6 @@ transformed parameters {
 
   for (entity_index in 1:num_unique_entities) {
     vector[num_discrete_r_types] curr_discrete_log_prob = log_softmax(discrete_beta[, entity_index]);
-
-    // print(curr_discrete_log_prob);
-    // print(discretized_beta);
 
     if (num_discretized_r_types > 0) {
       int r_prob_pos = (entity_index - 1) * num_r_types + 1;
@@ -799,12 +786,6 @@ transformed parameters {
   }
 
   if (run_type == RUN_TYPE_FIT) {
-    // entity_candidates_group_logp = log(csr_matrix_times_vector(sum(num_unique_entity_candidate_groups),
-    //                                                            num_r_types * num_unique_entities,
-    //                                                            vec_1[1:sum(candidate_group_size[unique_entity_candidate_groups])],
-    //                                                            entity_candidate_group_ids,
-    //                                                            entity_candidate_group_csr_row_pos,
-    //                                                            r_prob));
     entity_candidates_group_logp = csr_log_sum_exp(sum(num_unique_entity_candidate_groups),
                                                    num_r_types * num_unique_entities,
                                                    entity_candidate_group_ids,
@@ -844,7 +825,6 @@ model {
 generated quantities {
   vector[run_type == RUN_TYPE_FIT && log_lik_level > -1 ? (log_lik_level > 0 ? level_size[log_lik_level] : num_obs) : 0] log_lik;
 
-  // vector<lower = 0, upper = 1>[num_abducted_estimands * num_unique_entities] total_abducted_prob;
   vector<upper = 0>[num_abducted_estimands * num_unique_entities] total_abducted_log_prob;
 
   // BUGBUG missing constraint
@@ -867,7 +847,8 @@ generated quantities {
   matrix[num_mean_diff_estimands, num_unique_entities] iter_mean_diff_estimand;
   matrix[num_mean_diff_estimands, num_unique_entities] iter_utility_diff_estimand;
 
-  vector<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0] marginal_p_r;
+  // vector<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0] marginal_p_r;
+  vector[calculate_marginal_prob ? total_num_bg_variable_types : 0] marginal_p_r;
   // matrix<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0, sum(level_size)] level_marginal_p_r;
 
 
