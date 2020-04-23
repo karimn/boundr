@@ -847,14 +847,20 @@ setGeneric("create_prior_predicted_simulation", function(scm, ...) {
 #' @export
 #'
 #' @examples
-setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function(scm, sample_size, chains, iter, ..., num_sim = 1, num_entities = 1) {
+setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function(scm, sample_size, chains, iter, ..., num_sim = 1, num_entities = 1, same_dist = FALSE) {
   prior_predict_sampler <- scm %>% create_sampler(analysis_data = NULL, ..., num_sim_unique_entities = num_entities)
 
   prior_predict_fit <- prior_predict_sampler %>% sampling(run_type = "prior-predict", pars = "r_log_prob", chains = chains, iter = iter)
 
   prior_predict_fit %>%
-    as.data.frame(pars = "r_log_prob") %>%
-    sample_n(num_sim, replace = FALSE) %>%
+    as.data.frame(pars = "r_log_prob") %>% {
+      if (same_dist) {
+        sample_n(., num_sim, replace = FALSE)
+      } else {
+        sample_n(., 1, replace = FALSE) %>%
+          slice(rep(1, num_sim))
+      }
+    } %>%
     mutate(iter_id = seq(n())) %>%
     pivot_longer(cols = -iter_id, names_to = "latent_type_index", values_to = "iter_prob") %>%
     tidyr::extract(latent_type_index, "latent_type_index", "(\\d+)", convert = TRUE) %>%

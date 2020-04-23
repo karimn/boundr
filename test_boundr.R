@@ -2,11 +2,11 @@
 
 "Usage:
   test_boundr single
-  test_boundr multi <cores> <runs> [--append]
+  test_boundr multi <cores> <runs> [--append] [--different-priors]
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 2 --append")
+  docopt::docopt(opt_desc, "multi 12 2 --append --different-priors")
   # docopt::docopt(opt_desc, "single")
 } else {
   docopt::docopt(opt_desc)
@@ -386,14 +386,15 @@ if (script_options$multi) {
     pbmcapply::pbmclapply(.x, as_mapper(.f), ..., ignore.interactive = TRUE, mc.silent = TRUE, mc.cores = cores)
   }
 
-  test_run_data <- create_prior_predicted_simulation(test_model, sample_size = 4000, chains = 4, iter = 1000,
+  test_sim_data <- create_prior_predicted_simulation(test_model, sample_size = 4000, chains = 4, iter = 1000,
                                                      discrete_beta_hyper_sd = 2, discretized_beta_hyper_sd = 2, tau_level_sigma = 1,
-                                                     num_entities = 3, num_sim = num_runs) %>%
-    deframe() %>%
+                                                     num_entities = 3, num_sim = num_runs, same_dist = script_options$`different-priors`) %>%
+    deframe()
+
+  test_run_data <- test_sim_data %>%
     test_parallel_map(cores = script_options$cores %/% 4,
     # map(
-      function(entity_data) tryCatch({
-        browser()
+      function(entity_data, beta_hyper_sd) tryCatch({
         entity_data %<>% deframe()
 
         known_results <- entity_data %>%
@@ -402,7 +403,7 @@ if (script_options$multi) {
           summarize(prob = mean(prob)) %>%
           ungroup()
 
-        entity_data %>%
+        sampler <- entity_data %>%
           map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
           # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30))) %>%
           mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
@@ -413,11 +414,13 @@ if (script_options$multi) {
             estimands = test_estimands,
             y = y,
 
-            discrete_beta_hyper_sd = 2,
-            discretized_beta_hyper_sd = 2,
+            discrete_beta_hyper_sd = beta_hyper_sd,
+            discretized_beta_hyper_sd = beta_hyper_sd,
             tau_level_sigma = 1,
             calculate_marginal_prob = FALSE
-          ) %>%
+          )
+
+        sampler %>%
           sampling(
             pars = "iter_estimand",
             chains = 4, iter = 1000
@@ -430,30 +433,73 @@ if (script_options$multi) {
           ) %>%
           mutate_at(vars(starts_with("per_")), ~ . - prob) %>%
           mutate(coverage = if_else(per_0.1 > 0 | per_0.9 < 0, "outside", "inside") %>% factor())
-      }, error = function(err) browser())
+      }, error = function(err) browser()),
+    beta_hyper_sd = if (script_options$`different-priors`) 5 else 2
     ) %>%
     compact() %>%
     bind_rows(.id = "iter_id")
 
-  test_run_data_file <- file.path("temp-data", "test_run3.rds")
+  if (script_options$`different-priors`) {
+    prior_sampler <- test_sim_data[[1]] %>%
+      select(entity_index, sim) %>%
+      deframe() %>%
+      map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
+      mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
+      create_sampler(
+        test_model,
+        model_levels = "entity_index",
+        analysis_data = .,
+        estimands = test_estimands,
+        run_type = "prior-predict",
+        y = y,
 
-  if (script_options$append && file.exists(test_run_data_file)) {
-    test_run_data %<>%
-      bind_rows(read_rds(test_run_data_file))
+        discrete_beta_hyper_sd = 5,
+        discretized_beta_hyper_sd = 5,
+        tau_level_sigma = 1,
+        calculate_marginal_prob = FALSE
+      )
+
+    prior_fit <- prior_sampler %>% sampling(
+      pars = "iter_estimand",
+      chains = 4, iter = 1000
+    )
+
+    prior_results <- prior_fit %>% get_estimation_results()
+
+    test_run_data %>%
+      filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+      pack(post = starts_with("per_")) %>%
+      left_join(
+        prior_results %>%
+          pack(prior = starts_with("per_")),
+        by = c("estimand_name", "cutpoint")
+      ) %>%
+      unpack(c(prior, post), names_sep = "_") %>%
+      mutate_at(vars(starts_with("prior_per_")), ~ . - prob) %>%
+      mutate(prior_coverage = if_else(prior_per_0.1 > 0 | prior_per_0.9 < 0, "outside", "inside") %>% factor()) %>%
+      group_by_at(vars(estimand_name, any_of("cutpoint"))) %>%
+      summarize_at(vars(ends_with("coverage")), ~ mean(fct_match(., "inside"))) %>%
+      ungroup() %>%
+      arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
+      print(n = 1000)
+  } else {
+    test_run_data_file <- file.path("temp-data", "test_run3.rds")
+
+    if (script_options$append && file.exists(test_run_data_file)) {
+      test_run_data %<>%
+        bind_rows(read_rds(test_run_data_file))
+    }
+
+    write_rds(test_run_data, test_run_data_file)
+
+    test_run_data %>%
+      group_by_at(vars(estimand_name, any_of("cutpoint"))) %>%
+      summarize(coverage = mean(fct_match(coverage, "inside"))) %>%
+      ungroup() %>%
+      arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
+      print(n = 1000)
   }
-
-  write_rds(test_run_data, test_run_data_file)
-
-  test_run_data %>%
-    group_by_at(vars(estimand_name, any_of("cutpoint"))) %>%
-    summarize(coverage = mean(fct_match(coverage, "inside"))) %>%
-    ungroup() %>%
-    arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
-    print(n = 1000)
 }
-
-# Manual Run --------------------------------------------------------------
-
 
 # Diagnostics -------------------------------------------------------------
 
