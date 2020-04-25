@@ -822,7 +822,10 @@ define_structural_causal_model <- function(..., exogenous_prob) {
     nest(candidate_group = latent_type_index) %>%
     mutate(candidate_group_id = seq(n()))
 
-  get_latent_type_ids <- function(type_variable, type) filter(comb@types_data, fct_match(!!sym(type_variable), type)) %>% pull(latent_type_index)
+  get_latent_type_ids <- function(type_variable, type, discretized = FALSE) {
+    # TODO Use the discretized parameter to calculate conditional on discrete types
+    filter(comb@types_data, fct_match(!!sym(type_variable), type)) %>% pull(latent_type_index)
+  }
 
   r_type_cols <- comb@responses %>%
     map_df(~ tibble(type_variable = .x@output, discretized = is(.x, "DiscretizedResponse"))) %>%
@@ -831,14 +834,15 @@ define_structural_causal_model <- function(..., exogenous_prob) {
     filter(!type_variable %in% comb@exogenous_variables) %>%
     mutate(type_variable = str_c("r_", type_variable))
 
+  browser()
   comb@endogenous_latent_type_variables <- comb@types_data %>%
     select(all_of(r_type_cols$type_variable)) %>%
     map(fct_unique) %>%
     enframe(name = "type_variable", value = "type") %>%
     unnest(type) %>%
-    mutate(latent_type_ids = map2(type_variable, type, get_latent_type_ids),
-           marginal_latent_type_index = seq(n())) %>%
-    left_join(r_type_cols, by = "type_variable")
+    left_join(r_type_cols, by = "type_variable") %>%
+    mutate(latent_type_ids = pmap(lst(type_variable, type, discretized), get_latent_type_ids),
+           marginal_latent_type_index = seq(n()))
 
   return(comb)
 }

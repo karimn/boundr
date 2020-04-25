@@ -13,7 +13,8 @@ Options:
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
+  # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
+  docopt::docopt(opt_desc, "single --num-entities=3")
   # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
   # docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
 } else {
@@ -88,122 +89,122 @@ discrete_variables <- list2(
   ),
 )
 
-test_model <- define_structural_causal_model(
-  !!!discrete_variables,
-
-  define_discretized_response_group(
-    "y",
-    cutpoints = c(-100, -20, 20, 100),
-    # cutpoints = c(-100, 20, 100),
-
-    input = c("b", "g", "m"),
-
-    "never below" = ~ 0,
-    "program complier" = ~ b,
-    "program defier" = ~ 1 - b,
-    "wedge complier" = ~ g,
-    "wedge defier" = ~ 1 - g,
-    "migration complier" = ~ m,
-    "migration defier" = ~ 1 - m,
-    "always below" = ~ 1,
-
-    pruning_data = tribble(
-      ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
-
-      "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
-      "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-      "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-      "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
-      "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
-      "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
-      "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
-      "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-    ) %>%
-      pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
-      filter(allow) %>%
-      select(-allow)
-  ),
-
-  exogenous_prob = tribble(
-    ~ b, ~ g, ~ z, ~ ex_prob,
-    0,   0,   0,   0.4,
-    1,   0,   0,   0.2,
-    1,   1,   0,   0.2,
-    1,   1,   1,   0.2
-  ),
-)
-
-test_model2 <- define_structural_causal_model(
-  !!!discrete_variables,
-
-  define_discretized_response_group(
-    "y",
-    cutpoints = c(-100, -20, -10, 10, 20, 100),
-    # cutpoints = c(-100, 20, 100),
-
-    input = c("b", "g", "m"),
-
-    "never below" = ~ 0,
-    "program complier" = ~ b,
-    "program defier" = ~ 1 - b,
-    "wedge complier" = ~ g,
-    "wedge defier" = ~ 1 - g,
-    "migration complier" = ~ m,
-    "migration defier" = ~ 1 - m,
-    "always below" = ~ 1,
-
-    pruning_data = tribble(
-      ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
-
-      "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
-      "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-      "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-      "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
-      "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
-      "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
-      "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
-      "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-    ) %>%
-      pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
-      filter(allow) %>%
-      select(-allow)
-  ),
-
-  exogenous_prob = tribble(
-    ~ b, ~ g, ~ z, ~ ex_prob,
-    0,   0,   0,   0.4,
-    1,   0,   0,   0.2,
-    1,   1,   0,   0.2,
-    1,   1,   1,   0.2
-  ),
-)
-
-test_model3 <- define_structural_causal_model(
-  !!!discrete_variables,
-
-  define_response(
-    "y",
-
-    input = c("b", "g", "m"),
-
-    "never below" = ~ 0,
-    "program complier" = ~ b,
-    "program defier" = ~ 1 - b,
-    "wedge complier" = ~ g,
-    "wedge defier" = ~ 1 - g,
-    "migration complier" = ~ m,
-    "migration defier" = ~ 1 - m,
-    "always below" = ~ 1,
-  ),
-
-  exogenous_prob = tribble(
-    ~ b, ~ g, ~ z, ~ ex_prob,
-    0,   0,   0,   0.4,
-    1,   0,   0,   0.2,
-    1,   1,   0,   0.2,
-    1,   1,   1,   0.2
-  ),
-)
+# test_model <- define_structural_causal_model(
+#   !!!discrete_variables,
+#
+#   define_discretized_response_group(
+#     "y",
+#     cutpoints = c(-100, -20, 20, 100),
+#     # cutpoints = c(-100, 20, 100),
+#
+#     input = c("b", "g", "m"),
+#
+#     "never below" = ~ 0,
+#     "program complier" = ~ b,
+#     "program defier" = ~ 1 - b,
+#     "wedge complier" = ~ g,
+#     "wedge defier" = ~ 1 - g,
+#     "migration complier" = ~ m,
+#     "migration defier" = ~ 1 - m,
+#     "always below" = ~ 1,
+#
+#     pruning_data = tribble(
+#       ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
+#
+#       "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
+#       "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+#       "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+#       "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
+#       "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
+#       "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
+#       "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
+#       "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+#     ) %>%
+#       pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
+#       filter(allow) %>%
+#       select(-allow)
+#   ),
+#
+#   exogenous_prob = tribble(
+#     ~ b, ~ g, ~ z, ~ ex_prob,
+#     0,   0,   0,   0.4,
+#     1,   0,   0,   0.2,
+#     1,   1,   0,   0.2,
+#     1,   1,   1,   0.2
+#   ),
+# )
+#
+# test_model2 <- define_structural_causal_model(
+#   !!!discrete_variables,
+#
+#   define_discretized_response_group(
+#     "y",
+#     cutpoints = c(-100, -20, -10, 10, 20, 100),
+#     # cutpoints = c(-100, 20, 100),
+#
+#     input = c("b", "g", "m"),
+#
+#     "never below" = ~ 0,
+#     "program complier" = ~ b,
+#     "program defier" = ~ 1 - b,
+#     "wedge complier" = ~ g,
+#     "wedge defier" = ~ 1 - g,
+#     "migration complier" = ~ m,
+#     "migration defier" = ~ 1 - m,
+#     "always below" = ~ 1,
+#
+#     pruning_data = tribble(
+#       ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
+#
+#       "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
+#       "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+#       "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+#       "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
+#       "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
+#       "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
+#       "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
+#       "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+#     ) %>%
+#       pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
+#       filter(allow) %>%
+#       select(-allow)
+#   ),
+#
+#   exogenous_prob = tribble(
+#     ~ b, ~ g, ~ z, ~ ex_prob,
+#     0,   0,   0,   0.4,
+#     1,   0,   0,   0.2,
+#     1,   1,   0,   0.2,
+#     1,   1,   1,   0.2
+#   ),
+# )
+#
+# test_model3 <- define_structural_causal_model(
+#   !!!discrete_variables,
+#
+#   define_response(
+#     "y",
+#
+#     input = c("b", "g", "m"),
+#
+#     "never below" = ~ 0,
+#     "program complier" = ~ b,
+#     "program defier" = ~ 1 - b,
+#     "wedge complier" = ~ g,
+#     "wedge defier" = ~ 1 - g,
+#     "migration complier" = ~ m,
+#     "migration defier" = ~ 1 - m,
+#     "always below" = ~ 1,
+#   ),
+#
+#   exogenous_prob = tribble(
+#     ~ b, ~ g, ~ z, ~ ex_prob,
+#     0,   0,   0,   0.4,
+#     1,   0,   0,   0.2,
+#     1,   1,   0,   0.2,
+#     1,   1,   1,   0.2
+#   ),
+# )
 
 test_model4 <- define_structural_causal_model(
   !!!discrete_variables,
@@ -274,43 +275,43 @@ with_discretized_estimands <- list2(
 )
 
 
-test_estimands <- build_estimand_collection(
-  model = test_model,
-  utility = c(0, 1, 1.5),
-
-  !!!with_discretized_estimands
-)
-
-test_estimands2 <- build_estimand_collection(
-  model = test_model2,
-  utility = c(0, 1, 1.5, 1.75, 1.8),
-
-  !!!with_discretized_estimands
-)
-
-test_estimands3 <- build_estimand_collection(
-  model = test_model3,
-
-  build_diff_estimand(
-    build_atom_estimand("m", b = 1, g = 1, z = 1),
-    build_atom_estimand("m", b = 0, g = 0, z = 0)
-  ),
-
-  build_diff_estimand(
-    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
-    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
-  ),
-
-  build_diff_estimand(
-    build_atom_estimand("y", b = 1, g = 1, z = 1),
-    build_atom_estimand("y", b = 0, g = 0, z = 0)
-  ),
-
-  build_diff_estimand(
-    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
-    build_atom_estimand("y", b = 0, g = 0, z = 0, m = 0, cond = m == 1 & b == 0 & g == 0 & z == 0)
-  ),
-)
+# test_estimands <- build_estimand_collection(
+#   model = test_model,
+#   utility = c(0, 1, 1.5),
+#
+#   !!!with_discretized_estimands
+# )
+#
+# test_estimands2 <- build_estimand_collection(
+#   model = test_model2,
+#   utility = c(0, 1, 1.5, 1.75, 1.8),
+#
+#   !!!with_discretized_estimands
+# )
+#
+# test_estimands3 <- build_estimand_collection(
+#   model = test_model3,
+#
+#   build_diff_estimand(
+#     build_atom_estimand("m", b = 1, g = 1, z = 1),
+#     build_atom_estimand("m", b = 0, g = 0, z = 0)
+#   ),
+#
+#   build_diff_estimand(
+#     build_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
+#     build_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
+#   ),
+#
+#   build_diff_estimand(
+#     build_atom_estimand("y", b = 1, g = 1, z = 1),
+#     build_atom_estimand("y", b = 0, g = 0, z = 0)
+#   ),
+#
+#   build_diff_estimand(
+#     build_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
+#     build_atom_estimand("y", b = 0, g = 0, z = 0, m = 0, cond = m == 1 & b == 0 & g == 0 & z == 0)
+#   ),
+# )
 
 test_estimands4 <- build_estimand_collection(
   model = test_model4,
