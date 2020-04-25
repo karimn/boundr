@@ -834,7 +834,6 @@ define_structural_causal_model <- function(..., exogenous_prob) {
     filter(!type_variable %in% comb@exogenous_variables) %>%
     mutate(type_variable = str_c("r_", type_variable))
 
-  browser()
   comb@endogenous_latent_type_variables <- comb@types_data %>%
     select(all_of(r_type_cols$type_variable)) %>%
     map(fct_unique) %>%
