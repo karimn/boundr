@@ -532,7 +532,6 @@ transformed data {
     num_obs_in_unique_entity = rep_vector(0, num_unique_entities);
   }
 
-
   {
     int latent_type_marginal_members_pos = 1;
     int entity_marginal_prob_pos = 1;
@@ -1035,7 +1034,7 @@ generated quantities {
     vector[total_num_bg_variable_types] marginal_log_p_r =
       csr_log_sum_exp2(total_num_bg_variable_types,
                        num_r_types * num_unique_entities,
-                       marginal_prob_csr_vec,
+                       log(marginal_prob_csr_vec),
                        entity_marginal_prob_ids,
                        entity_marginal_prob_csr_row_pos,
                        r_log_prob);

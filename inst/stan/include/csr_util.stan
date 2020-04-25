@@ -33,9 +33,11 @@ vector csr_log_sum_exp2(int m, int n, vector w, int[] v, int[] u, vector b) {
       vector[row_size] sub_w = w[row_pos:row_end];
       vector[row_size] sub_b = b[v[row_pos:row_end]];
 
-      real max_sub_b = max(sub_b);
+      // real max_sub_b = max(sub_b);
+      //
+      // result[row_index] = max_sub_b + log(dot_product(sub_w, exp(sub_b - max_sub_b)));
 
-      result[row_index] = max_sub_b + log(dot_product(sub_w, exp(sub_b - max_sub_b)));
+      result[row_index] = log_sum_exp(sub_w + sub_b);
     }
   }
 
