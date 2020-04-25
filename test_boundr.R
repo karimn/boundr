@@ -1,13 +1,19 @@
 #!/usr/bin/Rscript
 
 "Usage:
-  test_boundr single
-  test_boundr multi <cores> <runs> [--append] [--different-priors]
+  test_boundr single [--different-priors --num-entities=<num-entities> --true-hyper-sd=<sd>]
+  test_boundr multi <cores> <runs> [--num-entities=<num-entities> --true-hyper-sd=<sd> --constrained-prior --density-plots --output=<output-name>] [--append | [--different-priors --alt-hyper-sd=<sd>]]
+
+Options:
+  --output=<output-name>  Output name to use in file names [default: test_run]
+  --num-entities=<num-entities>  Number of entities in model [default: 3]
+  --true-hyper-sd=<sd>  True SD hyperparameter for prior [default: 1]
+  --alt-hyper-sd=<sd>  Alternative SD hyperparameter to use for fit [default: 2.5]
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 2 --append --different-priors")
-  # docopt::docopt(opt_desc, "single")
+  docopt::docopt(opt_desc, "multi 12 3 --density-plots --num-entities=1 --output=test.rds --different-priors")
+  # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
 } else {
   docopt::docopt(opt_desc)
 }
@@ -24,13 +30,18 @@ library(econometr)
 library(boundr)
 
 script_options %<>%
-  modify_at(c("cores", "runs"), as.integer)
+  modify_at(c("cores", "runs", "num-entities"), as.integer) %>%
+  modify_at(c("true-hyper-sd", "alt-hyper-sd"), as.numeric)
 
 options(mc.cores = max(1, parallel::detectCores()))
 rstan_options(auto_write = TRUE)
 
-# source("util.R")
-# source("sim_bounded_util.R")
+true_discretized_beta_hyper_sd <- if (script_options$`constrained-prior`) {
+  lst(default = script_options$`true-hyper-sd`,
+      "migration complier" = ~ mutate(., sd = if_else(fct_match(r_m, c("always", "program defier", "wedge defier")),
+                                                      0.5,
+                                                      script_options$`true-hyper-sd`)))
+} else script_options$`true-hyper-sd`
 
 # Models ------------------------------------------------------------------
 
@@ -66,7 +77,7 @@ discrete_variables <- list2(
     "wedge complier" = ~ g,
     "wedge defier" = ~ 1 - g,
     "treatment complier" = ~ z,
-    "treatment defier" = ~ 1 - z,
+    # "treatment defier" = ~ 1 - z,
     "always" = ~ 1,
   ),
 )
@@ -305,15 +316,15 @@ test_estimands4 <- build_estimand_collection(
 # Single Run --------------------------------------------------------------
 
 if (script_options$single) {
-  entity_data <- create_prior_predicted_simulation(test_model, sample_size = 4000, chains = 4, iter = 1000,
-                                                     discrete_beta_hyper_sd = 2, discretized_beta_hyper_sd = 2, tau_level_sigma = 1,
-                                                     num_entities = 3) %>%
+  entity_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
+                                                     discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                     num_entities = script_options$`num-entities`) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe()
 
   known_results <- entity_data %>%
-    map_dfr(boundr:::get_known_estimands, test_estimands, .id = "entity_index") %>%
+    map_dfr(boundr:::get_known_estimands, test_estimands4, .id = "entity_index") %>%
     group_by_at(vars(-entity_index, -prob)) %>%
     summarize(prob = mean(prob)) %>%
     ungroup() %>%
@@ -321,9 +332,9 @@ if (script_options$single) {
 
   test_sim_data <- entity_data %>%
     map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
-    # mutate(y = if_else(y_1 == 0, 30, -30))
+    mutate(y = if_else(y_1 == 0, 30, -30))
     # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, sample(c(-1, 1), n(), replace = TRUE), -30)))
-    mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30)))
+    # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30)))
 
   # test_model %>%
   #   get_linear_programming_bounds(test_sim_data, "y_1", b = 1, g = 1, z = 1, m = 0)
@@ -336,8 +347,12 @@ if (script_options$single) {
     # y = y < -20,
     y = y,
 
-    discrete_beta_hyper_sd = 2,
-    discretized_beta_hyper_sd = 2,
+    discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
+    discretized_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else true_discretized_beta_hyper_sd,
+    # discretized_beta_hyper_sd = lst(default = 2,
+    #                                 "migration complier" = ~ mutate(., sd = if_else(fct_match(r_m, c("always", "program defier", "wedge defier")),
+    #                                                                                 0.1,
+    #                                                                                 2))),
     tau_level_sigma = 1,
     calculate_marginal_prob = TRUE
   )
@@ -351,6 +366,12 @@ if (script_options$single) {
       run_type = "prior-predict",
     )
 
+  test_prior_results <- test_prior_fit %>%
+    get_estimation_results(no_sim_diag = FALSE, quants = seq(0, 1, 0.1)) %T>%
+    print(n = 1000)
+
+  test_prior_marginal_prob <- test_prior_fit %>% get_marginal_latent_type_prob()
+
   test_fit <- test_sampler %>%
     sampling(
       chains = 4,
@@ -359,12 +380,8 @@ if (script_options$single) {
       pars = c("iter_estimand", "marginal_p_r"),
     )
 
-  test_prior_results <- test_prior_fit %>%
-    get_estimation_results(no_sim_diag = FALSE) %T>%
-    print(n = 1000)
-
   test_results <- test_fit %>%
-    get_estimation_results(no_sim_diag = FALSE) %T>%
+    get_estimation_results(no_sim_diag = FALSE, quants = seq(0, 1, 0.1)) %T>%
     print(n = 1000)
 
   known_results %>%
@@ -374,7 +391,18 @@ if (script_options$single) {
     select(estimand_name, coverage) %>%
     print(n = 1000)
 
-  test_prior_marginal_prob <- test_prior_fit %>% get_marginal_latent_type_prob()
+  bind_rows(prior = test_prior_results, posterior = test_results, .id = "fit_type") %>%
+    filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+    select(fit_type, starts_with("per_")) %>%
+    pivot_longer(names_to = "quant", cols = -fit_type, names_prefix = "per_", names_ptypes = list("quant" = numeric())) %>%
+    ggplot() +
+    geom_col(aes(quant, value, group = fit_type, fill = fit_type), position = position_dodge()) +
+    geom_vline(xintercept = known_results %>% filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>% pull(prob)) +
+    scale_fill_discrete("") +
+    scale_x_continuous(breaks = seq(0, 1, 0.2)) +
+    labs(x = "", y = "") +
+    theme_minimal() +
+    theme(legend.position = "top")
 }
 
 # Multiple Runs -----------------------------------------------------------
@@ -386,19 +414,19 @@ if (script_options$multi) {
     pbmcapply::pbmclapply(.x, as_mapper(.f), ..., ignore.interactive = TRUE, mc.silent = TRUE, mc.cores = cores)
   }
 
-  test_sim_data <- create_prior_predicted_simulation(test_model, sample_size = 4000, chains = 4, iter = 1000,
-                                                     discrete_beta_hyper_sd = 2, discretized_beta_hyper_sd = 2, tau_level_sigma = 1,
-                                                     num_entities = 3, num_sim = num_runs, same_dist = script_options$`different-priors`) %>%
+  test_sim_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
+                                                     discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                     num_entities = script_options$`num-entities`, num_sim = num_runs) %>%
     deframe()
 
   test_run_data <- test_sim_data %>%
     test_parallel_map(cores = script_options$cores %/% 4,
     # map(
-      function(entity_data, beta_hyper_sd) tryCatch({
+      function(entity_data, discrete_beta_hyper_sd, discretized_beta_hyper_sd, save_iter_data) tryCatch({
         entity_data %<>% deframe()
 
         known_results <- entity_data %>%
-          map_dfr(boundr:::get_known_estimands, test_estimands, .id = "entity_index") %>%
+          map_dfr(boundr:::get_known_estimands, test_estimands4, .id = "entity_index") %>%
           group_by_at(vars(-entity_index, -prob)) %>%
           summarize(prob = mean(prob)) %>%
           ungroup()
@@ -406,16 +434,17 @@ if (script_options$multi) {
         sampler <- entity_data %>%
           map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
           # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, 0, -30))) %>%
-          mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
+          # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
+          mutate(y = if_else(y_1 == 0, 30, -30)) %>%
           create_sampler(
-            test_model,
+            test_model4,
             model_levels = "entity_index",
             analysis_data = .,
-            estimands = test_estimands,
+            estimands = test_estimands4,
             y = y,
 
-            discrete_beta_hyper_sd = beta_hyper_sd,
-            discretized_beta_hyper_sd = beta_hyper_sd,
+            discrete_beta_hyper_sd = discrete_beta_hyper_sd,
+            discretized_beta_hyper_sd = discretized_beta_hyper_sd,
             tau_level_sigma = 1,
             calculate_marginal_prob = FALSE
           )
@@ -425,65 +454,100 @@ if (script_options$multi) {
             pars = "iter_estimand",
             chains = 4, iter = 1000
           ) %>%
-          get_estimation_results() %>%
-          select(estimand_name, cutpoint, starts_with("per_")) %>% # rhat, starts_with("ess"),
+          get_estimation_results(quants = seq(0, 1, 0.1)) %>%
+          select(estimand_name, cutpoint, starts_with("per_"), if (save_iter_data) "iter_data") %>%
           inner_join(
             select(known_results, estimand_name, cutpoint, prob),
             by = c("estimand_name", "cutpoint")
           ) %>%
-          mutate_at(vars(starts_with("per_")), ~ . - prob) %>%
-          mutate(coverage = if_else(per_0.1 > 0 | per_0.9 < 0, "outside", "inside") %>% factor())
+          # mutate_at(vars(starts_with("per_")), ~ . - prob) %>%
+          mutate(coverage = if_else((per_0.1 - prob) > 0 | (per_0.9 - prob) < 0, "outside", "inside") %>% factor())
       }, error = function(err) browser()),
-    beta_hyper_sd = if (script_options$`different-priors`) 5 else 2
+    discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
+    discretized_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else true_discretized_beta_hyper_sd,
+    save_iter_data = script_options$`density-plots`
     ) %>%
     compact() %>%
     bind_rows(.id = "iter_id")
 
-  if (script_options$`different-priors`) {
-    prior_sampler <- test_sim_data[[1]] %>%
-      select(entity_index, sim) %>%
-      deframe() %>%
-      map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
-      mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
-      create_sampler(
-        test_model,
-        model_levels = "entity_index",
-        analysis_data = .,
-        estimands = test_estimands,
-        run_type = "prior-predict",
-        y = y,
+  dummy_data <- test_sim_data[[1]] %>%
+    select(entity_index, sim) %>%
+    deframe() %>%
+    map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
+    # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
+    mutate(y = if_else(y_1 == 0, 30, -30)) # This data isn't really used in prior prediction
 
-        discrete_beta_hyper_sd = 5,
-        discretized_beta_hyper_sd = 5,
-        tau_level_sigma = 1,
-        calculate_marginal_prob = FALSE
-      )
+  true_prior_sampler <- create_sampler(
+    test_model4,
+    model_levels = "entity_index",
+    analysis_data = dummy_data,
+    estimands = test_estimands4,
+    y = y,
 
-    prior_fit <- prior_sampler %>% sampling(
+    discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
+    discretized_beta_hyper_sd = true_discretized_beta_hyper_sd,
+    tau_level_sigma = 1,
+    calculate_marginal_prob = FALSE
+  )
+
+  true_prior_fit <- true_prior_sampler %>%
+    sampling(
       pars = "iter_estimand",
-      chains = 4, iter = 1000
+      chains = 4, iter = 1000,
+      run_type = "prior-predict",
     )
 
-    prior_results <- prior_fit %>% get_estimation_results()
+  true_prior_results <- true_prior_fit %>% get_estimation_results(quants = seq(0, 1, 0.1))
+  prior_results <- NULL
+
+  if (script_options$`different-priors`) {
+    prior_sampler <- create_sampler(
+      test_model4,
+      model_levels = "entity_index",
+      analysis_data = dummy_data,
+      estimands = test_estimands4,
+      y = y,
+
+      discrete_beta_hyper_sd = script_options$`alt-hyper-sd`,
+      discretized_beta_hyper_sd = script_options$`alt-hyper-sd`,
+      tau_level_sigma = 1,
+      calculate_marginal_prob = FALSE
+    )
+
+    prior_fit <- prior_sampler %>%
+      sampling(
+        pars = "iter_estimand",
+        chains = 4, iter = 1000,
+        run_type = "prior-predict",
+      )
+
+    prior_results <- prior_fit %>% get_estimation_results(quants = seq(0, 1, 0.1))
 
     test_run_data %>%
-      filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+      filter(estimand_name %in% c("Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]",
+                                  "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0]")) %>%
       pack(post = starts_with("per_")) %>%
       left_join(
         prior_results %>%
-          pack(prior = starts_with("per_")),
+          pack(wrong_prior = starts_with("per_")),
         by = c("estimand_name", "cutpoint")
       ) %>%
-      unpack(c(prior, post), names_sep = "_") %>%
-      mutate_at(vars(starts_with("prior_per_")), ~ . - prob) %>%
-      mutate(prior_coverage = if_else(prior_per_0.1 > 0 | prior_per_0.9 < 0, "outside", "inside") %>% factor()) %>%
+      left_join(
+        true_prior_results %>%
+          pack(true_prior = starts_with("per_")),
+        by = c("estimand_name", "cutpoint")
+      ) %>%
+      unpack(c(true_prior, wrong_prior, post), names_sep = "_") %>%
+      mutate_at(vars(contains("prior_per_")), ~ . - prob) %>%
+      mutate(wrong_prior_coverage = if_else(wrong_prior_per_0.1 > 0 | wrong_prior_per_0.9 < 0, "outside", "inside") %>% factor(),
+             true_prior_coverage = if_else(true_prior_per_0.1 > 0 | true_prior_per_0.9 < 0, "outside", "inside") %>% factor()) %>%
       group_by_at(vars(estimand_name, any_of("cutpoint"))) %>%
       summarize_at(vars(ends_with("coverage")), ~ mean(fct_match(., "inside"))) %>%
       ungroup() %>%
       arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
-      print(n = 1000)
+      print(n = 1000, width = 160)
   } else {
-    test_run_data_file <- file.path("temp-data", "test_run3.rds")
+    test_run_data_file <- file.path("temp-data", str_c(script_options$output, ".rds"))
 
     if (script_options$append && file.exists(test_run_data_file)) {
       test_run_data %<>%
@@ -498,6 +562,53 @@ if (script_options$multi) {
       ungroup() %>%
       arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
       print(n = 1000)
+  }
+
+  if (script_options$`density-plots`) {
+    density_plots <- bind_rows(prior = if (script_options$`different-priors`) {
+                prior_results %>%
+                  filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+                  slice(rep(1, num_runs)) %>%
+                  mutate(iter_id = seq(num_runs))
+              },
+              posterior = test_run_data %>%
+                filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+                mutate(iter_id = as.integer(iter_id)),
+              "true prior" = true_prior_results %>%
+                filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+                slice(rep(1, num_runs)) %>%
+                mutate(iter_id = seq(num_runs)),
+              .id = "fit_type") %>%
+      select(iter_id, prob, fit_type, iter_data) %>% {
+      # select(iter_id, prob, fit_type, starts_with("per_")) %>% {
+        # pivot_longer(., names_to = "quant", cols = -c(iter_id, prob, fit_type), names_prefix = "per_", names_ptypes = list("quant" = numeric())) %>%
+        mutate(., iter_data = map_if(iter_data, ~ !is_null(.x), select, -iter_id)) %>%
+          unnest(iter_data) %>%
+          ggplot() +
+          geom_density(aes(iter_estimand, group = fit_type, color = fit_type)) +
+          # geom_col(aes(quant, value, group = fit_type, fill = fit_type), position = position_dodge(), width = 0.05) +
+          # geom_col(aes(value, quant, group = fit_type, fill = fit_type), position = position_dodge(), width = 0.05) +
+          # geom_line(aes(quant, value, group = fit_type, color = fit_type)) +
+          # geom_line(aes(value, quant, group = fit_type, color = fit_type)) +
+          # geom_hline(aes(yintercept = prob), data = .) +
+          geom_vline(aes(xintercept = prob), data = . %>% distinct(iter_id, prob)) +
+          scale_fill_discrete("", aesthetics = c("color", "fill")) +
+          # scale_x_continuous(breaks = seq(0, 1, 0.2)) +
+          labs(x = "", y = "") +
+          facet_wrap(vars(iter_id), scales = "free") +
+          theme_minimal() +
+          theme(legend.position = "top")
+      }
+
+    ggsave(file.path("temp-img", str_c(script_options$output, ".png")), density_plots)
+
+    if (!interactive() && require(tcltk)) {
+      x11()
+      plot(density_plots)
+      capture <- tk_messageBox(message = "Hit spacebar to close plots.")
+    } else {
+      plot(density_plots)
+    }
   }
 }
 
