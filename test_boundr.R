@@ -3,17 +3,19 @@
 "Usage:
   test_boundr single [--different-priors --num-entities=<num-entities> --true-hyper-sd=<sd>]
   test_boundr multi <cores> <runs> [--num-entities=<num-entities> --true-hyper-sd=<sd> --constrained-prior --density-plots --output=<output-name>] [--append | [--different-priors --alt-hyper-sd=<sd>]]
+  test_boundr prior-sequence <cores> <from-beta> <to-beta> <by-beta> [--num-entities=<num-entities>]
 
 Options:
   --output=<output-name>  Output name to use in file names [default: test_run]
   --num-entities=<num-entities>  Number of entities in model [default: 3]
-  --true-hyper-sd=<sd>  True SD hyperparameter for prior [default: 1]
+  --true-hyper-sd=<sd>  True SD hyperparameter for prior [default: 1.5]
   --alt-hyper-sd=<sd>  Alternative SD hyperparameter to use for fit [default: 2.5]
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  docopt::docopt(opt_desc, "multi 12 3 --density-plots --num-entities=1 --output=test.rds --different-priors")
+  docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
   # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
+  # docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
 } else {
   docopt::docopt(opt_desc)
 }
@@ -31,7 +33,7 @@ library(boundr)
 
 script_options %<>%
   modify_at(c("cores", "runs", "num-entities"), as.integer) %>%
-  modify_at(c("true-hyper-sd", "alt-hyper-sd"), as.numeric)
+  modify_at(c("true-hyper-sd", "alt-hyper-sd", "from-beta", "to-beta", "by-beta"), as.numeric)
 
 options(mc.cores = max(1, parallel::detectCores()))
 rstan_options(auto_write = TRUE)
@@ -42,6 +44,10 @@ true_discretized_beta_hyper_sd <- if (script_options$`constrained-prior`) {
                                                       0.5,
                                                       script_options$`true-hyper-sd`)))
 } else script_options$`true-hyper-sd`
+
+test_parallel_map <- function(.x, .f, ..., cores = script_options$cores) {
+  pbmcapply::pbmclapply(.x, as_mapper(.f), ..., ignore.interactive = TRUE, mc.silent = TRUE, mc.cores = cores)
+}
 
 # Models ------------------------------------------------------------------
 
@@ -73,9 +79,9 @@ discrete_variables <- list2(
 
     "never" = ~ 0,
     "program complier" = ~ b,
-    "program defier" = ~ 1 - b,
+    # "program defier" = ~ 1 - b,
     "wedge complier" = ~ g,
-    "wedge defier" = ~ 1 - g,
+    # "wedge defier" = ~ 1 - g,
     "treatment complier" = ~ z,
     # "treatment defier" = ~ 1 - z,
     "always" = ~ 1,
@@ -410,10 +416,6 @@ if (script_options$single) {
 if (script_options$multi) {
   num_runs <- script_options$runs
 
-  test_parallel_map <- function(.x, .f, ..., cores = script_options$cores) {
-    pbmcapply::pbmclapply(.x, as_mapper(.f), ..., ignore.interactive = TRUE, mc.silent = TRUE, mc.cores = cores)
-  }
-
   test_sim_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
                                                      discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
                                                      num_entities = script_options$`num-entities`, num_sim = num_runs) %>%
@@ -594,10 +596,11 @@ if (script_options$multi) {
           geom_vline(aes(xintercept = prob), data = . %>% distinct(iter_id, prob)) +
           scale_fill_discrete("", aesthetics = c("color", "fill")) +
           # scale_x_continuous(breaks = seq(0, 1, 0.2)) +
-          labs(x = "", y = "") +
+          labs(x = "", y = "",
+               subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
           facet_wrap(vars(iter_id), scales = "free") +
           theme_minimal() +
-          theme(legend.position = "top")
+          theme(legend.position = "top", strip.text = element_blank(), plot.subtitle = element_text(size = 9))
       }
 
     ggsave(file.path("temp-img", str_c(script_options$output, ".png")), density_plots)
@@ -610,6 +613,67 @@ if (script_options$multi) {
       plot(density_plots)
     }
   }
+}
+
+
+# Prior Sequence ----------------------------------------------------------
+
+if (script_options$`prior-sequence`) {
+  betas <- seq(script_options$`from-beta`, script_options$`to-beta`, script_options$`by-beta`)
+
+  dummy_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
+                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                   num_entities = script_options$`num-entities`) %>%
+    unnest(entity_data) %>%
+    select(entity_index, sim) %>%
+    deframe() %>%
+    map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
+    mutate(y = if_else(y_1 == 0, 30, -30))
+
+  all_prior_results <- betas %>%
+    test_parallel_map(cores = script_options$cores %/% 4,
+                      function(curr_beta) {
+                        test_sampler <- create_sampler(
+                          test_model4,
+                          model_levels = "entity_index",
+                          analysis_data = dummy_data,
+                          estimands = test_estimands4,
+                          # y = y < -20,
+                          y = y,
+
+                          discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
+                          discretized_beta_hyper_sd = curr_beta,
+
+                          tau_level_sigma = 1,
+                          calculate_marginal_prob = FALSE
+                        )
+
+                        test_prior_fit <- test_sampler %>%
+                          sampling(
+                            chains = 4,
+                            warmup = 500,
+                            iter = 2500,
+                            pars = c("iter_estimand"), #"marginal_p_r"),
+                            run_type = "prior-predict",
+                          )
+
+                        test_prior_fit %>%
+                          get_estimation_results(no_sim_diag = FALSE, quants = seq(0, 1, 0.1))
+                      }) %>%
+    set_names(betas) %>%
+    bind_rows(.id = "beta") %>%
+    mutate(beta = as.numeric(beta))
+
+  all_prior_results %>%
+    filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+    unnest(iter_data) %>%
+    ggplot() +
+    geom_density(aes(iter_estimand, group = beta, color = beta)) +
+    scale_color_viridis_c(expression(tau[beta])) +
+    labs(x = "", y = "",
+         subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
+    theme_minimal() +
+    theme(legend.position = "right", plot.subtitle = element_text(size = 9))
 }
 
 # Diagnostics -------------------------------------------------------------
