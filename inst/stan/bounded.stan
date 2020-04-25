@@ -184,6 +184,7 @@ data {
 
   int<lower = 1> num_bg_variables;
   int<lower = 1> num_bg_variable_types[num_bg_variables];
+  int<lower = 0, upper = 1> is_discretized_bg_variable[num_bg_variables];
   int<lower = 1, upper = num_r_types> num_bg_variable_type_combo_members[sum(num_bg_variable_types)];
   int<lower = 1, upper = num_r_types> bg_variable_type_combo_members[sum(num_bg_variable_type_combo_members)];
 
@@ -261,7 +262,7 @@ data {
   // Priors
 
   real<lower = 0> discrete_beta_hyper_sd;
-  real<lower = 0> discretized_beta_hyper_sd;
+  matrix<lower = 0>[num_discretized_r_types, num_discrete_r_types] discretized_beta_hyper_sd;
 
   vector<lower = 0>[num_levels] tau_level_sigma;
 
@@ -806,7 +807,8 @@ model {
   }
 
   for (discretized_var_index in 1:num_discretized_variables) {
-    to_vector(toplevel_discretized_beta[discretized_var_index]) ~ normal(0, discretized_beta_hyper_sd);
+    // to_vector(toplevel_discretized_beta[discretized_var_index]) ~ normal(0, discretized_beta_hyper_sd);
+    to_vector(toplevel_discretized_beta[discretized_var_index]) ~ normal(0, to_vector(discretized_beta_hyper_sd));
 
     if (num_levels > 0) {
       to_vector(discretized_level_beta_raw[discretized_var_index]) ~ std_normal();
@@ -829,8 +831,10 @@ generated quantities {
 
   // BUGBUG missing constraint
   // matrix<lower = 0, upper = 1>[num_atom_estimands, num_unique_entities] iter_atom_estimand;
-  matrix[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  // matrix[num_atom_estimands, num_unique_entities] iter_atom_estimand;
+  matrix[num_atom_estimands, num_unique_entities] iter_atom_log_estimand;
   // matrix<lower = -1, upper = 1>[num_diff_estimands, num_unique_entities] iter_diff_estimand;
+  // matrix[num_diff_estimands, num_unique_entities] iter_diff_estimand;
   matrix[num_diff_estimands, num_unique_entities] iter_diff_estimand;
 
   matrix[num_all_estimands, num_unique_entities] iter_entity_estimand;
@@ -851,7 +855,6 @@ generated quantities {
   vector[calculate_marginal_prob ? total_num_bg_variable_types : 0] marginal_p_r;
   // matrix<lower = 0, upper = 1>[calculate_marginal_prob ? total_num_bg_variable_types : 0, sum(level_size)] level_marginal_p_r;
 
-
   // matrix<lower = -1, upper = 1>[generate_rep && num_rep_corr_estimands > 0 && run_type == RUN_TYPE_FIT ? num_rep_corr_estimands : 0, 2] rep_corr_estimand;
 
   if (run_type == RUN_TYPE_FIT && log_lik_level > -1) {
@@ -860,18 +863,9 @@ generated quantities {
                               obs_candidate_group_ids,
                               obs_candidate_group_csr_row_pos,
                               r_log_prob);
-
-    // log_lik = log(csr_matrix_times_vector(num_obs,
-    //                                       num_r_types * num_unique_entities,
-    //                                       vec_1[1:sum(candidate_group_size[obs_candidate_group])],
-    //                                       obs_candidate_group_ids,
-    //                                       obs_candidate_group_csr_row_pos,
-    //                                       r_prob));
   }
 
   if (num_discrete_estimands > 0) {
-    // matrix[num_experiment_types, num_r_types * num_unique_entities] full_r_prob = rep_matrix(r_prob', num_experiment_types) .* rep_matrix(experiment_types_prob, num_r_types * num_unique_entities);
-    // vector[num_r_types_full * num_unique_entities] full_r_prob_vec = to_vector(full_r_prob);
     matrix[num_experiment_types, num_r_types * num_unique_entities] full_r_log_prob = rep_matrix(r_log_prob', num_experiment_types) + rep_matrix(log(experiment_types_prob), num_r_types * num_unique_entities);
     vector[num_r_types_full * num_unique_entities] full_r_log_prob_vec = to_vector(full_r_log_prob);
 
@@ -881,12 +875,6 @@ generated quantities {
                       entity_est_prob_ids,
                       entity_est_prob_csr_row_pos,
                       full_r_log_prob_vec);
-      // csr_matrix_times_vector(num_atom_estimands * num_unique_entities,
-      //                         num_r_types_full * num_unique_entities,
-      //                         vec_1[1:(num_unique_entities * sum(est_prob_size))],
-      //                         entity_est_prob_ids,
-      //                         entity_est_prob_csr_row_pos,
-      //                         full_r_prob_vec);
 
     vector[num_diff_estimands * num_unique_entities] iter_diff_estimand_vec;
 
@@ -897,19 +885,12 @@ generated quantities {
         entity_abducted_prob_ids,
         entity_abducted_prob_csr_row_pos,
         full_r_log_prob_vec);
-      // total_abducted_prob = csr_matrix_times_vector(
-      //   num_abducted_estimands * num_unique_entities,
-      //   num_r_types_full * num_unique_entities,
-      //   vec_1[1:(num_unique_entities * sum(abducted_prob_size))],
-      //   entity_abducted_prob_ids,
-      //   entity_abducted_prob_csr_row_pos,
-      //   full_r_prob_vec);
 
-      // iter_atom_estimand_vec[long_entity_abducted_index] = iter_atom_estimand_vec[long_entity_abducted_index] ./ total_abducted_prob;
       iter_atom_log_estimand_vec[long_entity_abducted_index] -= total_abducted_log_prob;
     }
 
-    iter_atom_estimand = to_matrix(exp(iter_atom_log_estimand_vec), num_atom_estimands, num_unique_entities);
+    // iter_atom_estimand = to_matrix(exp(iter_atom_log_estimand_vec), num_atom_estimands, num_unique_entities);
+    iter_atom_log_estimand = to_matrix(iter_atom_log_estimand_vec, num_atom_estimands, num_unique_entities);
 
     if (num_diff_estimands > 0) {
       iter_diff_estimand_vec = csr_diff_exp(
@@ -917,28 +898,7 @@ generated quantities {
         num_atom_estimands * num_unique_entities,
         entity_diff_estimand_ids,
         iter_atom_log_estimand_vec);
-      // iter_diff_log_estimand_vec = csr_log_sum_exp2(
-      //   num_diff_estimands * num_unique_entities,
-      //   num_atom_estimands * num_unique_entities,
-      //   vec_diff,
-      //   entity_diff_estimand_ids,
-      //   entity_diff_estimand_csr_row_pos,
-      //   iter_atom_log_estimand_vec);
-      // iter_diff_estimand_vec = csr_matrix_times_vector(
-      //   num_diff_estimands * num_unique_entities,
-      //   num_atom_estimands * num_unique_entities,
-      //   vec_diff,
-      //   entity_diff_estimand_ids,
-      //   entity_diff_estimand_csr_row_pos,
-      //   iter_atom_estimand_vec);
 
-      // print("entity_diff_estimand_ids = ", entity_diff_estimand_ids);
-      // print("entity_diff_estimand_csr_row_pos = ", entity_diff_estimand_csr_row_pos);
-      // print("vec_diff = ", vec_diff);
-      // print("iter_atom_log_estimand_vec = ", iter_atom_log_estimand_vec);
-      // print("iter_diff_log_estimand_vec = ", iter_diff_log_estimand_vec);
-
-      // iter_diff_estimand = to_matrix(exp(iter_diff_log_estimand_vec), num_diff_estimands, num_unique_entities);
       iter_diff_estimand = to_matrix(iter_diff_estimand_vec, num_diff_estimands, num_unique_entities);
     }
 
@@ -1009,7 +969,7 @@ generated quantities {
     iter_entity_estimand =
       append_row(
         append_row(
-          iter_atom_estimand,
+          iter_atom_log_estimand,
           append_row(
             iter_diff_estimand,
             append_row(
@@ -1020,7 +980,8 @@ generated quantities {
         ),
       append_row(iter_mean_diff_estimand, iter_utility_diff_estimand));
 
-    iter_estimand = iter_entity_estimand * unique_entity_prop;
+    iter_estimand[1:num_atom_estimands] = exp(csr_weighted_log_mean(iter_entity_estimand[1:num_atom_estimands], log(unique_entity_prop)));
+    iter_estimand[(num_atom_estimands + 1):] = iter_entity_estimand[(num_atom_estimands + 1):] * unique_entity_prop;
 
     if (num_estimand_levels > 0) {
       vector[num_all_estimands * sum(level_size[estimand_levels])] iter_level_entity_estimand_vec =
@@ -1071,36 +1032,13 @@ generated quantities {
   }
 
   if (calculate_marginal_prob) {
-    // vector[total_num_bg_variable_types * sum(level_size)] level_marginal_p_r_vec =
-    //   csr_matrix_times_vector(total_num_bg_variable_types * sum(level_size),
-    //                           num_r_types * num_unique_entities,
-    //                           // marginal_prob_csr_vec,
-    //                           // entity_marginal_prob_ids,
-    //                           // entity_marginal_prob_csr_row_pos,
-    //                           r_prob);
-    //
-    // level_marginal_p_r = to_matrix(level_marginal_p_r_vec);
-
-    // marginal_p_r = csr_matrix_times_vector(total_num_bg_variable_types,
-    //                                        num_r_types * num_unique_entities,
-    //                                        marginal_prob_csr_vec,
-    //                                        entity_marginal_prob_ids,
-    //                                        entity_marginal_prob_csr_row_pos,
-    //                                        r_prob);
-
     vector[total_num_bg_variable_types] marginal_log_p_r =
-    // marginal_p_r =
       csr_log_sum_exp2(total_num_bg_variable_types,
-      // csr_diff_exp(total_num_bg_variable_types,
-                   num_r_types * num_unique_entities,
-                   marginal_prob_csr_vec,
-                    entity_marginal_prob_ids,
-                    entity_marginal_prob_csr_row_pos,
-                    r_log_prob);
-
-    // print("r_log_prob = ", r_log_prob);
-    // print("marginal_prob_csr_vec = ", marginal_prob_csr_vec);
-    // print("marginal_log_p_r = ", marginal_log_p_r);
+                       num_r_types * num_unique_entities,
+                       marginal_prob_csr_vec,
+                       entity_marginal_prob_ids,
+                       entity_marginal_prob_csr_row_pos,
+                       r_log_prob);
 
     marginal_p_r = exp(marginal_log_p_r);
   }

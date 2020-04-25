@@ -42,6 +42,18 @@ vector csr_log_sum_exp2(int m, int n, vector w, int[] v, int[] u, vector b) {
   return result;
 }
 
+vector csr_weighted_log_mean(matrix b_mat, vector log_weights) {
+  int m = rows(b_mat);
+  int num_weights = num_elements(log_weights);
+  vector[m] result;
+
+  for (row_index in 1:m) {
+    result[row_index] = log_sum_exp(log_weights + b_mat[row_index]');
+  }
+
+  return result;
+}
+
 vector csr_diff_exp(int m, int n, int[] v, vector b) {
   vector[m] result = rep_vector(0, m);
   int row_pos = 1;
@@ -49,7 +61,6 @@ vector csr_diff_exp(int m, int n, int[] v, vector b) {
   for (row_index in 1:m) {
     int row_end = row_pos + 1;
 
-    // vector[row_size] sub_w = w[row_pos:row_end];
     vector[2] sub_b = b[v[row_pos:row_end]];
 
     // real max_sub_b = max(sub_b);

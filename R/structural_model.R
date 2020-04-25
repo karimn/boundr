@@ -334,6 +334,46 @@ create_sampler_creator <- function() {
         )
     }
 
+    num_discrete_r_types <- num_discrete_types(r)
+    num_discretized_r_types <- num_discretized_types(r)
+
+    discretized_beta_hyper_sd %<>% {
+      if (is.numeric(.)) {
+        matrix(., num_discretized_r_types, num_discrete_r_types)
+      } else if (is.list(.)) {
+        default_sd <- .$default
+
+        if (is_null(default_sd)) stop("Missing default SD value for discretized prior specification.")
+
+        if (length(.) > 1) {
+          discrete_type_var <- str_c("r_", discrete_response_names)
+          discretized_type_var <- str_c("r_", discretized_response_names, "_1")
+
+          type_combos <-r@types_data %>%
+            select(any_of(c(discrete_type_var))) %>%
+            distinct()
+
+          list_modify(., default = NULL) %>%
+            map_if(., ~ rlang::is_function(.x) | rlang::is_formula(.x), ~ rlang::as_function(.x)(type_combos), .else = ~ .x) %>%
+            tibble::enframe(value = "discrete_types") %>%
+            mutate(name = factor(name, levels = r@types_data %>% pull(discretized_type_var) %>% levels())) %>%
+            complete(name) %>%
+            rename(!!str_remove(discretized_type_var, "_1$") := "name") %>%
+            mutate(discrete_types = map_if(discrete_types, is_null, ~ rep(default_sd, nrow(type_combos)), .else = ~ arrange(.x) %>% pull(sd))) %>%
+            pull(discrete_types) %>%
+            do.call(rbind, .)
+        } else {
+          matrix(default_sd, num_discretized_r_types, num_discrete_r_types)
+        }
+      }
+    }
+
+    discretized_beta_hyper_sd <- if (is.numeric(discretized_beta_hyper_sd)) {
+      matrix(discretized_beta_hyper_sd, num_discretized_r_types, num_discrete_r_types)
+    } else if (is.list(discretized_beta_hyper_sd)) {
+
+    }
+
     new_sampler@stan_data <- {
       if (nrow(new_sampler@analysis_data) > 0) {
         new_sampler@analysis_data %>%
@@ -353,8 +393,8 @@ create_sampler_creator <- function() {
         num_obs = length(.$obs_unique_entity_id),
         num_r_types = num_endogenous_types(r),
 
-        num_discrete_r_types = num_discrete_types(r),
-        num_discretized_r_types = num_discretized_types(r),
+        num_discrete_r_types,
+        num_discretized_r_types,
         num_compatible_discretized_r_types = if (num_discretized_r_types > 0) r %>% get_discretized_pruning_data() %>% arrange(low, hi) %>% count(low) %>% pull(n) else array(0, dim = 0),
         compatible_discretized_r_types = if (num_discretized_r_types > 0) r %>% get_discretized_pruning_data() %>% arrange(low, hi) %>% mutate_all(as.integer) %>% pull(hi) else array(0, dim = 0),
 
@@ -423,6 +463,7 @@ create_sampler_creator <- function() {
         num_bg_variable_types = r@endogenous_latent_type_variables %>% count(type_variable) %>% pull(n) %>% as.array(),
         num_bg_variable_type_combo_members = map_int(r@endogenous_latent_type_variables$latent_type_ids, length),
         bg_variable_type_combo_members = unlist(r@endogenous_latent_type_variables$latent_type_ids),
+        is_discretized_bg_variable = r@endogenous_latent_type_variables %>% distinct(type_variable, discretized) %>% pull(discretized),
 
         cutpoints = if (is_empty(r@discretized_responses)) array(0, dim = 0) else unlist(r@discretized_responses[[1]]@cutpoints),
         num_cutpoints = length(cutpoints),
@@ -784,17 +825,20 @@ define_structural_causal_model <- function(..., exogenous_prob) {
   get_latent_type_ids <- function(type_variable, type) filter(comb@types_data, fct_match(!!sym(type_variable), type)) %>% pull(latent_type_index)
 
   r_type_cols <- comb@responses %>%
-    map_chr(~ .@output) %>%
-    setdiff(comb@exogenous_variables) %>%
-    str_c("r_", .)
+    map_df(~ tibble(type_variable = .x@output, discretized = is(.x, "DiscretizedResponse"))) %>%
+    # map_chr(~ .@output) %>%
+    # setdiff(comb@exogenous_variables) %>%
+    filter(!type_variable %in% comb@exogenous_variables) %>%
+    mutate(type_variable = str_c("r_", type_variable))
 
   comb@endogenous_latent_type_variables <- comb@types_data %>%
-    select(all_of(r_type_cols)) %>%
+    select(all_of(r_type_cols$type_variable)) %>%
     map(fct_unique) %>%
     enframe(name = "type_variable", value = "type") %>%
     unnest(type) %>%
     mutate(latent_type_ids = map2(type_variable, type, get_latent_type_ids),
-           marginal_latent_type_index = seq(n()))
+           marginal_latent_type_index = seq(n())) %>%
+    left_join(r_type_cols, by = "type_variable")
 
   return(comb)
 }
@@ -854,7 +898,7 @@ setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function
 
   prior_predict_fit %>%
     as.data.frame(pars = "r_log_prob") %>% {
-      if (same_dist) {
+      if (!same_dist) {
         sample_n(., num_sim, replace = FALSE)
       } else {
         sample_n(., 1, replace = FALSE) %>%
