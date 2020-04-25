@@ -5,3 +5,4 @@
 ^\.Rprofile$
 ^test_boundr.R$
 ^temp-data/
+^temp-img/
