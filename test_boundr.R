@@ -79,9 +79,9 @@ discrete_variables <- list2(
 
     "never" = ~ 0,
     "program complier" = ~ b,
-    # "program defier" = ~ 1 - b,
+    "program defier" = ~ 1 - b,
     "wedge complier" = ~ g,
-    # "wedge defier" = ~ 1 - g,
+    "wedge defier" = ~ 1 - g,
     "treatment complier" = ~ z,
     # "treatment defier" = ~ 1 - z,
     "always" = ~ 1,
