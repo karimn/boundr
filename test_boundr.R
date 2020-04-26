@@ -13,8 +13,8 @@ Options:
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
-  docopt::docopt(opt_desc, "single --num-entities=3")
+  docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --true-hyper-sd=0.25 --alt-hyper-sd=0.9 --output=test.rds --different-priors")
+  # docopt::docopt(opt_desc, "single --num-entities=3")
   # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
   # docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
 } else {
@@ -89,6 +89,22 @@ discrete_variables <- list2(
   ),
 )
 
+pruning_data <- tribble(
+  ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
+
+  "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
+  "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+  "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+  "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
+  "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
+  "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
+  "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
+  "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
+) %>%
+  pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
+  filter(allow) %>%
+  select(-allow)
+
 # test_model <- define_structural_causal_model(
 #   !!!discrete_variables,
 #
@@ -108,21 +124,7 @@ discrete_variables <- list2(
 #     "migration defier" = ~ 1 - m,
 #     "always below" = ~ 1,
 #
-#     pruning_data = tribble(
-#       ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
-#
-#       "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
-#       "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-#       "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-#       "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
-#       "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
-#       "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
-#       "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
-#       "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-#     ) %>%
-#       pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
-#       filter(allow) %>%
-#       select(-allow)
+#     pruning_data = pruning_data,
 #   ),
 #
 #   exogenous_prob = tribble(
@@ -153,21 +155,7 @@ discrete_variables <- list2(
 #     "migration defier" = ~ 1 - m,
 #     "always below" = ~ 1,
 #
-#     pruning_data = tribble(
-#       ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
-#
-#       "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
-#       "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-#       "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-#       "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
-#       "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
-#       "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
-#       "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
-#       "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-#     ) %>%
-#       pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
-#       filter(allow) %>%
-#       select(-allow)
+#     pruning_data = pruning_data,
 #   ),
 #
 #   exogenous_prob = tribble(
@@ -224,21 +212,7 @@ test_model4 <- define_structural_causal_model(
     "migration defier" = ~ 1 - m,
     "always below" = ~ 1,
 
-    pruning_data = tribble(
-      ~ hi,                  ~ "always below",  ~ "program complier", ~ "wedge complier", ~ "migration complier", ~ "program defier", ~ "wedge defier", ~ "migration defier", ~ "never below",
-
-      "always below",        TRUE,              TRUE,                 TRUE,              TRUE,                   TRUE,               TRUE,             TRUE,                TRUE,
-      "program complier",    FALSE,             TRUE,                 FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-      "wedge complier",       FALSE,             FALSE,                TRUE,              FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-      "migration complier",  FALSE,             FALSE,                FALSE,             TRUE,                   FALSE,              FALSE,            FALSE,               TRUE,
-      "program defier",      FALSE,             FALSE,                FALSE,             FALSE,                  TRUE,               FALSE,            FALSE,               TRUE,
-      "wedge defier",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              TRUE,             FALSE,               TRUE,
-      "migration defier",    FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            TRUE,                TRUE,
-      "never below",         FALSE,             FALSE,                FALSE,             FALSE,                  FALSE,              FALSE,            FALSE,               TRUE,
-    ) %>%
-      pivot_longer(-hi, names_to = "low", values_to = "allow") %>%
-      filter(allow) %>%
-      select(-allow)
+    pruning_data = pruning_data,
   ),
 
   exogenous_prob = tribble(
@@ -249,6 +223,47 @@ test_model4 <- define_structural_causal_model(
     1,   1,   1,   0.2
   ),
 )
+
+test_model5 <- define_structural_causal_model(
+  define_response(
+    "z",
+
+    "village assigned treatment" = ~ 1,
+    "village assigned control" = ~ 0,
+  ),
+
+  define_response(
+    "m",
+    input = c("z"),
+
+    "never" = ~ 0,
+    "treatment complier" = ~ z,
+    # "treatment defier" = ~ 1 - z,
+    "always" = ~ 1,
+  ),
+
+  define_discretized_response_group(
+    "y",
+    cutpoints = c(-100, -20, 100),
+
+    input = c("m"),
+
+    "never below" = ~ 0,
+    "migration complier" = ~ m,
+    "migration defier" = ~ 1 - m,
+    "always below" = ~ 1,
+
+    pruning_data = pruning_data
+  ),
+
+  exogenous_prob = tribble(
+    ~ z, ~ ex_prob,
+    0,   0.4,
+    1,   0.6
+  ),
+)
+
+default_model <- test_model5
 
 # Estimands ---------------------------------------------------------------
 
@@ -320,18 +335,50 @@ test_estimands4 <- build_estimand_collection(
   !!!with_discretized_estimands
 )
 
+test_estimands5 <- build_estimand_collection(
+  model = test_model5,
+  utility = c(0, 1),
+
+  build_diff_estimand(
+    build_atom_estimand("m", z = 1),
+    build_atom_estimand("m", z = 0)
+  ),
+
+  build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", z = 0, m = 1),
+    build_discretized_atom_estimand("y", z = 0, m = 0)
+  ),
+
+  build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", z = 1),
+    build_discretized_atom_estimand("y", z = 0)
+  ),
+
+  build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", z = 0, m = 1, cond = m == 1 & z == 0),
+    build_discretized_atom_estimand("y", z = 0, m = 0, cond = m == 1 & z == 0)
+  ),
+)
+
+default_estimands <- test_estimands5
+
+# default_unobs_cf <- "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]"
+# default_obs_cf <- "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0]"
+default_unobs_cf <- "Pr[Y^{y}_{z=0,m=0} < c | M = 1, Z = 0]"
+default_obs_cf <- "Pr[Y^{y}_{z=0,m=1} < c | M = 1, Z = 0]"
+
 # Single Run --------------------------------------------------------------
 
 if (script_options$single) {
-  entity_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
-                                                     discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
-                                                     num_entities = script_options$`num-entities`) %>%
+  entity_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
+                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                   num_entities = script_options$`num-entities`) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe()
 
   known_results <- entity_data %>%
-    map_dfr(boundr:::get_known_estimands, test_estimands4, .id = "entity_index") %>%
+    map_dfr(boundr:::get_known_estimands, default_estimands, .id = "entity_index") %>%
     group_by_at(vars(-entity_index, -prob)) %>%
     summarize(prob = mean(prob)) %>%
     ungroup() %>%
@@ -347,10 +394,10 @@ if (script_options$single) {
   #   get_linear_programming_bounds(test_sim_data, "y_1", b = 1, g = 1, z = 1, m = 0)
 
   test_sampler <- create_sampler(
-    test_model4,
+    default_model,
     model_levels = "entity_index",
     analysis_data = test_sim_data,
-    estimands = test_estimands4,
+    estimands = default_estimands,
     # y = y < -20,
     y = y,
 
@@ -399,12 +446,12 @@ if (script_options$single) {
     print(n = 1000)
 
   bind_rows(prior = test_prior_results, posterior = test_results, .id = "fit_type") %>%
-    filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+    filter(estimand_name == default_unobs_cf) %>%
     select(fit_type, starts_with("per_")) %>%
     pivot_longer(names_to = "quant", cols = -fit_type, names_prefix = "per_", names_ptypes = list("quant" = numeric())) %>%
     ggplot() +
     geom_col(aes(quant, value, group = fit_type, fill = fit_type), position = position_dodge()) +
-    geom_vline(xintercept = known_results %>% filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>% pull(prob)) +
+    geom_vline(xintercept = known_results %>% filter(estimand_name == default_unobs_cf) %>% pull(prob)) +
     scale_fill_discrete("") +
     scale_x_continuous(breaks = seq(0, 1, 0.2)) +
     labs(x = "", y = "") +
@@ -417,7 +464,7 @@ if (script_options$single) {
 if (script_options$multi) {
   num_runs <- script_options$runs
 
-  test_sim_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
+  test_sim_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
                                                      discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
                                                      num_entities = script_options$`num-entities`, num_sim = num_runs) %>%
     deframe()
@@ -429,7 +476,7 @@ if (script_options$multi) {
         entity_data %<>% deframe()
 
         known_results <- entity_data %>%
-          map_dfr(boundr:::get_known_estimands, test_estimands4, .id = "entity_index") %>%
+          map_dfr(boundr:::get_known_estimands, default_estimands, .id = "entity_index") %>%
           group_by_at(vars(-entity_index, -prob)) %>%
           summarize(prob = mean(prob)) %>%
           ungroup()
@@ -440,10 +487,10 @@ if (script_options$multi) {
           # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30))) %>%
           mutate(y = if_else(y_1 == 0, 30, -30)) %>%
           create_sampler(
-            test_model4,
+            default_model,
             model_levels = "entity_index",
             analysis_data = .,
-            estimands = test_estimands4,
+            estimands = default_estimands,
             y = y,
 
             discrete_beta_hyper_sd = discrete_beta_hyper_sd,
@@ -481,10 +528,10 @@ if (script_options$multi) {
     mutate(y = if_else(y_1 == 0, 30, -30)) # This data isn't really used in prior prediction
 
   true_prior_sampler <- create_sampler(
-    test_model4,
+    default_model,
     model_levels = "entity_index",
     analysis_data = dummy_data,
-    estimands = test_estimands4,
+    estimands = default_estimands,
     y = y,
 
     discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
@@ -505,10 +552,10 @@ if (script_options$multi) {
 
   if (script_options$`different-priors`) {
     prior_sampler <- create_sampler(
-      test_model4,
+      default_model,
       model_levels = "entity_index",
       analysis_data = dummy_data,
-      estimands = test_estimands4,
+      estimands = default_estimands,
       y = y,
 
       discrete_beta_hyper_sd = script_options$`alt-hyper-sd`,
@@ -527,8 +574,9 @@ if (script_options$multi) {
     prior_results <- prior_fit %>% get_estimation_results(quants = seq(0, 1, 0.1))
 
     test_run_data %>%
-      filter(estimand_name %in% c("Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]",
-                                  "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0]")) %>%
+      # filter(estimand_name %in% c("Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]",
+      #                             "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0]")) %>%
+      filter(estimand_name %in% c(default_unobs_cf, default_obs_cf)) %>%
       pack(post = starts_with("per_")) %>%
       left_join(
         prior_results %>%
@@ -570,15 +618,15 @@ if (script_options$multi) {
   if (script_options$`density-plots`) {
     density_plots <- bind_rows(prior = if (script_options$`different-priors`) {
                 prior_results %>%
-                  filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+                  filter(estimand_name == default_unobs_cf) %>%
                   slice(rep(1, num_runs)) %>%
                   mutate(iter_id = seq(num_runs))
               },
               posterior = test_run_data %>%
-                filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+                filter(estimand_name == default_unobs_cf) %>%
                 mutate(iter_id = as.integer(iter_id)),
               "true prior" = true_prior_results %>%
-                filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+                filter(estimand_name == default_unobs_cf) %>%
                 slice(rep(1, num_runs)) %>%
                 mutate(iter_id = seq(num_runs)),
               .id = "fit_type") %>%
@@ -622,7 +670,7 @@ if (script_options$multi) {
 if (script_options$`prior-sequence`) {
   betas <- seq(script_options$`from-beta`, script_options$`to-beta`, script_options$`by-beta`)
 
-  dummy_data <- create_prior_predicted_simulation(test_model4, sample_size = 4000, chains = 4, iter = 1000,
+  dummy_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
                                                    discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
                                                    num_entities = script_options$`num-entities`) %>%
     unnest(entity_data) %>%
@@ -635,10 +683,10 @@ if (script_options$`prior-sequence`) {
     test_parallel_map(cores = script_options$cores %/% 4,
                       function(curr_beta) {
                         test_sampler <- create_sampler(
-                          test_model4,
+                          default_model,
                           model_levels = "entity_index",
                           analysis_data = dummy_data,
-                          estimands = test_estimands4,
+                          estimands = default_estimands,
                           # y = y < -20,
                           y = y,
 
@@ -666,13 +714,15 @@ if (script_options$`prior-sequence`) {
     mutate(beta = as.numeric(beta))
 
   all_prior_results %>%
-    filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+    # filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+    filter(estimand_name == default_unobs_cf) %>%
     unnest(iter_data) %>%
     ggplot() +
     geom_density(aes(iter_estimand, group = beta, color = beta)) +
     scale_color_viridis_c(expression(tau[beta])) +
     labs(x = "", y = "",
-         subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
+         # subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
+         subtitle = latex2exp::TeX("P(Y_{z=0,m=0} < c | M_{z=0} = 1)")) +
     theme_minimal() +
     theme(legend.position = "right", plot.subtitle = element_text(size = 9))
 }
