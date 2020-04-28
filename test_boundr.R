@@ -14,10 +14,10 @@ Options:
 
 script_options <- if (interactive()) {
   # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --true-hyper-sd=0.25 --alt-hyper-sd=0.9 --output=test.rds --different-priors")
-  docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
+  # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
   # docopt::docopt(opt_desc, "single --num-entities=3")
   # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
-  # docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
+  docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
 } else {
   docopt::docopt(opt_desc)
 }
@@ -768,7 +768,7 @@ if (script_options$`prior-sequence`) {
                           discretized_beta_hyper_sd = curr_beta,
 
                           tau_level_sigma = 1,
-                          calculate_marginal_prob = FALSE
+                          calculate_marginal_prob = TRUE
                         )
 
                         test_prior_fit <- test_sampler %>%
@@ -776,18 +776,27 @@ if (script_options$`prior-sequence`) {
                             chains = 4,
                             warmup = 500,
                             iter = 2500,
-                            pars = c("iter_estimand"), #"marginal_p_r"),
+                            pars = c("iter_estimand", "marginal_p_r"),
                             run_type = "prior-predict",
                           )
 
-                        test_prior_fit %>%
-                          get_estimation_results(no_sim_diag = FALSE, quants = seq(0, 1, 0.1))
+                        tibble(
+                          results = test_prior_fit %>%
+                            get_estimation_results(no_sim_diag = FALSE, quants = seq(0, 1, 0.1)) %>%
+                            list(),
+
+                          marginal_prob = test_prior_fit %>%
+                            get_marginal_latent_type_prob() %>%
+                            list()
+                        )
                       }) %>%
     set_names(betas) %>%
     bind_rows(.id = "beta") %>%
     mutate(beta = as.numeric(beta))
 
   all_prior_results %>%
+    select(beta, results) %>%
+    unnest(results) %>%
     # filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
     filter(estimand_name == default_unobs_cf) %>%
     unnest(iter_data) %>%
@@ -800,6 +809,28 @@ if (script_options$`prior-sequence`) {
     theme_minimal() +
     theme(legend.position = "right", plot.subtitle = element_text(size = 9))
 }
+
+all_prior_results %>%
+  select(beta, marginal_prob) %>%
+  unnest(marginal_prob) %>%
+  filter(fct_match(type_variable, "r_y_1")) %>%
+  mutate(estimand_name = str_c(type_variable, " = ", type) %>% str_replace("^r", "R")) %>%
+  unnest(iter_data) %>%
+  ggplot() +
+  geom_density(aes(iter_p_r, group = beta, color = beta)) +
+  scale_color_viridis_c(expression(tau[beta])) +
+  labs(
+    x = "", y = ""
+  ) +
+  facet_wrap(vars(estimand_name), scales = "free") +
+  coord_cartesian(ylim = c(0, 8)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        # strip.text.x = element_blank(),
+        # strip.text.y.left = element_text(angle = 0),
+        axis.text.y = element_blank(),
+        plot.subtitle = element_text(size = 9))
+
 
 # Diagnostics -------------------------------------------------------------
 
