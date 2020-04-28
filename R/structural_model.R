@@ -356,7 +356,10 @@ create_sampler_creator <- function() {
             distinct()
 
           list_modify(., default = NULL) %>%
-            map_if(., ~ rlang::is_function(.x) | rlang::is_formula(.x), ~ rlang::as_function(.x)(type_combos), .else = ~ .x) %>%
+            map_if(.,
+                   ~ rlang::is_function(.x) | rlang::is_formula(.x),
+                   ~ rlang::as_function(.x)(type_combos),
+                   .else = ~ type_combos %>% mutate(sd = .x)) %>%
             tibble::enframe(value = "discrete_types") %>%
             mutate(name = factor(name, levels = r@types_data %>% pull(discretized_type_var) %>% levels())) %>%
             complete(name) %>%
