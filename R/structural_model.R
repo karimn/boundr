@@ -576,6 +576,20 @@ setMethod("get_known_estimands", "StructuralCausalModel", function(r, estimands)
   estimands %>% calculate_from_known_dgp(r)
 })
 
+setGeneric("get_known_marginal_latent_type_prob", function(model, ...) {
+  standardGeneric("get_known_marginal_latent_type_prob")
+})
+
+setMethod("get_known_marginal_latent_type_prob", "StructuralCausalModel", function(model, ...) {
+  model@endogenous_latent_type_variables %>%
+    select(type_variable, type, latent_type_ids) %>%
+    unnest(latent_type_ids) %>%
+    left_join(select(model@types_data, latent_type_index, prob), by = c("latent_type_ids" = "latent_type_index")) %>%
+    group_by(type_variable, type) %>%
+    summarize(marginal_prob = sum(prob)) %>%
+    ungroup()
+})
+
 setGeneric("build_estimand_collection", function(model, ...) standardGeneric("build_estimand_collection"))
 
 #' Create collection of estimands
