@@ -725,7 +725,7 @@ setGeneric("get_latent_type_by_observed_outcomes", function(model, obs_data, ...
 #' @param S4 \code{StructuralCausalModel} object
 #'
 #' @return Data set
-setMethod("get_latent_type_by_observed_outcomes", "StructuralCausalModel", function(model, obs_data, ...) {
+setMethod("get_latent_type_by_observed_outcomes", "StructuralCausalModel", function(model, obs_data, cond = TRUE, ...) {
   all_variables <- names(model@responses)
 
   types_by_outcomes <- model@types_data %>%
@@ -733,16 +733,44 @@ setMethod("get_latent_type_by_observed_outcomes", "StructuralCausalModel", funct
     arrange_at(vars(all_of(all_variables))) %>%
     group_by_at(vars(all_of(all_variables))) %>%
     group_nest(.key = "latent_type_mask") %>%
-    mutate(latent_type_mask = map(latent_type_mask, ~ inset(.y, .x$latent_type_index, 1), rep(0, max(model@types_data$latent_type_index))))
-    # data %>%
-    # do.call(rbind, .)
+    mutate(latent_type_mask = map(latent_type_mask,
+                                  ~ inset(.y, .x$latent_type_index, 1),
+                                  rep(0, max(model@types_data$latent_type_index))))
 
-  obs_data %>%
-    arrange_at(vars(all_of(all_variables))) %>%
+  cond_types <- model@types_data %>%
+    unnest(outcomes) %>%
+    filter({{ cond }}) %>%
+    select(latent_type_index)
+    # select(all_of(unique(model@endogenous_latent_type_variables$type_variable)))
+
+  cond_prob <- if (!missing(obs_data)) {
+    if (!is_logical(cond) || !cond) {
+      stop("Conditional statements not supported using data.")
+    }
+
+    obs_data %>%
+      arrange_at(vars(all_of(all_variables))) %>%
+      group_by_at(vars(all_of(all_variables))) %>%
+      count() %>%
+      group_by_at(vars(all_of(model@exogenous_variables))) %>%
+      mutate(prob = n / sum(n)) %>%
+      ungroup()
+  } else if (is(model, "StructuralCausalModelSimulation")) {
+    model@types_data %>%
+      semi_join(cond_types, by = "latent_type_index") %>%
+      unnest(outcomes) %>%
+      mutate(prob = prob * ex_prob) %>%
+      select(all_of(all_variables), prob) %>%
+      group_by_at(vars(all_of(model@exogenous_variables))) %>%
+      mutate(prob = prob / sum(prob)) %>%
+      ungroup()
+  } else {
+    stop("Must provide data if not using a simulation model.")
+  }
+
+  cond_prob %>%
     group_by_at(vars(all_of(all_variables))) %>%
-    count() %>%
-    group_by_at(vars(all_of(model@exogenous_variables))) %>%
-    mutate(prob = n / sum(n)) %>%
+    summarize(prob = sum(prob)) %>%
     ungroup() %>%
     right_join(types_by_outcomes, by = all_variables) %>%
     mutate(prob = coalesce(prob, 0.0))
@@ -953,7 +981,33 @@ setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function
     # }
 })
 
-setGeneric("get_linear_programming_bounds", function(scm, obs_data, outcome, ...) {
+setGeneric("get_linear_programming_objective", function(scm, outcome, ..., cond = TRUE, as_data = FALSE) {
+  standardGeneric("get_linear_programming_objective")
+})
+
+setMethod("get_linear_programming_objective", "StructuralCausalModel", function(scm, outcome, ..., cond = TRUE, as_data = FALSE) {
+  endog_type_variables <- scm@endogenous_latent_type_variables %$% unique(type_variable)
+
+  cond_types <- scm@types_data %>%
+    unnest(outcomes) %>%
+    filter({{ cond }}) %>%
+    select(latent_type_index)
+
+  get_prob_indices(scm, outcome, ..., as_data = TRUE) %>%
+    mutate(latent_type_index, mask = mask * ex_prob) %>%
+    group_by_at(vars(latent_type_index, all_of(endog_type_variables))) %>%
+    summarize(mask = sum(mask)) %>%
+    ungroup() %>% {
+      if (as_data) {
+        filter(., mask > 0) %>%
+          semi_join(cond_types, by = "latent_type_index")
+      } else {
+        pull(., mask)
+      }
+    }
+})
+
+setGeneric("get_linear_programming_bounds", function(scm, outcome, obs_data, ..., cond = TRUE) {
   standardGeneric("get_linear_programming_bounds")
 })
 
@@ -967,31 +1021,14 @@ setGeneric("get_linear_programming_bounds", function(scm, obs_data, outcome, ...
 #' @return Vector with minimum and maximum bounds.
 #'
 #' @export
-setMethod("get_linear_programming_bounds", "StructuralCausalModel", function(scm, obs_data, outcome, ...) {
-  # all_variables <- names(scm@responses)
-
-  types_by_outcomes <- get_latent_type_by_observed_outcomes(scm, obs_data)
+setMethod("get_linear_programming_bounds", "StructuralCausalModel", function(scm, outcome, obs_data, ..., cond = TRUE) {
+  types_by_outcomes <- get_latent_type_by_observed_outcomes(scm, obs_data, {{ cond }})
 
   latent_type_restrict <- types_by_outcomes %>%
     pull(latent_type_mask) %>%
     do.call(rbind, .)
 
-  # types_by_outcomes <- obs_data %>%
-  #   arrange_at(vars(all_of(all_variables))) %>%
-  #   group_by_at(vars(all_of(all_variables))) %>%
-  #   count() %>%
-  #   group_by_at(vars(all_of(scm@exogenous_variables))) %>%
-  #   mutate(prob = n / sum(n)) %>%
-  #   ungroup() %>%
-  #   right_join(types_by_outcomes, by = all_variables) %>%
-  #   mutate(prob = coalesce(prob, 0.0))
-
-  intervention_latent_types <- get_prob_indices(scm, outcome, ..., as_data = TRUE)
-  objective_fun <- intervention_latent_types %>%
-    transmute(latent_type_index, mask = mask * ex_prob) %>%
-    group_by(latent_type_index) %>%
-    summarize(mask = sum(mask)) %>%
-    pull(mask)
+  objective_fun <- scm %>% get_linear_programming_objective(outcome, ...)
 
   lst(min = lpSolve::lp("min", objective_fun, rbind(latent_type_restrict, 1), "=", c(types_by_outcomes$prob, 1)),
       max = lpSolve::lp("max", objective_fun, rbind(latent_type_restrict, 1), "=", c(types_by_outcomes$prob, 1)))
