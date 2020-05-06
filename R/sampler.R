@@ -273,7 +273,7 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
         filter(discretized) %>%
         unnest(latent_type_ids)
     ) %>%
-    left_join(select(r@sampler@structural_model@types_data, discrete_r_type_id, all_of(discrete_type_variables)), by = "discrete_r_type_id") %>%
+    left_join(distinct_at(r@sampler@structural_model@types_data, vars(discrete_r_type_id, all_of(discrete_type_variables))), by = "discrete_r_type_id") %>%
     mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
     unnest(estimand_quantiles)

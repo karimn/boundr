@@ -608,13 +608,33 @@ setGeneric("get_known_marginal_latent_type_prob", function(model, ...) {
 })
 
 setMethod("get_known_marginal_latent_type_prob", "StructuralCausalModel", function(model, ...) {
-  model@endogenous_latent_type_variables %>%
-    select(type_variable, type, latent_type_ids) %>%
+  discrete_marginal_prob <- model@endogenous_joint_discrete_latent_type_variables %>%
     unnest(latent_type_ids) %>%
     left_join(select(model@types_data, latent_type_index, prob), by = c("latent_type_ids" = "latent_type_index")) %>%
-    group_by(type_variable, type) %>%
+    group_by(discrete_r_type_id) %>%
     summarize(marginal_prob = sum(prob)) %>%
     ungroup()
+
+  discrete_type_variables <- model@endogenous_latent_type_variables %>%
+    filter(!discretized) %>%
+    pull(type_variable) %>%
+    unique()
+
+  model@endogenous_latent_type_variables %>%
+    mutate(latent_type_ids = map_if(latent_type_ids, discretized, unnest, latent_type_ids, .else = ~ tibble(latent_type_index = .))) %>%
+    select(type_variable, type, discretized, latent_type_ids) %>%
+    unnest(latent_type_ids) %>%
+    left_join(select(model@types_data, latent_type_index, prob), by = "latent_type_index") %>%
+    group_by(type_variable, type, discretized, discrete_r_type_id) %>%
+    summarize(marginal_prob = sum(prob)) %>%
+    ungroup() %>%
+    left_join(discrete_marginal_prob, by = "discrete_r_type_id", suffix = c("", "_discrete")) %>%
+    mutate(
+      marginal_prob_discrete = coalesce(marginal_prob_discrete, 1),
+      marginal_prob = marginal_prob / marginal_prob_discrete
+    ) %>%
+    select(-marginal_prob_discrete) %>%
+    left_join(distinct_at(model@types_data, vars(discrete_r_type_id, all_of(discrete_type_variables))), by = "discrete_r_type_id")
 })
 
 setGeneric("build_estimand_collection", function(model, ...) standardGeneric("build_estimand_collection"))
