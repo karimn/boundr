@@ -243,6 +243,8 @@ data {
 
   // Priors
 
+  matrix[num_discretized_r_types, num_discrete_r_types] discretized_beta_hyper_mean;
+
   real<lower = 0> discrete_beta_hyper_sd;
   matrix<lower = 0>[num_discretized_r_types, num_discrete_r_types] discretized_beta_hyper_sd;
 
@@ -842,7 +844,7 @@ model {
   }
 
   for (discretized_var_index in 1:num_discretized_variables) {
-    to_vector(toplevel_discretized_beta[discretized_var_index]) ~ normal(0, to_vector(discretized_beta_hyper_sd));
+    to_vector(toplevel_discretized_beta[discretized_var_index]) ~ normal(to_vector(discretized_beta_hyper_mean), to_vector(discretized_beta_hyper_sd));
 
     if (num_levels > 0) {
       to_vector(discretized_level_beta_raw[discretized_var_index]) ~ std_normal();

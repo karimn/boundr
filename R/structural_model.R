@@ -235,7 +235,7 @@ setGeneric("create_sampler", function(r,
                                       model_levels = NA_character_, cv_level = NA_character_, estimand_levels = NULL, between_entity_diff_levels = NULL,
                                       analysis_data,
                                       ...,
-                                      tau_level_sigma = 1, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
+                                      tau_level_sigma = 1, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
                                       calculate_marginal_prob = FALSE,
                                       use_random_binpoint = TRUE,
                                       num_sim_unique_entities = 0,
@@ -249,7 +249,7 @@ create_sampler_creator <- function() {
            model_levels = NA_character_, cv_level = NA_character_, estimand_levels = NULL, between_entity_diff_levels = NULL,
            analysis_data,
            ...,
-           tau_level_sigma = 1, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
+           tau_level_sigma = 1, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
            calculate_marginal_prob = FALSE,
            use_random_binpoint = TRUE,
            num_sim_unique_entities = 0,
@@ -333,9 +333,47 @@ create_sampler_creator <- function() {
     num_discrete_r_types <- num_discrete_types(r)
     num_discretized_r_types <- num_discretized_types(r)
 
+    discretized_beta_hyper_mean %<>% {
+      if (is.numeric(.)) {
+        # if (any(dim(.) != c(num_discretized_r_types, num_discrete_r_types))) {
+        if (NROW(.) != num_discretized_r_types || NROW(.) != num_discrete_r_types) {
+          matrix(., num_discretized_r_types, num_discrete_r_types)
+        } else .
+      } else if (is.list(.)) {
+        default_mean <- .$default
+
+        if (is_null(default_mean)) stop("Missing default mean value for discretized prior specification.")
+
+        if (length(.) > 1) {
+          discrete_type_var <- str_c("r_", discrete_response_names)
+          discretized_type_var <- str_c("r_", discretized_response_names, "_1")
+
+          type_combos <-r@types_data %>%
+            select(any_of(c(discrete_type_var))) %>%
+            distinct()
+
+          list_modify(., default = NULL) %>%
+            map_if(.,
+                   ~ rlang::is_function(.x) | rlang::is_formula(.x),
+                   ~ rlang::as_function(.x)(type_combos),
+                   .else = ~ type_combos %>% mutate(mean = .x)) %>%
+            tibble::enframe(value = "discrete_types") %>%
+            mutate(name = factor(name, levels = r@types_data %>% pull(discretized_type_var) %>% levels())) %>%
+            complete(name) %>%
+            rename(!!str_remove(discretized_type_var, "_1$") := "name") %>%
+            mutate(discrete_types = map_if(discrete_types, is_null, ~ rep(default_mean, nrow(type_combos)), .else = ~ arrange(.x) %>% pull(mean))) %>%
+            pull(discrete_types) %>%
+            do.call(rbind, .)
+        } else {
+          matrix(default_mean, num_discretized_r_types, num_discrete_r_types)
+        }
+      }
+    }
+
     discretized_beta_hyper_sd %<>% {
       if (is.numeric(.)) {
-        if (any(dim(.) != c(num_discretized_r_types, num_discrete_r_types))) {
+        # if (any(dim(.) != c(num_discretized_r_types, num_discrete_r_types))) {
+        if (NROW(.) != num_discretized_r_types || NROW(.) != num_discrete_r_types) {
           matrix(., num_discretized_r_types, num_discrete_r_types)
         } else .
       } else if (is.list(.)) {
@@ -372,7 +410,7 @@ create_sampler_creator <- function() {
     discretized_beta_hyper_sd <- if (is.numeric(discretized_beta_hyper_sd)) {
       matrix(discretized_beta_hyper_sd, num_discretized_r_types, num_discrete_r_types)
     } else if (is.list(discretized_beta_hyper_sd)) {
-
+      stop("Not yet supported")
     }
 
     new_sampler@stan_data <- {
@@ -558,6 +596,8 @@ create_sampler_creator <- function() {
         use_random_binpoint,
 
         # Priors
+
+        discretized_beta_hyper_mean,
 
         discrete_beta_hyper_sd,
         discretized_beta_hyper_sd,
