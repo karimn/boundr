@@ -136,3 +136,29 @@ int[] seq(int from, int to, int by) {
 
   return(result_seq);
 }
+
+int num_gt_zero(vector v) {
+  int num_found = 0;
+
+  for (i in 1:num_elements(v)) {
+    if (v[i] > 0) {
+      num_found += 1;
+    }
+  }
+
+  return num_found;
+}
+
+int[] which_compare_zero(vector v, int num_found, int gt) {
+  int found_indices[num_found];
+  int found_pos = 1;
+
+  for (i in 1:num_elements(v)) {
+    if (gt * (v[i] > 0) + (1 - gt) * (v[i] <= 0)) {
+      found_indices[found_pos] = i;
+      found_pos += 1;
+    }
+  }
+
+  return found_indices;
+}

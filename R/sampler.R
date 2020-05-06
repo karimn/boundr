@@ -49,10 +49,14 @@ setMethod("sampling", "Sampler", function(object, ..., run_type = c("fit", "prio
      stop("Sample data cannot be specified. Data is prepared in the sampler constructor.")
   }
 
-  pars <- c("iter_estimand", "iter_level_entity_estimand", "iter_level_entity_estimand_sd", "log_lik", "iter_between_level_entity_diff_estimand", "marginal_p_r")
+  pars <- c("iter_estimand", "iter_level_entity_estimand", "iter_level_entity_estimand_sd", "log_lik", "iter_between_level_entity_diff_estimand")
+
+  if (object@stan_data$calculate_marginal_prob) {
+    pars %<>% c("single_discrete_marginal_p_r", "discretized_marginal_p_r", "discrete_marginal_p_r")
+  }
 
   if (save_background_joint_prob) {
-    pars %<>%  c("r_prob")
+    pars %<>% c("r_prob")
   }
 
   initializer <- function(chain_id) {
@@ -231,7 +235,7 @@ setMethod("get_level_estimand_sd", "SamplingResults", function(est) {
     left_join(tibble(level = est@sampler@estimand_levels) %>% mutate(level_index = seq(n())), by = "level_index")
 })
 
-setGeneric("get_marginal_latent_type_prob", function(r, no_sim_diag = TRUE) {
+setGeneric("get_marginal_latent_type_prob", function(r, no_sim_diag = TRUE, ...) {
   standardGeneric("get_marginal_latent_type_prob")
 })
 
@@ -239,19 +243,42 @@ setGeneric("get_marginal_latent_type_prob", function(r, no_sim_diag = TRUE) {
 #'
 #' @param r \code{SamplingResults}
 #' @param no_sim_diag Do not generate simulation diagnostics (Rhat and ESS diagnostics)
+#' @param quants Quantiles of marginal probability to calculate
 #'
 #' @return \code{tibble} with marginal probabilities
 #' @export
-setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim_diag = TRUE) {
-  r %>%
-    as.array(par = "marginal_p_r") %>%
+setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim_diag = TRUE, quants = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95), ...) {
+  single_discrete_marginal_prob <- r %>%
+    as.array(par = "single_discrete_marginal_p_r") %>%
     plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
     tidyr::extract(parameters, "marginal_latent_type_index", "(\\d+)", convert = TRUE) %>%
     mutate(iter_data = map(iter_data, ~ tibble(iter_p_r = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
-    full_join(r@sampler@endogenous_latent_type_variables, ., by = "marginal_latent_type_index") %>%
-    mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)),
+    full_join(filter(r@sampler@endogenous_latent_type_variables, !discretized), ., by = "marginal_latent_type_index") %>%
+    mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
     unnest(estimand_quantiles)
+
+  discrete_type_variables <- r@sampler@endogenous_latent_type_variables %>%
+    filter(!discretized) %>%
+    pull(type_variable) %>%
+    unique()
+
+  discretized_marginal_prob <- r %>%
+    as.array(par = "discretized_marginal_p_r") %>%
+    plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
+    select(-parameters) %>%
+    mutate(iter_data = map(iter_data, ~ tibble(iter_p_r = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
+    bind_cols(
+      r@sampler@endogenous_latent_type_variables %>%
+        filter(discretized) %>%
+        unnest(latent_type_ids)
+    ) %>%
+    left_join(select(r@sampler@structural_model@types_data, discrete_r_type_id, all_of(discrete_type_variables)), by = "discrete_r_type_id") %>%
+    mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
+           mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
+    unnest(estimand_quantiles)
+
+  bind_rows(single_discrete_marginal_prob, discretized_marginal_prob)
 })
 
 # Hint for using importMethodsFrom: add @import to boundr-package.R first then write method. Otherwise NAMESPACE won't be updated with

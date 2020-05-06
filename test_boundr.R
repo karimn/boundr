@@ -2,22 +2,25 @@
 
 "Usage:
   test_boundr single [--different-priors --num-entities=<num-entities> --true-hyper-sd=<sd>]
-  test_boundr multi <cores> <runs> [--num-entities=<num-entities> --true-hyper-sd=<sd> --constrained-prior --density-plots --output=<output-name>] [--append | [--different-priors --alt-hyper-sd=<sd>]]
-  test_boundr prior-sequence <cores> <from-beta> <to-beta> <by-beta> [--num-entities=<num-entities>]
+  test_boundr multi <cores> <runs> [--num-entities=<num-entities> --true-hyper-sd=<sd> --constrained-prior --density-plots --output=<output-name>] [--append --different-priors --alt-hyper-sd=<sd> --alt-hyper-sd-constrained=<const-sd>]
+  test_boundr prior-sequence <cores> <from-tau> <to-tau> <by-tau> [--num-entities=<num-entities>]
+  test_boundr constrained-prior-sequence <cores> <unconst-tau> <from-tau> <to-tau> <by-tau> [--num-entities=<num-entities>]
 
 Options:
   --output=<output-name>  Output name to use in file names [default: test_run]
   --num-entities=<num-entities>  Number of entities in model [default: 3]
-  --true-hyper-sd=<sd>  True SD hyperparameter for prior [default: 1.5]
-  --alt-hyper-sd=<sd>  Alternative SD hyperparameter to use for fit [default: 2.5]
+  --true-hyper-sd=<sd>  True SD hyperparameter for prior [default: 2.5]
+  --alt-hyper-sd=<sd>  Alternative SD hyperparameter to use for fit [default: 2]
+  --alt-hyper-sd-constrained=<const-sd>  Alternative SD hyperparameter for the complier/defier groups
 " -> opt_desc
 
 script_options <- if (interactive()) {
   # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --true-hyper-sd=0.25 --alt-hyper-sd=0.9 --output=test.rds --different-priors")
-  # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --output=test.rds --different-priors")
-  # docopt::docopt(opt_desc, "single --num-entities=3")
+  # docopt::docopt(opt_desc, "multi 12 300 --density-plots --num-entities=1 --append --output=constrained4.rds --different-priors --alt-hyper-sd=2 --alt-hyper-sd-constrained=1.5")
+  docopt::docopt(opt_desc, "single --num-entities=1")
   # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
-  docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
+  # docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
+  # docopt::docopt(opt_desc, "constrained-prior-sequence 12 5 0.25 0.25 0.0 --num-entities=1")
 } else {
   docopt::docopt(opt_desc)
 }
@@ -35,7 +38,7 @@ library(boundr)
 
 script_options %<>%
   modify_at(c("cores", "runs", "num-entities"), as.integer) %>%
-  modify_at(c("true-hyper-sd", "alt-hyper-sd", "from-beta", "to-beta", "by-beta"), as.numeric)
+  modify_at(c("true-hyper-sd", "alt-hyper-sd", "alt-hyper-sd-constrained", "unconst-tau", "from-tau", "to-tau", "by-tau"), as.numeric)
 
 options(mc.cores = max(1, parallel::detectCores()))
 rstan_options(auto_write = TRUE)
@@ -239,7 +242,6 @@ test_model5 <- define_structural_causal_model(
 
     "never" = ~ 0,
     "treatment complier" = ~ z,
-    # "treatment defier" = ~ 1 - z,
     "always" = ~ 1,
   ),
 
@@ -368,10 +370,16 @@ test_estimands5 <- build_estimand_collection(
 
 default_estimands <- test_estimands4
 
-# default_unobs_cf <- "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]"
-# default_obs_cf <- "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0]"
-default_unobs_cf <- "Pr[Y^{y}_{b=1,g=1,z=1,m=0} < c | M = 1, B = 1, G = 1, Z = 1]"
-default_obs_cf <- "Pr[Y^{y}_{b=1,g=1,z=1,m=1} < c | M = 1, B = 1, G = 1, Z = 1]"
+default_unobs_cf <- "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]"
+default_obs_cf <- "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0]"
+default_cf_diff <- "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c | M = 1, B = 0, G = 0, Z = 0] - Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]"
+
+tot_unobs_cf <- "Pr[Y^{y}_{b=1,g=1,z=1,m=0} < c | M = 1, B = 1, G = 1, Z = 1]"
+tot_obs_cf <- "Pr[Y^{y}_{b=1,g=1,z=1,m=1} < c | M = 1, B = 1, G = 1, Z = 1]"
+tot_cf_diff <- "Pr[Y^{y}_{b=1,g=1,z=1,m=1} < c | M = 1, B = 1, G = 1, Z = 1] - Pr[Y^{y}_{b=1,g=1,z=1,m=0} < c | M = 1, B = 1, G = 1, Z = 1]"
+
+default_ate <- "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c] - Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c]"
+
 # default_unobs_cf <- "Pr[Y^{y}_{z=0,m=0} < c | M = 1, Z = 0]"
 # default_obs_cf <- "Pr[Y^{y}_{z=0,m=1} < c | M = 1, Z = 0]"
 
@@ -379,7 +387,9 @@ default_obs_cf <- "Pr[Y^{y}_{b=1,g=1,z=1,m=1} < c | M = 1, B = 1, G = 1, Z = 1]"
 
 if (script_options$single) {
   entity_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
-                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
+                                                   discretized_beta_hyper_sd = true_discretized_beta_hyper_sd,
+                                                   tau_level_sigma = 1,
                                                    num_entities = script_options$`num-entities`) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
@@ -424,7 +434,7 @@ if (script_options$single) {
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand", "marginal_p_r"),
+      pars = c("iter_estimand", "single_discrete_marginal_p_r", "discretized_marginal_p_r"),
       run_type = "prior-predict",
     )
 
@@ -439,7 +449,7 @@ if (script_options$single) {
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand", "marginal_p_r"),
+      pars = c("iter_estimand", "single_discrete_marginal_p_r"),
     )
 
   test_results <- test_fit %>%
@@ -474,9 +484,22 @@ if (script_options$multi) {
 
   test_sim_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
                                                      discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
-                                                     discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
-                                                     num_entities = script_options$`num-entities`, num_sim = num_runs) %>%
+                                                     discretized_beta_hyper_sd = true_discretized_beta_hyper_sd,
+                                                     tau_level_sigma = 1,
+                                                     num_entities = script_options$`num-entities`,
+                                                     num_sim = num_runs) %>%
     deframe()
+
+  used_discretized_beta_hyper_sd <- if (script_options$`different-priors`) script_options$`alt-hyper-sd` else true_discretized_beta_hyper_sd
+  used_discretized_beta_hyper_sd <- if (!is_empty(script_options$`alt-hyper-sd-constrained`)) {
+    list(
+      default = script_options$`alt-hyper-sd-constrained`,
+      "always below" = used_discretized_beta_hyper_sd,
+      "never below" = used_discretized_beta_hyper_sd
+    )
+  } else {
+    used_discretized_beta_hyper_sd
+  }
 
   test_run_data <- test_sim_data %>%
     test_parallel_map(cores = script_options$cores %/% 4,
@@ -534,11 +557,18 @@ if (script_options$multi) {
           inner_join(known_marginal_prob, by = c("type_variable", "type")) %>%
           mutate(coverage = if_else((per_0.1 - marginal_prob) > 0 | (per_0.9 - marginal_prob) < 0, "outside", "inside") %>% factor())
 
-        tibble(results = list(results), marginal_prob = list(marginal_prob))
+        lp_bounds <- entity_data %>%
+          # map(get_linear_programming_bounds, "y_1", b = 0, g = 0, z = 0, m = 0, cond = m == 1 & b == 0 & g == 0 & z == 0) %>%
+          map(get_linear_programming_bounds, "y_1", z = 0, m = 0, cond = m == 1 & z == 0) %>%
+          map(map, pluck, "objval") %>%
+          map_df(as_tibble)
+
+        tibble(results = list(results), marginal_prob = list(marginal_prob), lp_bounds = list(lp_bounds))
       }, error = function(err) browser()),
-    discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
-    discretized_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else true_discretized_beta_hyper_sd,
-    save_iter_data = script_options$`density-plots`
+
+      discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
+      discretized_beta_hyper_sd = used_discretized_beta_hyper_sd,
+      save_iter_data = script_options$`density-plots`
     ) %>%
     compact() %>%
     bind_rows(.id = "iter_id")
@@ -575,6 +605,15 @@ if (script_options$multi) {
   prior_results <- NULL
   prior_marginal_prob <- NULL
 
+  test_run_data_file <- file.path("temp-data", str_c(script_options$output, ".rds"))
+
+  if (script_options$append && file.exists(test_run_data_file)) {
+    test_run_data %<>%
+      bind_rows(read_rds(test_run_data_file))
+  }
+
+  write_rds(test_run_data, test_run_data_file)
+
   if (script_options$`different-priors`) {
     prior_sampler <- create_sampler(
       default_model,
@@ -584,7 +623,7 @@ if (script_options$multi) {
       y = y,
 
       discrete_beta_hyper_sd = script_options$`alt-hyper-sd`,
-      discretized_beta_hyper_sd = script_options$`alt-hyper-sd`,
+      discretized_beta_hyper_sd = used_discretized_beta_hyper_sd, #script_options$`alt-hyper-sd`,
       tau_level_sigma = 1,
       calculate_marginal_prob = TRUE
     )
@@ -602,7 +641,7 @@ if (script_options$multi) {
     test_run_data %>%
       select(iter_id, results) %>%
       unnest(results) %>%
-      filter(estimand_name %in% c(default_unobs_cf, default_obs_cf)) %>%
+      filter(estimand_name %in% c(default_unobs_cf, default_obs_cf, default_cf_diff, tot_unobs_cf, tot_obs_cf, tot_cf_diff, default_ate)) %>%
       pack(post = starts_with("per_")) %>%
       left_join(
         prior_results %>%
@@ -624,15 +663,6 @@ if (script_options$multi) {
       arrange_at(vars(estimand_name, any_of("cutpoint"))) %>%
       print(n = 1000, width = 160)
   } else {
-    test_run_data_file <- file.path("temp-data", str_c(script_options$output, ".rds"))
-
-    if (script_options$append && file.exists(test_run_data_file)) {
-      test_run_data %<>%
-        bind_rows(read_rds(test_run_data_file))
-    }
-
-    write_rds(test_run_data, test_run_data_file)
-
     test_run_data %>%
       select(iter_id, results) %>%
       unnest(results) %>%
@@ -643,37 +673,43 @@ if (script_options$multi) {
       print(n = 1000)
   }
 
-  if (script_options$`density-plots`) {
-    density_plots <- bind_rows(
+  get_prior_and_post <- function(estimand) {
+    bind_rows(
       prior = if (script_options$`different-priors`) {
         prior_results %>%
-          filter(estimand_name == default_unobs_cf) %>%
-          slice(rep(1, num_runs)) %>%
-          mutate(iter_id = seq(num_runs))
+          filter(estimand_name %in% estimand) %>%
+          map_df(seq(num_runs), ~ mutate(..2, iter_id = ..1), .)
       },
 
       posterior = test_run_data %>%
         select(iter_id, results) %>%
         unnest(results) %>%
-        filter(estimand_name == default_unobs_cf) %>%
+        # filter(estimand_name == default_unobs_cf) %>%
+        filter(estimand_name %in% estimand) %>%
         mutate(iter_id = as.integer(iter_id)),
 
       "true prior" = true_prior_results %>%
-        filter(estimand_name == default_unobs_cf) %>%
-        slice(rep(1, num_runs)) %>%
-        mutate(iter_id = seq(num_runs)),
+        # filter(estimand_name == default_unobs_cf) %>%
+        filter(estimand_name %in% estimand) %>%
+        map_df(seq(num_runs), ~ mutate(..2, iter_id = ..1), .),
 
-    .id = "fit_type"
-  ) %>%
+      .id = "fit_type"
+    )
+  }
+
+  if (script_options$`density-plots`) {
+    density_plots <- get_prior_and_post(tot_cf_diff) %>%
+      filter(iter_id %in% sample(.$iter_id, 50, replace = FALSE)) %>%
       select(iter_id, prob, fit_type, iter_data) %>%
       mutate(iter_data = map_if(iter_data, ~ !is_null(.x), select, -iter_id)) %>%
       unnest(iter_data) %>%
       ggplot() +
       geom_density(aes(iter_estimand, group = fit_type, color = fit_type)) +
+      geom_vline(xintercept = 0, linetype = "dotted") +
       geom_vline(aes(xintercept = prob), data = . %>% distinct(iter_id, prob)) +
       scale_fill_discrete("", aesthetics = c("color", "fill")) +
-      labs(x = "", y = "",
-           subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
+      labs(x = "", y = "") +
+           # subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
       facet_wrap(vars(iter_id), scales = "free") +
       theme_minimal() +
       theme(legend.position = "top", strip.text = element_blank(), plot.subtitle = element_text(size = 9))
@@ -687,6 +723,120 @@ if (script_options$multi) {
     } else {
       plot(density_plots)
     }
+
+    get_prior_and_post(default_cf_diff) %>%
+      filter(fct_match(fit_type, "posterior")) %>%
+      mutate(
+        iter_id = seq(n()),
+        iter_id = fct_reorder(factor(iter_id), prob)
+      ) %>% {
+        cowplot::plot_grid(
+          ggplot(., aes(iter_id)) +
+            geom_hline(yintercept = 0, linetype = "dotted") +
+            geom_point(aes(y = prob), shape = 1, size = 2) +
+            geom_pointrange(aes(y = per_0.5, ymin = per_0.1, ymax = per_0.9, color = coverage), fatten = 1) +
+            scale_color_manual("", values = c("inside" = "black", "outside" = "red")) +
+            labs(x = "", y = "", subtitle = "Uncentered") +
+            theme_minimal() +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  panel.grid.minor.x = element_blank(),
+                  panel.grid.major.x = element_blank(),
+                  legend.position = "none"),
+
+          mutate_at(., vars(starts_with("per_")), ~ . - prob) %>%
+            ggplot(aes(iter_id)) +
+            geom_hline(yintercept = 0, linetype = "dotted") +
+            geom_pointrange(aes(y = per_0.5, ymin = per_0.1, ymax = per_0.9, color = coverage), fatten = 1) +
+            scale_color_manual("", values = c("inside" = "black", "outside" = "red")) +
+            labs(x = "", y = "", subtitle = "Centered") +
+            theme_minimal() +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  panel.grid.minor.x = element_blank(),
+                  panel.grid.major.x = element_blank(),
+                  legend.position = "none"),
+
+          ncol = 1
+        )
+      }
+
+    get_prior_and_post(c(default_obs_cf, default_cf_diff)) %>%
+      filter(fct_match(fit_type, "posterior")) %>%
+      group_by(estimand_name) %>%
+      mutate(
+        iter_id = seq(n()),
+        iter_id = fct_reorder(factor(iter_id), prob)
+      ) %>%
+      ungroup() %>%
+      select(iter_id, estimand_name, per_0.1, per_0.5, per_0.8, prob, coverage) %>%
+      mutate(estimand_name = if_else(str_detect(estimand_name, "-"), "diff", "obs")) %>%
+      pivot_wider(names_from = "estimand_name", values_from = c("per_0.1", "per_0.5", "per_0.8", "prob", "coverage")) %>% {
+        cowplot::plot_grid(
+          ggplot(.) +
+            geom_point(aes(prob_obs, per_0.5_diff, color = coverage_diff)) +
+            geom_point(aes(prob_obs, prob_diff), shape = 3) +
+            scale_color_manual("", values = c("inside" = "black", "outside" = "red")) +
+            # labs(x = latex2exp::TeX("P\\[Y_{b=0,g=0,z=0,m=1} < c | M_{b=0,g=0,z=0} = 1\\]"),
+            labs(x = "",
+                 y = "TOT") +
+                 # y = latex2exp::TeX("P\\[Y_{b=0,g=0,z=0,m=1} < c | M_{b=0,g=0,z=0} = 1\\] - P\\[Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1\\]")) +
+            theme_minimal() +
+            theme(legend.position = "none",
+                  axis.text.x = element_blank()) +
+            NULL,
+
+        ggplot(.) +
+          geom_pointrange(aes(prob_obs, ymin = per_0.1_diff, y = per_0.5_diff, ymax = per_0.8_diff,  color = coverage_diff), fatten = 1) +
+          geom_line(aes(prob_obs, prob_obs), linetype = "dashed") +
+          geom_line(aes(prob_obs, prob_obs - 1), linetype = "dashed") +
+          geom_point(aes(prob_obs, prob_diff), shape = 3) +
+          scale_color_manual("", values = c("inside" = "black", "outside" = "red")) +
+          labs(x = latex2exp::TeX("P\\[Y_{b=0,g=0,z=0,m=1} < c | M_{b=0,g=0,z=0} = 1\\]"),
+               y = "TOT") +
+               # y = latex2exp::TeX("P\\[Y_{b=0,g=0,z=0,m=1} < c | M_{b=0,g=0,z=0} = 1\\] - P\\[Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1\\]")) +
+          theme_minimal() +
+          theme(legend.position = "none") +
+          NULL,
+
+        ncol = 1,
+        rel_heights = c(1, 1.1))
+      }
+
+    prior_results %>%
+      filter(estimand_name %in% c(default_obs_cf, default_unobs_cf)) %>%
+      select(estimand_name, iter_data) %>%
+      mutate(estimand_name = if_else(str_detect(estimand_name, "m=1"), "obs", "unobs")) %>%
+      unnest(iter_data) %>%
+      pivot_wider(names_from = "estimand_name", values_from = "iter_estimand") %>%
+      ggplot(aes(obs, unobs)) +
+      # geom_density2d()
+      stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +
+      labs(x = "Observable", y = "Unobservable") +
+      scale_fill_viridis_c() +
+      theme_minimal() +
+      theme(legend.position = "none")
+
+    test_run_data %>%
+      select(iter_id, results, lp_bounds) %>%
+      sample_n(150) %>%
+      mutate(
+        results = map(results, filter, estimand_name == default_unobs_cf) %>%
+          map(select, per_0.1, per_0.8, prob),
+      ) %>%
+      unnest(c(results, lp_bounds)) %>%
+      mutate(iter_id = fct_reorder(iter_id, prob)) %>%
+      ggplot(aes(iter_id)) +
+      geom_linerange(aes(ymin = per_0.1, ymax = per_0.8), color = "red", size = 2, alpha = 0.5) +
+      geom_errorbar(aes(ymin = min, ymax = max)) +
+      geom_point(aes(y = prob), size = 1) +
+      labs(
+        x = "", y = ""
+      ) +
+      theme_minimal() +
+      theme(legend.position = "top",
+            axis.text.x = element_blank(),
+            plot.subtitle = element_text(size = 9))
 
     marginal_prob_density_plots <- bind_rows(
       prior = if (script_options$`different-priors`) {
@@ -742,7 +892,7 @@ if (script_options$multi) {
 # Prior Sequence ----------------------------------------------------------
 
 if (script_options$`prior-sequence`) {
-  betas <- seq(script_options$`from-beta`, script_options$`to-beta`, script_options$`by-beta`)
+  taus <- seq(script_options$`from-tau`, script_options$`to-tau`, script_options$`by-tau`)
 
   dummy_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
                                                    discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
@@ -753,9 +903,9 @@ if (script_options$`prior-sequence`) {
     map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
     mutate(y = if_else(y_1 == 0, 30, -30))
 
-  all_prior_results <- betas %>%
+  all_prior_results <- taus %>%
     test_parallel_map(cores = script_options$cores %/% 4,
-                      function(curr_beta) {
+                      function(curr_tau) {
                         test_sampler <- create_sampler(
                           default_model,
                           model_levels = "entity_index",
@@ -765,7 +915,7 @@ if (script_options$`prior-sequence`) {
                           y = y,
 
                           discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
-                          discretized_beta_hyper_sd = curr_beta,
+                          discretized_beta_hyper_sd = curr_tau,
 
                           tau_level_sigma = 1,
                           calculate_marginal_prob = TRUE
@@ -790,47 +940,144 @@ if (script_options$`prior-sequence`) {
                             list()
                         )
                       }) %>%
-    set_names(betas) %>%
-    bind_rows(.id = "beta") %>%
-    mutate(beta = as.numeric(beta))
+    set_names(taus) %>%
+    bind_rows(.id = "tau") %>%
+    mutate(tau = as.numeric(tau))
 
   all_prior_results %>%
-    select(beta, results) %>%
+    select(tau, results) %>%
     unnest(results) %>%
     # filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
     filter(estimand_name == default_unobs_cf) %>%
     unnest(iter_data) %>%
     ggplot() +
-    geom_density(aes(iter_estimand, group = beta, color = beta)) +
+    geom_density(aes(iter_estimand, group = tau, color = tau)) +
     scale_color_viridis_c(expression(tau[beta])) +
     labs(x = "", y = "",
          # subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
          subtitle = latex2exp::TeX("P(Y_{z=0,m=0} < c | M_{z=0} = 1)")) +
     theme_minimal() +
     theme(legend.position = "right", plot.subtitle = element_text(size = 9))
+
+  all_prior_results %>%
+    select(tau, marginal_prob) %>%
+    unnest(marginal_prob) %>%
+    filter(fct_match(type_variable, "r_y_1")) %>%
+    mutate(estimand_name = str_c(type_variable, " = ", type) %>% str_replace("^r", "R")) %>%
+    unnest(iter_data) %>%
+    ggplot() +
+    geom_density(aes(iter_p_r, group = tau, color = tau)) +
+    scale_color_viridis_c(expression(tau[beta])) +
+    labs(
+      x = "", y = ""
+    ) +
+    facet_wrap(vars(estimand_name), scales = "free") +
+    coord_cartesian(ylim = c(0, 8)) +
+    theme_minimal() +
+    theme(legend.position = "top",
+          # strip.text.x = element_blank(),
+          # strip.text.y.left = element_text(angle = 0),
+          axis.text.y = element_blank(),
+          plot.subtitle = element_text(size = 9))
 }
 
-all_prior_results %>%
-  select(beta, marginal_prob) %>%
-  unnest(marginal_prob) %>%
-  filter(fct_match(type_variable, "r_y_1")) %>%
-  mutate(estimand_name = str_c(type_variable, " = ", type) %>% str_replace("^r", "R")) %>%
-  unnest(iter_data) %>%
-  ggplot() +
-  geom_density(aes(iter_p_r, group = beta, color = beta)) +
-  scale_color_viridis_c(expression(tau[beta])) +
-  labs(
-    x = "", y = ""
-  ) +
-  facet_wrap(vars(estimand_name), scales = "free") +
-  coord_cartesian(ylim = c(0, 8)) +
-  theme_minimal() +
-  theme(legend.position = "top",
-        # strip.text.x = element_blank(),
-        # strip.text.y.left = element_text(angle = 0),
-        axis.text.y = element_blank(),
-        plot.subtitle = element_text(size = 9))
+# Constrained Prior Sequence ----------------------------------------------------------
 
+if (script_options$`constrained-prior-sequence`) {
+  unconst_tau <- script_options$`unconst-tau`
+  taus <- seq(script_options$`from-tau`, script_options$`to-tau`, script_options$`by-tau`)
+
+  dummy_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
+                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                   num_entities = script_options$`num-entities`) %>%
+    unnest(entity_data) %>%
+    select(entity_index, sim) %>%
+    deframe() %>%
+    map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
+    mutate(y = if_else(y_1 == 0, 30, -30))
+
+  all_prior_results <- taus %>%
+    # test_parallel_map(cores = script_options$cores %/% 4,
+    map(
+                      function(curr_tau) {
+                        test_sampler <- create_sampler(
+                          default_model,
+                          model_levels = "entity_index",
+                          analysis_data = dummy_data,
+                          estimands = default_estimands,
+                          # y = y < -20,
+                          y = y,
+
+                          discrete_beta_hyper_sd = unconst_tau,
+                          discretized_beta_hyper_sd = list(
+                            default = curr_tau,
+                            "always below" = unconst_tau,
+                            "never below" = unconst_tau
+                          ),
+
+                          tau_level_sigma = 1,
+                          calculate_marginal_prob = TRUE
+                        )
+
+                        test_prior_fit <- test_sampler %>%
+                          sampling(
+                            chains = 4,
+                            warmup = 500,
+                            iter = 2500,
+                            pars = c("iter_estimand", "marginal_p_r"),
+                            run_type = "prior-predict",
+                          )
+
+                        tibble(
+                          results = test_prior_fit %>%
+                            get_estimation_results(no_sim_diag = FALSE, quants = seq(0, 1, 0.1)) %>%
+                            list(),
+
+                          marginal_prob = test_prior_fit %>%
+                            get_marginal_latent_type_prob() %>%
+                            list()
+                        )
+                      }) %>%
+    set_names(taus) %>%
+    bind_rows(.id = "tau") %>%
+    mutate(tau = as.numeric(tau))
+
+  all_prior_results %>%
+    select(tau, results) %>%
+    unnest(results) %>%
+    # filter(estimand_name == "Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c | M = 1, B = 0, G = 0, Z = 0]") %>%
+    filter(estimand_name == default_unobs_cf) %>%
+    unnest(iter_data) %>%
+    ggplot() +
+    geom_density(aes(iter_estimand, group = tau, color = tau)) +
+    scale_color_viridis_c(expression(tau[beta])) +
+    labs(x = "", y = "",
+         # subtitle = latex2exp::TeX("P(Y_{b=0,g=0,z=0,m=0} < c | M_{b=0,g=0,z=0} = 1)")) +
+         subtitle = latex2exp::TeX("P(Y_{z=0,m=0} < c | M_{z=0} = 1)")) +
+    theme_minimal() +
+    theme(legend.position = "right", plot.subtitle = element_text(size = 9))
+
+  all_prior_results %>%
+    select(tau, marginal_prob) %>%
+    unnest(marginal_prob) %>%
+    filter(fct_match(type_variable, "r_y_1")) %>%
+    mutate(estimand_name = str_c(type_variable, " = ", type) %>% str_replace("^r", "R")) %>%
+    unnest(iter_data) %>%
+    ggplot() +
+    geom_density(aes(iter_p_r, group = tau, color = tau)) +
+    scale_color_viridis_c(expression(tau[beta])) +
+    labs(
+      x = "", y = ""
+    ) +
+    facet_wrap(vars(estimand_name), scales = "free") +
+    coord_cartesian(ylim = c(0, 8)) +
+    theme_minimal() +
+    theme(legend.position = "top",
+          # strip.text.x = element_blank(),
+          # strip.text.y.left = element_text(angle = 0),
+          axis.text.y = element_blank(),
+          plot.subtitle = element_text(size = 9))
+}
 
 # Diagnostics -------------------------------------------------------------
 

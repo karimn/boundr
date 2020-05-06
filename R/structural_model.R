@@ -19,6 +19,7 @@ setClass(
             exogenous_prob = "data.frame",
             candidate_groups = "data.frame",
             endogenous_latent_type_variables = "data.frame",
+            endogenous_joint_discrete_latent_type_variables = "data.frame",
             nester = "function"),
   contains = "BaseModel"
 )
@@ -316,11 +317,6 @@ create_sampler_creator <- function() {
     stan_est_info <- if (!is_null(estimands)) {
       new_sampler@estimands <- estimands
 
-      # if (!is_null(between_entity_diff_levels)) {
-      #   new_sampler@estimators %<>%
-      #     add_between_level_entity_diff_estimands(between_entity_diff_levels, new_sampler@analysis_data)
-      # }
-
       get_stan_info(estimands) %>%
         list_modify(
           num_estimand_levels = length(new_sampler@estimand_levels),
@@ -464,11 +460,46 @@ create_sampler_creator <- function() {
           new_sampler@unique_entity_ids %>% mutate_all(as.integer) %>% as.matrix() %>% as.array()
         } else array(1, dim = c(num_unique_entities, num_levels)),
 
-        num_bg_variables = n_distinct(r@endogenous_latent_type_variables$type_variable),
-        num_bg_variable_types = r@endogenous_latent_type_variables %>% count(type_variable) %>% pull(n) %>% as.array(),
-        num_bg_variable_type_combo_members = map_int(r@endogenous_latent_type_variables$latent_type_ids, length),
-        bg_variable_type_combo_members = unlist(r@endogenous_latent_type_variables$latent_type_ids),
-        is_discretized_bg_variable = r@endogenous_latent_type_variables %>% distinct(type_variable, discretized) %>% pull(discretized),
+        num_discrete_bg_variables = r@endogenous_latent_type_variables %>%
+          filter(!discretized) %$%
+          n_distinct(type_variable),
+        num_discrete_bg_variable_types = r@endogenous_latent_type_variables %>%
+          filter(!discretized) %>%
+          count(type_variable) %>%
+          pull(n) %>%
+          as.array(),
+
+        # Which joint probabilities include each of the marginal types
+        num_discrete_bg_variable_type_combo_members = r@endogenous_latent_type_variables %>%
+          filter(!discretized) %>%
+          pull(latent_type_ids) %>%
+          map_int(length),
+        discrete_bg_variable_type_combo_members = r@endogenous_latent_type_variables %>%
+          filter(!discretized) %>%
+          pull(latent_type_ids) %>%
+          unlist(),
+
+        num_discretized_bg_variables = r@endogenous_latent_type_variables %>%
+          filter(discretized) %$%
+          n_distinct(type_variable),
+
+        num_discretized_bg_variable_type_combo_members = r@endogenous_latent_type_variables %>%
+          filter(discretized) %>%
+          unnest(latent_type_ids) %>%
+          pull(latent_type_ids) %>% # there's a second one in there
+          map_int(nrow),
+
+        discretized_bg_variable_type_combo_members = r@endogenous_latent_type_variables %>%
+          filter(discretized) %>%
+          unnest(latent_type_ids) %>%
+          unnest(latent_type_ids) %>%
+          pull(latent_type_index),
+
+        num_joint_discrete_combo_members = r@endogenous_joint_discrete_latent_type_variables$latent_type_ids %>%
+          first() %>%
+          length(),
+        joint_discrete_combo_members = r@endogenous_joint_discrete_latent_type_variables$latent_type_ids %>%
+          unlist(),
 
         cutpoints = if (is_empty(r@discretized_responses)) array(0, dim = 0) else unlist(r@discretized_responses[[1]]@cutpoints),
         num_cutpoints = length(cutpoints),
@@ -515,14 +546,7 @@ create_sampler_creator <- function() {
           select(names(get_responses(r))) %>%
           map(matrix, nrow = length(get_ex_prob(r)), byrow = FALSE),
 
-        # experiment_assign_entity = count(new_sampler@analysis_data, unique_entity_id, experiment_assignment_id),
-        # num_experiment_entities = nrow(experiment_assign_entity),
-
-        # num_rep_corr_estimands = length(rep_estimands),
-        # rep_corr_outcomes = if (num_rep_corr_estimands > 0) rep_estimands %>% map(~ which(names(r@responses) %in% c(.x@outcome1, .x@outcome2))) %>% unlist() %>% as.array() else array(0, dim = 0),
-        # rep_corr_cond = if (num_rep_corr_estimands > 0) rep_estimands %>% map_if(~ !is.na(.x@cond), ~ which(names(r@responses) == .x@cond), .else = ~ 0) %>% unlist() %>% as.array() else array(0, dim = 0),
-
-        generate_rep = 0, # num_rep_corr_estimands > 0,
+        generate_rep = 0,
 
         num_estimand_levels = 0,
         estimand_levels = array(1, dim = 0),
@@ -741,7 +765,6 @@ setMethod("get_latent_type_by_observed_outcomes", "StructuralCausalModel", funct
     unnest(outcomes) %>%
     filter({{ cond }}) %>%
     select(latent_type_index)
-    # select(all_of(unique(model@endogenous_latent_type_variables$type_variable)))
 
   cond_prob <- if (!missing(obs_data)) {
     if (!is_logical(cond) || !cond) {
@@ -809,7 +832,6 @@ define_structural_causal_model <- function(..., exogenous_prob) {
       purrr::set_names(map_chr(., get_output_variable_name)),
     discretized_responses = discretized_responses,
     types_data = leaf_responses %>% {
-        # if (prune_discretized) purrr::discard(., ~ is(., "DiscretizedResponse")) else .
         purrr::discard(., ~ is(., "DiscretizedResponse"))
       } %>%
       purrr::set_names(map_chr(., get_output_variable_name) %>% str_c("r_", .)) %>%
@@ -834,7 +856,6 @@ define_structural_causal_model <- function(..., exogenous_prob) {
   comb %<>% set_obs_outcomes()
 
   comb@types_data %<>%
-    # right_join(exogenous_prob, by = setdiff(names(exogenous_prob), c("experiment_assignment_id", "ex_prob"))) %>% # exogenous_prob is used to also exclude any exogenous variable combinations (hence right join)
     right_join(exogenous_prob, by = exogenous_variables) %>% # exogenous_prob is used to also exclude any exogenous variable combinations (hence right join)
     nest(outcomes = c(str_c("r_", exogenous_variables), map_chr(leaf_responses, get_output_variable_name), ex_prob))
 
@@ -876,8 +897,6 @@ define_structural_causal_model <- function(..., exogenous_prob) {
 
   r_type_cols <- comb@responses %>%
     map_df(~ tibble(type_variable = .x@output, discretized = is(.x, "DiscretizedResponse"))) %>%
-    # map_chr(~ .@output) %>%
-    # setdiff(comb@exogenous_variables) %>%
     filter(!type_variable %in% comb@exogenous_variables) %>%
     mutate(type_variable = str_c("r_", type_variable))
 
@@ -887,8 +906,19 @@ define_structural_causal_model <- function(..., exogenous_prob) {
     enframe(name = "type_variable", value = "type") %>%
     unnest(type) %>%
     left_join(r_type_cols, by = "type_variable") %>%
-    mutate(latent_type_ids = pmap(lst(type_variable, type, discretized), get_latent_type_ids),
-           marginal_latent_type_index = seq(n()))
+    mutate(latent_type_ids = pmap(lst(type_variable, type, discretized), get_latent_type_ids) %>%
+             map_if(discretized,
+                    ~ filter(comb@types_data, latent_type_index %in% .) %>%
+                      select(discrete_r_type_id, latent_type_index) %>%
+                      nest(latent_type_ids = latent_type_index))) %>%
+    group_by(discretized) %>%
+    mutate(marginal_latent_type_index = seq(n())) %>%
+    ungroup()
+
+  comb@endogenous_joint_discrete_latent_type_variables <- comb@types_data %>%
+    select(latent_type_index, discrete_r_type_id, all_of(filter(r_type_cols, !discretized) %>% pull(type_variable))) %>%
+    nest(latent_type_ids = latent_type_index) %>%
+    mutate(latent_type_ids = map(latent_type_ids, pull, latent_type_index))
 
   return(comb)
 }
@@ -917,7 +947,6 @@ create_scm_simulation <- function(scm, sample_size, prob, concentration_alpha = 
     mutate(num_obs = c(rmultinom(1, sample_size, prob))) %>%
     unnest(outcomes) %>%
     mutate(num_obs = round(num_obs * ex_prob)) %>%
-    # mutate(num_obs = c(rmultinom(1, sample_size, prob * ex_prob))) %>%
     new_sim@nester()
 
   return(as(new_sim, "StructuralCausalModelSimulation"))
@@ -969,16 +998,6 @@ setMethod("create_prior_predicted_simulation", "StructuralCausalModel", function
     ) %>%
     select(-prob_data) %>%
     group_nest(iter_id, .key = "entity_data")
-    # mutate(
-    #   analysis_data = map(entity_data, ~ map2_dfr(.x$sim, .x$entity_index, ~ mutate(create_simulation_analysis_data(.x), entity_index = .y)))
-    # ) %>%
-    # select(-iter_id)
-
-    # group_by(iter_id) %>%
-    # group_map(~ map2_dfr(.x$sim, .x$entity_index, ~ mutate(create_simulation_analysis_data(.x), entity_index = .y))) %>%
-    # map(mutate, entity_index = factor(entity_index)) %>% {
-    #   if (length(.) > 1) . else first(.)
-    # }
 })
 
 setGeneric("get_linear_programming_objective", function(scm, outcome, ..., cond = TRUE, as_data = FALSE) {
