@@ -237,7 +237,7 @@ setGeneric("create_sampler", function(r,
                                       ...,
                                       tau_level_sigma = 1, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
                                       calculate_marginal_prob = FALSE,
-                                      use_random_binpoint = TRUE,
+                                      use_random_binpoint = FALSE,
                                       num_sim_unique_entities = 0,
                                       alternative_model_file = NULL) {
   standardGeneric("create_sampler")
@@ -251,7 +251,7 @@ create_sampler_creator <- function() {
            ...,
            tau_level_sigma = 1, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
            calculate_marginal_prob = FALSE,
-           use_random_binpoint = TRUE,
+           use_random_binpoint = FALSE,
            num_sim_unique_entities = 0,
            alternative_model_file = NULL) {
     new_sampler <- if (is_null(alternative_model_file)) {
