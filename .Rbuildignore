@@ -4,5 +4,6 @@
 ^packrat/
 ^\.Rprofile$
 ^test_boundr.R$
+^test_hard_restriction.R$
 ^temp-data/
 ^temp-img/
