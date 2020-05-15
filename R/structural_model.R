@@ -372,7 +372,6 @@ create_sampler_creator <- function() {
 
     discretized_beta_hyper_sd %<>% {
       if (is.numeric(.)) {
-        # if (any(dim(.) != c(num_discretized_r_types, num_discrete_r_types))) {
         if (NROW(.) != num_discretized_r_types || NROW(.) != num_discrete_r_types) {
           matrix(., num_discretized_r_types, num_discrete_r_types)
         } else .

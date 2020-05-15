@@ -21,7 +21,7 @@ vector csr_log_sum_exp(int m, int n, int[] v, int[] u, vector b) {
 }
 
 vector csr_log_sum_exp2(int m, int n, vector w, int[] v, int[] u, vector b) {
-  vector[m] result = rep_vector(0, m);
+  vector[m] result;
 
   for (row_index in 1:m) {
     int row_size = u[row_index + 1] - u[row_index];
@@ -33,11 +33,19 @@ vector csr_log_sum_exp2(int m, int n, vector w, int[] v, int[] u, vector b) {
       vector[row_size] sub_w = w[row_pos:row_end];
       vector[row_size] sub_b = b[v[row_pos:row_end]];
 
+      vector[row_size] sub_summed = sub_w + sub_b;
+
       // real max_sub_b = max(sub_b);
       //
       // result[row_index] = max_sub_b + log(dot_product(sub_w, exp(sub_b - max_sub_b)));
 
-      result[row_index] = log_sum_exp(sub_w + sub_b);
+      if (is_inf(max(sub_summed))) {
+        result[row_index] = negative_infinity();
+      } else {
+        result[row_index] = log_sum_exp(sub_summed);
+      }
+    } else {
+      result[row_index] = negative_infinity();
     }
   }
 

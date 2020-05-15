@@ -137,16 +137,62 @@ int[] seq(int from, int to, int by) {
   return(result_seq);
 }
 
-int num_gt_zero(vector v) {
+int num_gt(vector v, real gt) {
   int num_found = 0;
 
   for (i in 1:num_elements(v)) {
-    if (v[i] > 0) {
+    if (v[i] > gt) {
       num_found += 1;
     }
   }
 
   return num_found;
+}
+
+int[] num_unrestricted_by_col(matrix sd_mat, matrix mean_mat) {
+  int num_rows = rows(sd_mat);
+  int num_cols = cols(sd_mat);
+  int num_by_col[num_cols] = rep_array(0, num_cols);
+
+  if (rows(mean_mat) != num_rows || cols(mean_mat) != num_cols) {
+    reject("Incompatible matrix sizes.");
+  }
+
+  for (j in 1:num_cols) {
+    for (i in 1:num_rows) {
+      if (sd_mat[i, j] > 0 && !is_inf(mean_mat[i, j])) {
+        num_by_col[j] += 1;
+      }
+    }
+  }
+
+  return num_by_col;
+}
+
+int[] which_unrestricted_by_col(matrix sd_mat, matrix mean_mat, int[] num_by_col) {
+  int num_rows = rows(sd_mat);
+  int num_cols = cols(sd_mat);
+  int which_unrestricted[sum(num_by_col)] = rep_array(0, sum(num_by_col));
+
+  int which_pos = 1;
+
+  if (rows(mean_mat) != num_rows || cols(mean_mat) != num_cols) {
+    reject("Incompatible matrix sizes.");
+  }
+
+  for (j in 1:num_cols) {
+    for (i in 1:num_rows) {
+      // if (m[i, j] > gt) {
+      if (sd_mat[i, j] > 0 && !is_inf(mean_mat[i, j])) {
+        which_unrestricted[which_pos] = i;
+        which_pos += 1;
+      } else if (i > num_by_col[j]) {
+        break;
+      }
+    }
+  }
+
+  return which_unrestricted;
 }
 
 int[] which_compare_zero(vector v, int num_found, int gt) {
