@@ -118,36 +118,54 @@ setMethod("get_types_grid", "DiscretizedResponseGroup", function(r) {
   num_cutpoints <- length(r@child_responses)
   discretized_types <- first(r@child_responses)@finite_states %>% names()
 
-  if (num_cutpoints > 1) {
-    types_grid <- reduce(
-      seq(num_cutpoints - 1, ),
-      function(cumul, curr_i) {
-        inner_join(rename_all(r@pruning_data, ~ str_c(., curr_i)),
-                   cumul,
-                   purrr::set_names(str_c("hi", curr_i + 1), str_c("low", curr_i)))
-      },
-      .init = rename_all(r@pruning_data, ~ str_c(., num_cutpoints))) %>%
-      select(-hi1) %>%
-      distinct() %>%
-      purrr::set_names(map_chr(r@child_responses, get_output_variable_name) %>% str_c("r_", .) %>% rev()) %>%
-      mutate_all(factor, levels = discretized_types)
+  if (!is_empty(r@pruning_data)) {
+    if (num_cutpoints > 1) {
+      types_grid <- reduce(
+        seq(num_cutpoints - 1, ),
+        function(cumul, curr_i) {
+          inner_join(rename_all(r@pruning_data, ~ str_c(., curr_i)),
+                     cumul,
+                     purrr::set_names(str_c("hi", curr_i + 1), str_c("low", curr_i)))
+        },
+        .init = rename_all(r@pruning_data, ~ str_c(., num_cutpoints))) %>%
+        select(-hi1) %>%
+        distinct() %>%
+        purrr::set_names(map_chr(r@child_responses, get_output_variable_name) %>% str_c("r_", .) %>% rev()) %>%
+        mutate_all(factor, levels = discretized_types)
+
+      pair_ids <- types_grid %>%
+        rev() %>% {
+        pmap(list(hi = rev(.[-1]), low = rev(.)[-1]),
+             function(hi, low, pruning_data) tibble(hi, low) %>% left_join(pruning_data, by = c("hi", "low")) %>% pull(pair_id),
+             pruning_data = r@pruning_data %>% arrange(low, hi) %>% mutate(pair_id = seq(n())))
+      } %>%
+        purrr::set_names(str_remove(names(.), "^r_") %>% str_replace("(\\d+)$", "pair_id_\\1"))
+
+      types_grid %>%
+        mutate(!!!pair_ids)
+    } else {
+      r@pruning_data %>%
+        select(hi) %>%
+        distinct() %>%
+        purrr::set_names(map_chr(r@child_responses, get_output_variable_name) %>% str_c("r_", .)) %>%
+        mutate_all(factor, levels = discretized_types)
+    }
+  } else {
+    types_grid <- r@child_responses %>%
+      purrr::set_names(map_chr(., get_output_variable_name) %>% str_c("r_", .)) %>%
+      map(get_response_type_names) %>%
+      map(factor, levels = discretized_types) %>%
+      do.call(expand.grid, .)
 
     pair_ids <- types_grid %>%
       rev() %>% {
-      pmap(list(hi = rev(.[-1]), low = rev(.)[-1]),
-           function(hi, low, pruning_data) tibble(hi, low) %>% left_join(pruning_data, by = c("hi", "low")) %>% pull(pair_id),
-           pruning_data = r@pruning_data %>% arrange(low, hi) %>% mutate(pair_id = seq(n())))
-    } %>%
+        list(hi = rev(.[-1]), low = rev(.)[-1])
+      } %>%
+      pmap(function(hi, low, pruning_data) tibble(hi, low) %>% mutate(pair_id = group_indices(., hi, low)) %>% pull(pair_id)) %>%
       purrr::set_names(str_remove(names(.), "^r_") %>% str_replace("(\\d+)$", "pair_id_\\1"))
 
     types_grid %>%
       mutate(!!!pair_ids)
-  } else {
-    r@pruning_data %>%
-      select(hi) %>%
-      distinct() %>%
-      purrr::set_names(map_chr(r@child_responses, get_output_variable_name) %>% str_c("r_", .)) %>%
-      mutate_all(factor, levels = discretized_types)
   }
 })
 
@@ -244,9 +262,11 @@ define_discretized_response_group <- function(output, cutpoints, direction = c("
     "DiscretizedResponseGroup",
     output = output,
     child_responses = child_responses,
-    pruning_data = pruning_data %>%
-      filter_all(~ . %in% finite_state_names) %>%
-      mutate_all(factor, levels = finite_state_names),
+    pruning_data = if (!is_null(pruning_data)) {
+      pruning_data %>%
+        filter_all(~ . %in% finite_state_names) %>%
+        mutate_all(factor, levels = finite_state_names)
+    } else tibble(),
     cutpoints = as.list(cutpoints),
     direction = arg_match(direction) %>% factor(levels = c("<", ">"))
   )

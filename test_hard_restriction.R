@@ -40,9 +40,9 @@ rstan_options(auto_write = TRUE)
 
 true_discretized_beta_hyper_sd <- lst(
   default = 1,
-  "never below" = script_options$`true-hyper-sd`,
-  "always below" = script_options$`true-hyper-sd`,
-  "migration complier" = ~ mutate(., sd = if_else(fct_match(r_m, c("always")), 0, 1))
+  # "never below" = script_options$`true-hyper-sd`,
+  # "always below" = script_options$`true-hyper-sd`,
+  # "migration complier" = ~ mutate(., sd = if_else(fct_match(r_m, c("always")), 0, 1))
 )
 
 test_parallel_map <- function(.x, .f, ..., cores = script_options$cores) {
@@ -86,7 +86,7 @@ test_model <- define_structural_causal_model(
 
   define_discretized_response_group(
     "y",
-    cutpoints = c(-100, -20, 100),
+    cutpoints = c(-100, -20, 20, 100),
 
     input = c("m"),
 
@@ -95,7 +95,7 @@ test_model <- define_structural_causal_model(
     "migration defier" = ~ 1 - m,
     "always below" = ~ 1,
 
-    pruning_data = pruning_data
+    # pruning_data = pruning_data
   ),
 
   exogenous_prob = tribble(
@@ -111,7 +111,7 @@ default_model <- test_model
 
 test_estimands <- build_estimand_collection(
   model = test_model,
-  utility = c(0, 1),
+  utility = c(0, 1, 1.5),
 
   build_diff_estimand(
     build_atom_estimand("m", z = 1),
@@ -161,7 +161,7 @@ if (script_options$single) {
 
   test_sim_data <- entity_data %>%
     map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
-    mutate(y = if_else(y_1 == 0, 30, -30))
+    mutate(y = if_else(y_1 == 0, if_else(y_2 == 0, 0, 30), -30))
     # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, sample(c(-1, 1), n(), replace = TRUE), -30)))
     # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30)))
 
@@ -188,7 +188,7 @@ if (script_options$single) {
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand", "single_discrete_marginal_p_r", "discretized_marginal_p_r"),
+      pars = c("iter_estimand", "single_discrete_marginal_p_r", "discretized_marginal_p_r", "discretized_beta"),
       run_type = "prior-predict",
     )
 
@@ -203,7 +203,8 @@ if (script_options$single) {
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand", "single_discrete_marginal_p_r"),
+      # pars = c("iter_estimand", "single_discrete_marginal_p_r"),
+      pars = c("iter_estimand", "single_discrete_marginal_p_r", "discretized_beta"),
     )
 
   test_results <- test_fit %>%

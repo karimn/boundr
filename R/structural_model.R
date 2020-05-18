@@ -880,6 +880,8 @@ define_structural_causal_model <- function(..., exogenous_prob) {
 
   if (length(discretized_responses) > 1) {
     stop("More than one discretized reponse not yet supported.")
+  } else if (length(discretized_responses) > 0) {
+    first(discretized_responses)@pruning_data
   }
 
   comb <- new(
