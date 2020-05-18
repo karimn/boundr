@@ -433,8 +433,31 @@ create_sampler_creator <- function() {
 
         num_discrete_r_types,
         num_discretized_r_types,
-        num_compatible_discretized_r_types = if (num_discretized_r_types > 0) r %>% get_discretized_pruning_data() %>% arrange(low, hi) %>% count(low) %>% pull(n) else array(0, dim = 0),
-        compatible_discretized_r_types = if (num_discretized_r_types > 0) r %>% get_discretized_pruning_data() %>% arrange(low, hi) %>% mutate_all(as.integer) %>% pull(hi) else array(0, dim = 0),
+        num_compatible_discretized_r_types = if (num_discretized_r_types > 0) {
+          r %>%
+            get_discretized_pruning_data() %>% {
+              if (!is_empty(.)) {
+                arrange(., low, hi) %>%
+                  count(low) %>%
+                  pull(n)
+              } else {
+                rep(num_discretized_r_types, num_discretized_r_types)
+              }
+            }
+        } else array(0, dim = 0),
+
+        compatible_discretized_r_types = if (num_discretized_r_types > 0) {
+          r %>%
+            get_discretized_pruning_data() %>% {
+              if (!is_empty(.)) {
+                arrange(., low, hi) %>%
+                  mutate_all(as.integer) %>%
+                  pull(hi)
+              } else {
+                rep(seq(num_discretized_r_types), num_discretized_r_types)
+              }
+            }
+        } else array(0, dim = 0),
 
         discrete_r_type_id = r@types_data$discrete_r_type_id,
 
@@ -541,12 +564,14 @@ create_sampler_creator <- function() {
         cutpoints = if (is_empty(r@discretized_responses)) array(0, dim = 0) else unlist(r@discretized_responses[[1]]@cutpoints),
         num_cutpoints = length(cutpoints),
 
-        compatible_discretized_pair_ids =
-          if (num_cutpoints >= 3) {
+        compatible_discretized_pair_ids = if (num_cutpoints >= 3) {
           discretized_var_name <- names(r@discretized_responses)
 
-          r@types_data %>% select(str_c("r_", discretized_var_name, "_1"),
-                                  if (num_cutpoints >= 3) num_range(str_c(discretized_var_name, "_pair_id_"), seq(2, num_cutpoints - 2))) %>%
+          r@types_data %>%
+            select(
+              str_c("r_", discretized_var_name, "_1"),
+              if (num_cutpoints >= 3) num_range(str_c(discretized_var_name, "_pair_id_"), seq(2, num_cutpoints - 2))
+            ) %>%
             mutate_all(as.integer) %>%
             as.matrix() %>%
             t()

@@ -14,8 +14,8 @@ Options:
 " -> opt_desc
 
 script_options <- if (interactive()) {
-  # docopt::docopt(opt_desc, "single --num-entities=1")
-  docopt::docopt(opt_desc, "multi 12 12 --num-entities=1")
+  docopt::docopt(opt_desc, "single --num-entities=1")
+  # docopt::docopt(opt_desc, "multi 12 12 --num-entities=1")
 } else {
   docopt::docopt(opt_desc)
 }

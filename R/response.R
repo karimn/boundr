@@ -157,8 +157,7 @@ setMethod("get_types_grid", "DiscretizedResponseGroup", function(r) {
       map(factor, levels = discretized_types) %>%
       do.call(expand.grid, .)
 
-    pair_ids <- types_grid %>%
-      rev() %>% {
+    pair_ids <- types_grid %>% {
         list(hi = rev(.[-1]), low = rev(.)[-1])
       } %>%
       pmap(function(hi, low, pruning_data) tibble(hi, low) %>% mutate(pair_id = group_indices(., hi, low)) %>% pull(pair_id)) %>%
