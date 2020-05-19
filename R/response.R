@@ -160,7 +160,11 @@ setMethod("get_types_grid", "DiscretizedResponseGroup", function(r) {
     pair_ids <- types_grid %>% {
         list(hi = rev(.[-1]), low = rev(.)[-1])
       } %>%
-      pmap(function(hi, low, pruning_data) tibble(hi, low) %>% mutate(pair_id = group_indices(., hi, low)) %>% pull(pair_id)) %>%
+      pmap(function(hi, low, pruning_data) {
+        tibble(hi, low) %>%
+          mutate(pair_id = group_indices(., low, hi)) %>%
+          pull(pair_id)
+      }) %>%
       purrr::set_names(str_remove(names(.), "^r_") %>% str_replace("(\\d+)$", "pair_id_\\1"))
 
     types_grid %>%
