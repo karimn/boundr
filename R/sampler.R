@@ -39,7 +39,9 @@ setClass("SamplingResults",
 #'
 #' @importMethodsFrom rstan sampling
 #' @export
-setMethod("sampling", "Sampler", function(object, ..., run_type = c("fit", "prior-predict"), save_background_joint_prob = FALSE) {
+setMethod("sampling", "Sampler", function(object, ...,
+                                          pars = c("iter_estimand", "iter_level_entity_estimand", "iter_level_entity_estimand_sd", "log_lik", "iter_between_level_entity_diff_estimand"),
+                                          run_type = c("fit", "prior-predict"), save_background_joint_prob = FALSE) {
   run_type <- arg_match(run_type) %>%
     factor(levels = c("prior-predict", "fit"))
 
@@ -49,14 +51,12 @@ setMethod("sampling", "Sampler", function(object, ..., run_type = c("fit", "prio
      stop("Sample data cannot be specified. Data is prepared in the sampler constructor.")
   }
 
-  pars <- c("iter_estimand", "iter_level_entity_estimand", "iter_level_entity_estimand_sd", "log_lik", "iter_between_level_entity_diff_estimand")
-
   if (object@stan_data$calculate_marginal_prob) {
     pars %<>% c("single_discrete_marginal_p_r", "discretized_marginal_p_r", "discrete_marginal_p_r")
   }
 
   if (save_background_joint_prob) {
-    pars %<>% c("r_prob")
+    pars %<>% c("r_log_prob")
   }
 
   initializer <- function(chain_id) {
@@ -104,7 +104,7 @@ setMethod("vb", "Sampler", function(object, ..., run_type = c("fit", "prior-pred
   pars <- c("iter_estimand", "iter_level_entity_estimand", "log_lik")
 
   if (save_background_joint_prob) {
-    pars %<>%  c("r_prob")
+    pars %<>%  c("r_log_prob")
   }
 
   args <- lst(
@@ -311,15 +311,22 @@ setGeneric("get_latent_type_prob", function(r, ...) standardGeneric("get_latent_
 #' @return Nested tibble
 #' @export
 setMethod("get_latent_type_prob", "SamplingResults", function(r, ..., no_sim_diag = TRUE) {
+  type_variables <- r@sampler@structural_model %>%
+    get_endogenous_responses() %>%
+    names() %>%
+    str_c("r_", .)
+
   r %>%
-    as.array(par = "r_prob") %>%
+    as.array(par = "r_log_prob") %>%
     plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
     tidyr::extract(parameters, "latent_type_index", "(\\d+)", convert = TRUE) %>%
     mutate(
-      iter_data = map(iter_data, ~ tibble(iter_r_prob = c(.), iter_id = seq(NROW(.) * NCOL(.)))),
+      iter_data = map(iter_data, exp) %>%
+        map(~ tibble(iter_r_prob = c(.), iter_id = seq(NROW(.) * NCOL(.)))),
       latent_type_index = rep(seq(r@sampler@stan_data$num_r_types), r@sampler@stan_data$num_unique_entities),
       unique_entity_id = rep(seq(r@sampler@stan_data$num_unique_entities), each = r@sampler@stan_data$num_r_types)
     ) %>%
     left_join(mutate(r@sampler@unique_entity_ids, unique_entity_id = seq(n())), by = "unique_entity_id") %>%
+    left_join(select(r@sampler@structural_model@types_data, latent_type_index, all_of(type_variables)), by = "latent_type_index") %>%
     as_tibble()
 })

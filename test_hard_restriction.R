@@ -188,8 +188,9 @@ if (script_options$single) {
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand", "single_discrete_marginal_p_r", "discretized_marginal_p_r", "discretized_beta"),
+      pars = c("iter_estimand", "discretized_beta"),
       run_type = "prior-predict",
+      save_background_joint_prob = TRUE
     )
 
   test_prior_results <- test_prior_fit %>%
