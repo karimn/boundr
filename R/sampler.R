@@ -215,6 +215,53 @@ setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = F
   }
 })
 
+setGeneric("get_abducted_prob", function(r, ...) standardGeneric("get_abducted_prob"))
+
+setMethod("get_abducted_prob", "SamplingResults", function(r, ..., no_sim_diag = TRUE, quants = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)) {
+  abducted_estimand_ids <- r@sampler@stan_data$abducted_estimand_ids
+
+  estimands <- r@sampler@estimands@estimands
+
+  abducted_prob <- tryCatch(
+    as.array(r, par = "total_abducted_log_prob"),
+    error = function(err) {
+      stop("Failed to find total_abducted_log_prob parameter.")
+
+      return(NULL)
+    })
+
+  model_levels <- r@sampler@model_levels
+
+  long_entity_ids <- if (!all(is.na(model_levels))) map_dfr(
+    model_levels,
+    ~ r@sampler@unique_entity_ids %>%
+      select(all_of(.x)) %>%
+      distinct() %>%
+      rename("entity_name" = .x) %>%
+      mutate_all(lst(entity_index = as.integer)) %>%
+      mutate(
+        entity_name = as.character(entity_name),
+        level = .x),
+    .id = "level_index") %>%
+    arrange(level_index, entity_index) %>%
+    mutate(long_entity_index = seq(n()))
+
+  if (!is_null(abducted_prob)) {
+    abducted_prob %>%
+      plyr::adply(3, diagnose, no_sim_diag) %>%
+      tidyr::extract(parameters, c("estimand_entity_index"), "(\\d+)", convert = TRUE) %>%
+      mutate(iter_data = map(iter_data, ~ tibble(iter_prob = exp(c(.)), iter_id = seq(NROW(.) * NCOL(.)))),
+             estimand_id = rep_len(abducted_estimand_ids, n()),
+             long_entity_index = ((estimand_entity_index - 1) %/% length(abducted_estimand_ids)) + 1) %>%
+      summ_iter_data(iter_var = iter_prob, quants = quants) %>% {
+        if (!all(is.na(model_levels))) {
+        left_join(., long_entity_ids, by = c("long_entity_index"))
+        } else .
+      } %>%
+      right_join(estimands, ., by = c("estimand_id"))
+  }
+})
+
 setGeneric("get_level_estimand_sd", function(est) {
   standardGeneric("get_level_estimand_sd")
 })
@@ -300,24 +347,14 @@ setMethod("loo", "SamplingResults", function(x, ..., save_psis = FALSE, cores = 
   loo::loo.array(ll, r_eff = r_eff, cores = cores, save_psis = save_psis)
 })
 
-setGeneric("get_latent_type_prob", function(r, ...) standardGeneric("get_latent_type_prob"))
-
-#' Extract sampled joint latent type probabilities
-#'
-#' @param r S4 \code{SamplingResults} object.
-#' @param ... Ignored
-#' @param no_sim_diag Do not generate sampling diagnostics [default: TRUE].
-#'
-#' @return Nested tibble
-#' @export
-setMethod("get_latent_type_prob", "SamplingResults", function(r, ..., no_sim_diag = TRUE) {
+get_prob <- function(r, par, no_sim_diag) {
   type_variables <- r@sampler@structural_model %>%
     get_endogenous_responses() %>%
     names() %>%
     str_c("r_", .)
 
   r %>%
-    as.array(par = "r_log_prob") %>%
+    as.array(par = par) %>%
     plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
     tidyr::extract(parameters, "latent_type_index", "(\\d+)", convert = TRUE) %>%
     mutate(
@@ -329,4 +366,18 @@ setMethod("get_latent_type_prob", "SamplingResults", function(r, ..., no_sim_dia
     left_join(mutate(r@sampler@unique_entity_ids, unique_entity_id = seq(n())), by = "unique_entity_id") %>%
     left_join(select(r@sampler@structural_model@types_data, latent_type_index, all_of(type_variables)), by = "latent_type_index") %>%
     as_tibble()
+}
+
+setGeneric("get_latent_type_prob", function(r, ...) standardGeneric("get_latent_type_prob"))
+
+#' Extract sampled joint latent type probabilities
+#'
+#' @param r S4 \code{SamplingResults} object.
+#' @param ... Ignored
+#' @param no_sim_diag Do not generate sampling diagnostics [default: TRUE].
+#'
+#' @return Nested tibble
+#' @export
+setMethod("get_latent_type_prob", "SamplingResults", function(r, ..., no_sim_diag = TRUE) {
+  get_prob(r, "r_log_prob", no_sim_diag)
 })

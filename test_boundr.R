@@ -8,7 +8,7 @@
 
 Options:
   --output=<output-name>  Output name to use in file names [default: test_run]
-  --num-entities=<num-entities>  Number of entities in model [default: 3]
+  --num-entities=<num-entities>  Number of entities in model [default: 1]
   --true-hyper-sd=<sd>  True SD hyperparameter for prior [default: 2.5]
   --alt-hyper-sd=<sd>  Alternative SD hyperparameter to use for fit [default: 2]
   --alt-hyper-sd-constrained=<const-sd>  Alternative SD hyperparameter for the complier/defier groups
@@ -18,8 +18,9 @@ script_options <- if (interactive()) {
   # docopt::docopt(opt_desc, "multi 12 12 --density-plots --num-entities=1 --true-hyper-sd=0.25 --alt-hyper-sd=0.9 --output=test.rds --different-priors")
   # docopt::docopt(opt_desc, "multi 12 300 --density-plots --num-entities=1 --append --output=constrained4.rds --different-priors --alt-hyper-sd=2 --alt-hyper-sd-constrained=1.5")
   # docopt::docopt(opt_desc, "single --constrained-prior --true-hyper-sd=5 --num-entities=1")
-  docopt::docopt(opt_desc, "multi 12 3 --density-plots --constrained-prior --true-hyper-sd=2 --num-entities=1")
+  # docopt::docopt(opt_desc, "multi 12 3 --density-plots --constrained-prior --true-hyper-sd=2 --num-entities=1")
   # docopt::docopt(opt_desc, "single --different-priors --num-entities=1")
+  docopt::docopt(opt_desc, "single")
   # docopt::docopt(opt_desc, "prior-sequence 12 0.5 10 0.5 --num-entities=1")
   # docopt::docopt(opt_desc, "constrained-prior-sequence 12 5 0.25 0.25 0.0 --num-entities=1")
 } else {
@@ -446,8 +447,9 @@ if (script_options$single) {
       chains = 4,
       iter = 1000,
       # control = lst(adapt_delta = 0.99, max_treedepth = 12),
-      pars = c("iter_estimand", "single_discrete_marginal_p_r", "discretized_marginal_p_r"),
+      pars = c("iter_estimand", "total_abducted_log_prob"),
       run_type = "prior-predict",
+      save_background_joint_prob = TRUE
     )
 
   test_prior_results <- test_prior_fit %>%

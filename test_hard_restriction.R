@@ -86,7 +86,7 @@ test_model <- define_structural_causal_model(
 
   define_discretized_response_group(
     "y",
-    cutpoints = c(-100, -20, 20, 100),
+    cutpoints = c(-100, -20, 100),
 
     input = c("m"),
 
@@ -111,7 +111,7 @@ default_model <- test_model
 
 test_estimands <- build_estimand_collection(
   model = test_model,
-  utility = c(0, 1, 1.5),
+  utility = c(0, 1),
 
   build_diff_estimand(
     build_atom_estimand("m", z = 1),
@@ -161,7 +161,8 @@ if (script_options$single) {
 
   test_sim_data <- entity_data %>%
     map_dfr(create_simulation_analysis_data, .id = "entity_index") %>%
-    mutate(y = if_else(y_1 == 0, if_else(y_2 == 0, 0, 30), -30))
+    mutate(y = if_else(y_1 == 0, 30, -30))
+    # mutate(y = if_else(y_1 == 0, if_else(y_2 == 0, 0, 30), -30))
     # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, sample(c(-1, 1), n(), replace = TRUE), -30)))
     # mutate(y = if_else(y_2 == 0, 30, if_else(y_1 == 0, runif(n(), -19, 19), -30)))
 

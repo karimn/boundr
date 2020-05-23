@@ -17,11 +17,11 @@ quantilize_est <- function(iter, var, wide = TRUE, quant_probs = c(0.05, 0.1, 0.
   return(quant_data)
 }
 
-summ_iter_data <- function(.data, quants = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)) {
+summ_iter_data <- function(.data, iter_var = iter_estimand, quants = c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)) {
   .data %>%
-    mutate(estimand_quantiles = map_if(iter_data, ~ !is_null(.), quantilize_est, iter_estimand, wide = TRUE, quant_probs = quants)) %>%
+    mutate(estimand_quantiles = map_if(iter_data, ~ !is_null(.), quantilize_est, {{ iter_var }}, wide = TRUE, quant_probs = quants)) %>%
     unnest(estimand_quantiles) %>%
-    mutate(mean = map_dbl(iter_data, ~ mean(.$iter_estimand)))
+    mutate(mean = map_dbl(iter_data, ~ pull(., {{ iter_var }}) %>% mean()))
 }
 
 diagnose <- function(cell, no_sim_diag) {
