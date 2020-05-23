@@ -801,17 +801,15 @@ setGeneric("get_stan_data_structures",
            signature = "est")
 
 setMethod("get_stan_data_structures", "AtomEstimand", function(est) {
-  # abducted_mask <- est@model@types_data %>%
-  #   unnest(outcomes) %>%
-  #   mutate(abducted_mask = !!est@cond) %>%
-  #   pull(abducted_mask)
+  mask_group_by <- est@model@types_data %>%
+    names() %>%
+    setdiff("outcomes")
 
   abducted_mask <- est@model@types_data %>%
-    mutate(
-      outcomes = map(outcomes, mutate, abducted_mask = !!est@cond),
-      abducted_type_mask = map_lgl(outcomes, ~ any(.x$abducted_mask))
-    ) %>%
     unnest(outcomes) %>%
+    mutate(abducted_mask = !!est@cond) %>%
+    group_by_at(vars(all_of(mask_group_by))) %>%
+    mutate(abducted_type_mask = any(abducted_mask)) %>%
     pull(abducted_type_mask)
 
   est_prob_index <- est@model %>%

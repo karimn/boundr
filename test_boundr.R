@@ -305,6 +305,11 @@ with_discretized_estimands <- list2(
     build_discretized_atom_estimand("y", b = 1, g = 1, z = 1, m = 1, cond = m == 1 & b == 1 & g == 1 & z == 1),
     build_discretized_atom_estimand("y", b = 1, g = 1, z = 1, m = 0, cond = m == 1 & b == 1 & g == 1 & z == 1)
   ),
+
+  build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", b = 1, g = 1, z = 1, m = 1, cond = fct_match(r_m, "treatment complier"), cond_desc = "M_{z=1} > M_{z=0}"),
+    build_discretized_atom_estimand("y", b = 1, g = 1, z = 1, m = 0, cond = fct_match(r_m, "treatment complier"), cond_desc = "M_{z=1} > M_{z=0}")
+  ),
 )
 
 
@@ -376,6 +381,7 @@ test_estimands5 <- build_estimand_collection(
     build_discretized_atom_estimand("y", z = 0, m = 1, cond = m == 1 & z == 0),
     build_discretized_atom_estimand("y", z = 0, m = 0, cond = m == 1 & z == 0)
   ),
+
 )
 
 default_estimands <- test_estimands4
