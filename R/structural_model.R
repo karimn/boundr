@@ -296,7 +296,7 @@ create_sampler_creator <- function() {
     if (nrow(new_sampler@analysis_data) > 0) {
       new_sampler@analysis_data %<>%
         mutate_at(vars(all_of(purrr::discard(model_levels, is.na))), ~ if (!is.factor(.x)) factor(.x) else .x) %>%
-        mutate(unique_entity_id = group_indices(., !!!syms(purrr::discard(model_levels, is.na)))) %>%
+        mutate(unique_entity_id = group_by(., !!!syms(purrr::discard(model_levels, is.na))) %>% group_indices()) %>%
         left_join(select(r@candidate_groups, -candidate_group), by = setdiff(names(r@candidate_groups), c("candidate_group", "candidate_group_id"))) %>%
         left_join(select(r@exogenous_prob, -ex_prob), by = r@exogenous_variables)
 
@@ -484,7 +484,7 @@ create_sampler_creator <- function() {
 
         num_unique_entity_candidate_groups = if (num_obs > 0) {
           new_sampler@analysis_data %>%
-            count(unique_entity_id, candidate_group_id) %>%
+            distinct(unique_entity_id, candidate_group_id) %>%
             count(unique_entity_id, name = "num_candidates") %>%
             arrange(unique_entity_id) %>%
             pull(num_candidates) %>%
