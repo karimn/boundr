@@ -39,21 +39,21 @@ library(econometr)
 library(boundr)
 
 script_options %<>%
-  modify_at(c("cores", "runs", "num-entities"), as.integer) %>%
-  modify_at(c("true-hyper-sd", "alt-hyper-sd", "alt-hyper-sd-constrained", "unconst-tau", "from-tau", "to-tau", "by-tau"), as.numeric)
+  modify_at(c("cores", "runs", "num_entities"), as.integer) %>%
+  modify_at(c("true_hyper_sd", "alt_hyper_sd", "alt_hyper_sd_constrained", "unconst_tau", "from_tau", "to_tau", "by_tau"), as.numeric)
 
 options(mc.cores = max(1, parallel::detectCores()))
 rstan_options(auto_write = TRUE)
 
-true_discretized_beta_hyper_sd <- if (script_options$`constrained-prior`) {
-  lst(default = script_options$`true-hyper-sd`,
+true_discretized_beta_hyper_sd <- if (script_options$constrained_prior) {
+  lst(default = script_options$true_hyper_sd,
       "migration complier" = ~ mutate(., sd = if_else(fct_match(r_m, c("always", "program defier", "wedge defier")),
                                                       0.01,
                                                       1)))
-                                                      # script_options$`true-hyper-sd`)))
-} else script_options$`true-hyper-sd`
+                                                      # script_options$true_hyper_sd)))
+} else script_options$true_hyper_sd
 
-true_discretized_beta_hyper_mean <- if (script_options$`constrained-prior`) {
+true_discretized_beta_hyper_mean <- if (script_options$constrained_prior) {
   lst(default = 0,
       "migration complier" = ~ mutate(., mean = if_else(fct_match(r_m, c("always", "program defier", "wedge defier")),
                                                       -2,
@@ -281,20 +281,20 @@ default_model <- test_model4
 # Estimands ---------------------------------------------------------------
 
 with_discretized_estimands <- list2(
-  # build_diff_estimand(
-  #   build_atom_estimand("m", b = 1, g = 1, z = 1),
-  #   build_atom_estimand("m", b = 0, g = 0, z = 0)
-  # ),
-  #
-  # build_discretized_diff_estimand(
-  #   build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
-  #   build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
-  # ),
-  #
-  # build_discretized_diff_estimand(
-  #   build_discretized_atom_estimand("y", b = 1, g = 1, z = 1),
-  #   build_discretized_atom_estimand("y", b = 0, g = 0, z = 0)
-  # ),
+  build_diff_estimand(
+    build_atom_estimand("m", b = 1, g = 1, z = 1),
+    build_atom_estimand("m", b = 0, g = 0, z = 0)
+  ),
+
+  build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
+  ),
+
+  build_discretized_diff_estimand(
+    build_discretized_atom_estimand("y", b = 1, g = 1, z = 1),
+    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0)
+  ),
 
   build_discretized_diff_estimand(
     build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
@@ -403,10 +403,10 @@ default_ate <- "Pr[Y^{y}_{b=0,g=0,z=0,m=1} < c] - Pr[Y^{y}_{b=0,g=0,z=0,m=0} < c
 if (script_options$single) {
   entity_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
                                                    discretized_beta_hyper_mean = true_discretized_beta_hyper_mean,
-                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
+                                                   discrete_beta_hyper_sd = script_options$true_hyper_sd,
                                                    discretized_beta_hyper_sd = true_discretized_beta_hyper_sd,
                                                    tau_level_sigma = 1,
-                                                   num_entities = script_options$`num-entities`) %>%
+                                                   num_entities = script_options$num_entities) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe()
@@ -437,8 +437,8 @@ if (script_options$single) {
 
     discretized_beta_hyper_mean = true_discretized_beta_hyper_mean,
 
-    discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
-    discretized_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else true_discretized_beta_hyper_sd,
+    discrete_beta_hyper_sd = if (script_options$different_priors) script_options$alt_hyper_sd else script_options$true_hyper_sd,
+    discretized_beta_hyper_sd = if (script_options$different_priors) script_options$alt_hyper_sd else true_discretized_beta_hyper_sd,
     # discretized_beta_hyper_sd = lst(default = 2,
     #                                 "migration complier" = ~ mutate(., sd = if_else(fct_match(r_m, c("always", "program defier", "wedge defier")),
     #                                                                                 0.1,
@@ -525,17 +525,17 @@ if (script_options$multi) {
 
   test_sim_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
                                                      discretized_beta_hyper_mean = true_discretized_beta_hyper_mean,
-                                                     discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
+                                                     discrete_beta_hyper_sd = script_options$true_hyper_sd,
                                                      discretized_beta_hyper_sd = true_discretized_beta_hyper_sd,
                                                      tau_level_sigma = 1,
-                                                     num_entities = script_options$`num-entities`,
+                                                     num_entities = script_options$num_entities,
                                                      num_sim = num_runs) %>%
     deframe()
 
-  used_discretized_beta_hyper_sd <- if (script_options$`different-priors`) script_options$`alt-hyper-sd` else true_discretized_beta_hyper_sd
-  used_discretized_beta_hyper_sd <- if (!is_empty(script_options$`alt-hyper-sd-constrained`)) {
+  used_discretized_beta_hyper_sd <- if (script_options$different_priors) script_options$alt_hyper_sd else true_discretized_beta_hyper_sd
+  used_discretized_beta_hyper_sd <- if (!is_empty(script_options$alt_hyper_sd_constrained)) {
     list(
-      default = script_options$`alt-hyper-sd-constrained`,
+      default = script_options$alt_hyper_sd_constrained,
       "always below" = used_discretized_beta_hyper_sd,
       "never below" = used_discretized_beta_hyper_sd
     )
@@ -610,9 +610,9 @@ if (script_options$multi) {
         tibble(results = list(results), marginal_prob = list(marginal_prob), lp_bounds = list(lp_bounds))
       },
 
-      discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
+      discrete_beta_hyper_sd = if (script_options$different_priors) script_options$alt_hyper_sd else script_options$true_hyper_sd,
       discretized_beta_hyper_sd = used_discretized_beta_hyper_sd,
-      save_iter_data = script_options$`density-plots`
+      save_iter_data = script_options$density_plots
     ) %>%
     compact() %>%
     bind_rows(.id = "iter_id")
@@ -634,7 +634,7 @@ if (script_options$multi) {
 
     discretized_beta_hyper_mean = true_discretized_beta_hyper_mean,
 
-    discrete_beta_hyper_sd = script_options$`true-hyper-sd`,
+    discrete_beta_hyper_sd = script_options$true_hyper_sd,
     discretized_beta_hyper_sd = true_discretized_beta_hyper_sd,
     tau_level_sigma = 1,
     calculate_marginal_prob = TRUE
@@ -661,7 +661,7 @@ if (script_options$multi) {
 
   write_rds(test_run_data, test_run_data_file)
 
-  if (script_options$`different-priors`) {
+  if (script_options$different_priors) {
     prior_sampler <- create_sampler(
       default_model,
       model_levels = "entity_index",
@@ -669,8 +669,8 @@ if (script_options$multi) {
       estimands = default_estimands,
       y = y,
 
-      discrete_beta_hyper_sd = script_options$`alt-hyper-sd`,
-      discretized_beta_hyper_sd = used_discretized_beta_hyper_sd, #script_options$`alt-hyper-sd`,
+      discrete_beta_hyper_sd = script_options$alt_hyper_sd,
+      discretized_beta_hyper_sd = used_discretized_beta_hyper_sd, #script_options$alt_hyper_sd,
       tau_level_sigma = 1,
       calculate_marginal_prob = TRUE
     )
@@ -722,7 +722,7 @@ if (script_options$multi) {
 
   get_prior_and_post <- function(estimand) {
     bind_rows(
-      prior = if (script_options$`different-priors`) {
+      prior = if (script_options$different_priors) {
         prior_results %>%
           filter(estimand_name %in% estimand) %>%
           map_df(seq(num_runs), ~ mutate(..2, iter_id = ..1), .)
@@ -744,7 +744,7 @@ if (script_options$multi) {
     )
   }
 
-  if (script_options$`density-plots`) {
+  if (script_options$density_plots) {
     density_plots <- get_prior_and_post(tot_cf_diff) %>%
       # filter(iter_id %in% sample(.$iter_id, 50, replace = FALSE)) %>%
       select(iter_id, prob, fit_type, iter_data) %>%
@@ -886,7 +886,7 @@ if (script_options$multi) {
             plot.subtitle = element_text(size = 9))
 
     marginal_prob_density_plots <- bind_rows(
-      prior = if (script_options$`different-priors`) {
+      prior = if (script_options$different_priors) {
         prior_marginal_prob %>%
           map_df(seq(1), ~ mutate(.y, iter_id = .x), .)
       },
@@ -945,12 +945,12 @@ if (script_options$multi) {
 
 # Prior Sequence ----------------------------------------------------------
 
-if (script_options$`prior-sequence`) {
-  taus <- seq(script_options$`from-tau`, script_options$`to-tau`, script_options$`by-tau`)
+if (script_options$prior_sequence) {
+  taus <- seq(script_options$from_tau, script_options$to_tau, script_options$by_tau)
 
   dummy_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
-                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
-                                                   num_entities = script_options$`num-entities`) %>%
+                                                   discrete_beta_hyper_sd = script_options$true_hyper_sd, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                   num_entities = script_options$num_entities) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe() %>%
@@ -968,7 +968,7 @@ if (script_options$`prior-sequence`) {
                           # y = y < -20,
                           y = y,
 
-                          discrete_beta_hyper_sd = if (script_options$`different-priors`) script_options$`alt-hyper-sd` else script_options$`true-hyper-sd`,
+                          discrete_beta_hyper_sd = if (script_options$different_priors) script_options$alt_hyper_sd else script_options$true_hyper_sd,
                           discretized_beta_hyper_sd = curr_tau,
 
                           tau_level_sigma = 1,
@@ -1037,13 +1037,13 @@ if (script_options$`prior-sequence`) {
 
 # Constrained Prior Sequence ----------------------------------------------------------
 
-if (script_options$`constrained-prior-sequence`) {
-  unconst_tau <- script_options$`unconst-tau`
-  taus <- seq(script_options$`from-tau`, script_options$`to-tau`, script_options$`by-tau`)
+if (script_options$constrained_prior_sequence) {
+  unconst_tau <- script_options$unconst_tau
+  taus <- seq(script_options$from_tau, script_options$to_tau, script_options$by_tau)
 
   dummy_data <- create_prior_predicted_simulation(default_model, sample_size = 4000, chains = 4, iter = 1000,
-                                                   discrete_beta_hyper_sd = script_options$`true-hyper-sd`, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
-                                                   num_entities = script_options$`num-entities`) %>%
+                                                   discrete_beta_hyper_sd = script_options$true_hyper_sd, discretized_beta_hyper_sd = true_discretized_beta_hyper_sd, tau_level_sigma = 1,
+                                                   num_entities = script_options$num_entities) %>%
     unnest(entity_data) %>%
     select(entity_index, sim) %>%
     deframe() %>%
