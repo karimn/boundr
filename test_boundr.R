@@ -281,20 +281,20 @@ default_model <- test_model4
 # Estimands ---------------------------------------------------------------
 
 with_discretized_estimands <- list2(
-  build_diff_estimand(
-    build_atom_estimand("m", b = 1, g = 1, z = 1),
-    build_atom_estimand("m", b = 0, g = 0, z = 0)
-  ),
-
-  build_discretized_diff_estimand(
-    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
-    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
-  ),
-
-  build_discretized_diff_estimand(
-    build_discretized_atom_estimand("y", b = 1, g = 1, z = 1),
-    build_discretized_atom_estimand("y", b = 0, g = 0, z = 0)
-  ),
+  # build_diff_estimand(
+  #   build_atom_estimand("m", b = 1, g = 1, z = 1),
+  #   build_atom_estimand("m", b = 0, g = 0, z = 0)
+  # ),
+  #
+  # build_discretized_diff_estimand(
+  #   build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1),
+  #   build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 0)
+  # ),
+  #
+  # build_discretized_diff_estimand(
+  #   build_discretized_atom_estimand("y", b = 1, g = 1, z = 1),
+  #   build_discretized_atom_estimand("y", b = 0, g = 0, z = 0)
+  # ),
 
   build_discretized_diff_estimand(
     build_discretized_atom_estimand("y", b = 0, g = 0, z = 0, m = 1, cond = m == 1 & b == 0 & g == 0 & z == 0),
@@ -311,7 +311,6 @@ with_discretized_estimands <- list2(
     build_discretized_atom_estimand("y", b = 1, g = 1, z = 1, m = 0, cond = fct_match(r_m, "treatment complier"), cond_desc = "M_{z=1} > M_{z=0}")
   ),
 )
-
 
 # test_estimands <- build_estimand_collection(
 #   model = test_model,
