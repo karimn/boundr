@@ -268,7 +268,7 @@ transformed data {
 
   int num_discretized_variables = max(num_cutpoints - 2, 0);
   int total_num_discretized_bg_variable_types = num_discretized_bg_variables * num_discretized_r_types * num_discrete_r_types;
-  int<lower = 1, upper = num_discretized_r_types> num_discretized_types_conditional[num_discrete_r_types] =
+  int<lower = 0, upper = num_discretized_r_types> num_discretized_types_conditional[num_discrete_r_types] =
     num_unrestricted_by_col(discretized_beta_hyper_sd, discretized_beta_hyper_mean);
   int<lower = 1, upper = num_discretized_r_types> discretized_types_conditional[sum(num_discretized_types_conditional)] =
     which_unrestricted_by_col(discretized_beta_hyper_sd, discretized_beta_hyper_mean, num_discretized_types_conditional);
@@ -354,7 +354,7 @@ transformed data {
 
   vector<lower = 0, upper = 1>[sum(num_discretized_bg_variable_type_combo_members) * num_unique_entities] discretized_marginal_prob_csr_vec;
   int<lower = 1, upper = num_r_types * num_unique_entities> entity_discretized_marginal_prob_ids[sum(num_discretized_bg_variable_type_combo_members) * num_unique_entities];
-  int<lower = 1> entity_discretized_marginal_prob_csr_row_pos[total_num_discretized_bg_variable_types + 1];
+  int<lower = 1> entity_discretized_marginal_prob_csr_row_pos[total_num_discretized_bg_variable_types > 0 ? total_num_discretized_bg_variable_types + 1 : 0];
 
   vector<lower = 0, upper = 1>[num_all_estimands * num_unique_entities * num_estimand_levels] level_estimands_csr_vec;
   int<lower = 1, upper = num_all_estimands * num_unique_entities> entity_estimand_ids[num_all_estimands * num_unique_entities * num_estimand_levels];
@@ -578,7 +578,7 @@ transformed data {
       entity_single_discrete_marginal_prob_csr_row_pos[entity_marginal_prob_csr_row_pos_pos - 1] + last_entity_marginal_prob_size;
   }
 
-  { // Discretized marginal probability CSR vectors
+  if (total_num_discretized_bg_variable_types > 0) { // Discretized marginal probability CSR vectors
     int latent_type_marginal_members_pos = 1;
     int entity_marginal_prob_pos = 1;
     int entity_marginal_prob_csr_row_pos_pos = 1;
@@ -1123,18 +1123,20 @@ generated quantities {
                        entity_single_discrete_marginal_prob_csr_row_pos,
                        r_log_prob);
 
-    vector[total_num_discretized_bg_variable_types] discretized_marginal_log_p_r =
-      csr_log_sum_exp2(total_num_discretized_bg_variable_types,
-                       num_r_types * num_unique_entities,
-                       log(discretized_marginal_prob_csr_vec),
-                       entity_discretized_marginal_prob_ids,
-                       entity_discretized_marginal_prob_csr_row_pos,
-                       r_log_prob);
-
-    discretized_marginal_log_p_r -= to_vector(rep_matrix(discrete_marginal_log_p_r, num_discretized_bg_variables * num_discretized_r_types));
-
     single_discrete_marginal_p_r = exp(single_discrete_marginal_log_p_r);
-    discretized_marginal_p_r = exp(discretized_marginal_log_p_r);
     discrete_marginal_p_r = exp(discrete_marginal_log_p_r);
+
+    if (total_num_discretized_bg_variable_types > 0) {
+      vector[total_num_discretized_bg_variable_types] discretized_marginal_log_p_r =
+        csr_log_sum_exp2(total_num_discretized_bg_variable_types,
+                         num_r_types * num_unique_entities,
+                         log(discretized_marginal_prob_csr_vec),
+                         entity_discretized_marginal_prob_ids,
+                         entity_discretized_marginal_prob_csr_row_pos,
+                         r_log_prob);
+
+      discretized_marginal_log_p_r -= to_vector(rep_matrix(discrete_marginal_log_p_r, num_discretized_bg_variables * num_discretized_r_types));
+      discretized_marginal_p_r = exp(discretized_marginal_log_p_r);
+    }
   }
 }

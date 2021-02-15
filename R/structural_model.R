@@ -288,17 +288,23 @@ create_sampler_creator <- function() {
 
       analysis_data <- analysis_data %>%
         mutate(!!!discrete_rename_list, !!!discretized_data_list) %>%
-        select(-one_of(c("candidate_group_id", "experiment_assignment_id")))
+        select(!any_of(c("candidate_group_id", "experiment_assignment_id")))
     } else {
       tibble()
     }
 
     if (nrow(new_sampler@analysis_data) > 0) {
       new_sampler@analysis_data %<>%
-        mutate_at(vars(all_of(purrr::discard(model_levels, is.na))), ~ if (!is.factor(.x)) factor(.x) else .x) %>%
-        mutate(unique_entity_id = group_by(., !!!syms(purrr::discard(model_levels, is.na))) %>% group_indices()) %>%
+        mutate(
+          across(all_of(purrr::discard(model_levels, is.na)), ~ if (!is.factor(.x)) factor(.x) else .x),
+          unique_entity_id = group_by(., across(all_of(purrr::discard(model_levels, is.na)))) %>% group_indices()
+        ) %>%
         left_join(select(r@candidate_groups, -candidate_group), by = setdiff(names(r@candidate_groups), c("candidate_group", "candidate_group_id"))) %>%
         left_join(select(r@exogenous_prob, -ex_prob), by = r@exogenous_variables)
+
+      if (any(is.na(new_sampler@analysis_data$candidate_group_id))) {
+        stop("Some observations do not match any candidate group. Check your model's assumptions.")
+      }
 
       new_sampler@unique_entity_ids <- new_sampler@analysis_data %>%
         select(unique_entity_id, purrr::discard(model_levels, is.na)) %>%
@@ -412,20 +418,20 @@ create_sampler_creator <- function() {
       stop("Not yet supported")
     }
 
-    new_sampler@stan_data <- {
-      if (nrow(new_sampler@analysis_data) > 0) {
-        new_sampler@analysis_data %>%
-          select(
-            obs_unique_entity_id = unique_entity_id,
-            obs_candidate_group = candidate_group_id,
-          )
-        } else {
-          tibble(
-            obs_unique_entity_id = array(0, dim = 0),
-            obs_candidate_group = array(0, dim = 0)
-          )
-        }
-      } %>%
+    new_sampler@stan_data <- if (nrow(new_sampler@analysis_data) > 0) {
+      new_sampler@analysis_data %>%
+        select(
+          obs_unique_entity_id = unique_entity_id,
+          obs_candidate_group = candidate_group_id,
+        )
+    } else {
+      tibble(
+        obs_unique_entity_id = array(0, dim = 0),
+        obs_candidate_group = array(0, dim = 0)
+      )
+    }
+
+    new_sampler@stan_data %<>%
       as.list() %>%
       list_modify(!!!lst(
         num_obs = length(.$obs_unique_entity_id),
@@ -549,11 +555,13 @@ create_sampler_creator <- function() {
           pull(latent_type_ids) %>% # there's a second one in there
           map_int(nrow),
 
-        discretized_bg_variable_type_combo_members = r@endogenous_latent_type_variables %>%
-          filter(discretized) %>%
-          unnest(latent_type_ids) %>%
-          unnest(latent_type_ids) %>%
-          pull(latent_type_index),
+        discretized_bg_variable_type_combo_members = if (num_discretized_bg_variables > 0) {
+          r@endogenous_latent_type_variables %>%
+            filter(discretized) %>%
+            unnest(latent_type_ids) %>%
+            unnest(latent_type_ids) %>%
+            pull(latent_type_index)
+        } else array(0, dim = 0),
 
         num_joint_discrete_combo_members = r@endogenous_joint_discrete_latent_type_variables$latent_type_ids %>%
           first() %>%
