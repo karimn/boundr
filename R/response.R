@@ -192,7 +192,14 @@ setMethod("set_obs_outcomes", "Response", function (r, curr_r_type, ...) {
 })
 
 setMethod("get_candidates", "Response", function(r, analysis_data) {
-  map(r@finite_states, function(fun) exec(fun, !!!select(analysis_data, r@input), r = rep(NA, nrow(analysis_data)))) %>%  # For each type/class in the current r, produce a response given input values
+  map(r@finite_states, function(fun) {
+    # For each type/class in the current r, produce a response given input values
+    if (any(is.na(r@input))) {
+      exec(fun, r = rep(NA, nrow(analysis_data)))
+    } else {
+      exec(fun, !!!select(analysis_data, r@input), r = rep(NA, nrow(analysis_data)))
+    }
+  }) %>%
     map_if(~ length(.) == 1, ~ rep(., nrow(analysis_data))) %>%
     bind_cols() %>%
     mutate(row_index = seq(n())) %>%
