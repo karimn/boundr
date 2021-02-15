@@ -153,7 +153,7 @@ setMethod("get_estimation_results", "SamplingResults", function(r, no_levels = F
       estimands%>%
         extract_from_fit(r, no_sim_diag = no_sim_diag, quants = quants)
     } else {
-      between_entity_diff_info <- if (!is_null(r@sampler@between_entity_diff_levels)) {
+      between_entity_diff_info <- if (length(r@sampler@between_entity_diff_levels) > 0) {
         r@sampler@analysis_data %>%
           select(all_of(r@sampler@between_entity_diff_levels)) %>%
           map(base::levels) %>%
@@ -305,25 +305,27 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
     unnest(estimand_quantiles)
 
-  discrete_type_variables <- r@sampler@endogenous_latent_type_variables %>%
-    filter(!discretized) %>%
-    pull(type_variable) %>%
-    unique()
+  discretized_marginal_prob <- if (has_discretized_variables(r@sampler@structural_model)) {
+    discrete_type_variables <- r@sampler@endogenous_latent_type_variables %>%
+      filter(!discretized) %>%
+      pull(type_variable) %>%
+      unique()
 
-  discretized_marginal_prob <- r %>%
-    as.array(par = "discretized_marginal_p_r") %>%
-    plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
-    select(-parameters) %>%
-    mutate(iter_data = map(iter_data, ~ tibble(iter_p_r = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
-    bind_cols(
-      r@sampler@endogenous_latent_type_variables %>%
-        filter(discretized) %>%
-        unnest(latent_type_ids)
-    ) %>%
-    left_join(distinct_at(r@sampler@structural_model@types_data, vars(discrete_r_type_id, all_of(discrete_type_variables))), by = "discrete_r_type_id") %>%
-    mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
-           mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
-    unnest(estimand_quantiles)
+    r %>%
+      as.array(par = "discretized_marginal_p_r") %>%
+      plyr::adply(3, diagnose, no_sim_diag = no_sim_diag) %>%
+      select(-parameters) %>%
+      mutate(iter_data = map(iter_data, ~ tibble(iter_p_r = c(.), iter_id = seq(NROW(.) * NCOL(.))))) %>%
+      bind_cols(
+        r@sampler@endogenous_latent_type_variables %>%
+          filter(discretized) %>%
+          unnest(latent_type_ids)
+      ) %>%
+      left_join(distinct_at(r@sampler@structural_model@types_data, vars(discrete_r_type_id, all_of(discrete_type_variables))), by = "discrete_r_type_id") %>%
+      mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
+             mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
+      unnest(estimand_quantiles)
+  }
 
   bind_rows(single_discrete_marginal_prob, discretized_marginal_prob)
 })
