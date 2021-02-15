@@ -45,7 +45,7 @@ stan::io::program_reader prog_reader__() {
     reader.add_event(333, 0, "start", "include/r_type_prob.stan");
     reader.add_event(427, 94, "end", "include/r_type_prob.stan");
     reader.add_event(427, 4, "restart", "model_bounded");
-    reader.add_event(1565, 1140, "end", "model_bounded");
+    reader.add_event(1567, 1142, "end", "model_bounded");
     return reader;
 }
 int
@@ -3083,8 +3083,8 @@ public:
             entity_discretized_marginal_prob_ids = std::vector<int>((sum(num_discretized_bg_variable_type_combo_members) * num_unique_entities), int(0));
             stan::math::fill(entity_discretized_marginal_prob_ids, std::numeric_limits<int>::min());
             current_statement_begin__ = 780;
-            validate_non_negative_index("entity_discretized_marginal_prob_csr_row_pos", "(total_num_discretized_bg_variable_types + 1)", (total_num_discretized_bg_variable_types + 1));
-            entity_discretized_marginal_prob_csr_row_pos = std::vector<int>((total_num_discretized_bg_variable_types + 1), int(0));
+            validate_non_negative_index("entity_discretized_marginal_prob_csr_row_pos", "(logical_gt(total_num_discretized_bg_variable_types, 0) ? (total_num_discretized_bg_variable_types + 1) : 0 )", (logical_gt(total_num_discretized_bg_variable_types, 0) ? (total_num_discretized_bg_variable_types + 1) : 0 ));
+            entity_discretized_marginal_prob_csr_row_pos = std::vector<int>((logical_gt(total_num_discretized_bg_variable_types, 0) ? (total_num_discretized_bg_variable_types + 1) : 0 ), int(0));
             stan::math::fill(entity_discretized_marginal_prob_csr_row_pos, std::numeric_limits<int>::min());
             current_statement_begin__ = 782;
             validate_non_negative_index("level_estimands_csr_vec", "((num_all_estimands * num_unique_entities) * num_estimand_levels)", ((num_all_estimands * num_unique_entities) * num_estimand_levels));
@@ -3551,85 +3551,88 @@ public:
                         (get_base1(entity_single_discrete_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_single_discrete_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size), 
                         "assigning variable entity_single_discrete_marginal_prob_csr_row_pos");
             }
-            {
-            current_statement_begin__ = 1005;
-            int latent_type_marginal_members_pos(0);
-            (void) latent_type_marginal_members_pos;  // dummy to suppress unused var warning
-            stan::math::fill(latent_type_marginal_members_pos, std::numeric_limits<int>::min());
-            stan::math::assign(latent_type_marginal_members_pos,1);
-            current_statement_begin__ = 1006;
-            int entity_marginal_prob_pos(0);
-            (void) entity_marginal_prob_pos;  // dummy to suppress unused var warning
-            stan::math::fill(entity_marginal_prob_pos, std::numeric_limits<int>::min());
-            stan::math::assign(entity_marginal_prob_pos,1);
-            current_statement_begin__ = 1007;
-            int entity_marginal_prob_csr_row_pos_pos(0);
-            (void) entity_marginal_prob_csr_row_pos_pos;  // dummy to suppress unused var warning
-            stan::math::fill(entity_marginal_prob_csr_row_pos_pos, std::numeric_limits<int>::min());
-            stan::math::assign(entity_marginal_prob_csr_row_pos_pos,1);
-            current_statement_begin__ = 1008;
-            int last_entity_marginal_prob_size(0);
-            (void) last_entity_marginal_prob_size;  // dummy to suppress unused var warning
-            stan::math::fill(last_entity_marginal_prob_size, std::numeric_limits<int>::min());
-            current_statement_begin__ = 1010;
-            for (int latent_type_index = 1; latent_type_index <= total_num_discretized_bg_variable_types; ++latent_type_index) {
+            current_statement_begin__ = 1004;
+            if (as_bool(logical_gt(total_num_discretized_bg_variable_types, 0))) {
                 {
-                current_statement_begin__ = 1011;
-                int curr_var_size(0);
-                (void) curr_var_size;  // dummy to suppress unused var warning
-                stan::math::fill(curr_var_size, std::numeric_limits<int>::min());
-                stan::math::assign(curr_var_size,get_base1(num_discretized_bg_variable_type_combo_members, latent_type_index, "num_discretized_bg_variable_type_combo_members", 1));
-                current_statement_begin__ = 1012;
-                int latent_type_marginal_members_end(0);
-                (void) latent_type_marginal_members_end;  // dummy to suppress unused var warning
-                stan::math::fill(latent_type_marginal_members_end, std::numeric_limits<int>::min());
-                stan::math::assign(latent_type_marginal_members_end,((latent_type_marginal_members_pos + curr_var_size) - 1));
-                current_statement_begin__ = 1014;
-                stan::model::assign(entity_discretized_marginal_prob_csr_row_pos, 
-                            stan::model::cons_list(stan::model::index_uni(entity_marginal_prob_csr_row_pos_pos), stan::model::nil_index_list()), 
-                            (logical_gt(entity_marginal_prob_csr_row_pos_pos, 1) ? (get_base1(entity_discretized_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_discretized_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size) : 1 ), 
-                            "assigning variable entity_discretized_marginal_prob_csr_row_pos");
-                current_statement_begin__ = 1018;
-                stan::math::assign(last_entity_marginal_prob_size, (curr_var_size * num_unique_entities));
-                current_statement_begin__ = 1020;
-                for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
+                current_statement_begin__ = 1005;
+                int latent_type_marginal_members_pos(0);
+                (void) latent_type_marginal_members_pos;  // dummy to suppress unused var warning
+                stan::math::fill(latent_type_marginal_members_pos, std::numeric_limits<int>::min());
+                stan::math::assign(latent_type_marginal_members_pos,1);
+                current_statement_begin__ = 1006;
+                int entity_marginal_prob_pos(0);
+                (void) entity_marginal_prob_pos;  // dummy to suppress unused var warning
+                stan::math::fill(entity_marginal_prob_pos, std::numeric_limits<int>::min());
+                stan::math::assign(entity_marginal_prob_pos,1);
+                current_statement_begin__ = 1007;
+                int entity_marginal_prob_csr_row_pos_pos(0);
+                (void) entity_marginal_prob_csr_row_pos_pos;  // dummy to suppress unused var warning
+                stan::math::fill(entity_marginal_prob_csr_row_pos_pos, std::numeric_limits<int>::min());
+                stan::math::assign(entity_marginal_prob_csr_row_pos_pos,1);
+                current_statement_begin__ = 1008;
+                int last_entity_marginal_prob_size(0);
+                (void) last_entity_marginal_prob_size;  // dummy to suppress unused var warning
+                stan::math::fill(last_entity_marginal_prob_size, std::numeric_limits<int>::min());
+                current_statement_begin__ = 1010;
+                for (int latent_type_index = 1; latent_type_index <= total_num_discretized_bg_variable_types; ++latent_type_index) {
                     {
-                    current_statement_begin__ = 1021;
-                    local_scalar_t__ entity_prop(DUMMY_VAR__);
-                    (void) entity_prop;  // dummy to suppress unused var warning
-                    stan::math::initialize(entity_prop, DUMMY_VAR__);
-                    stan::math::fill(entity_prop, DUMMY_VAR__);
-                    stan::math::assign(entity_prop,(get_base1(num_obs_in_unique_entity, entity_index, "num_obs_in_unique_entity", 1) / std::max(num_obs, 1)));
-                    current_statement_begin__ = 1022;
-                    int entity_marginal_prob_end(0);
-                    (void) entity_marginal_prob_end;  // dummy to suppress unused var warning
-                    stan::math::fill(entity_marginal_prob_end, std::numeric_limits<int>::min());
-                    stan::math::assign(entity_marginal_prob_end,((entity_marginal_prob_pos + curr_var_size) - 1));
-                    current_statement_begin__ = 1024;
-                    stan::model::assign(discretized_marginal_prob_csr_vec, 
-                                stan::model::cons_list(stan::model::index_min_max(entity_marginal_prob_pos, entity_marginal_prob_end), stan::model::nil_index_list()), 
-                                rep_vector(entity_prop, curr_var_size), 
-                                "assigning variable discretized_marginal_prob_csr_vec");
-                    current_statement_begin__ = 1026;
-                    stan::model::assign(entity_discretized_marginal_prob_ids, 
-                                stan::model::cons_list(stan::model::index_min_max(entity_marginal_prob_pos, entity_marginal_prob_end), stan::model::nil_index_list()), 
-                                array_add(stan::model::rvalue(discretized_bg_variable_type_combo_members, stan::model::cons_list(stan::model::index_min_max(latent_type_marginal_members_pos, latent_type_marginal_members_end), stan::model::nil_index_list()), "discretized_bg_variable_type_combo_members"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * num_r_types)).array()), pstream__), 
-                                "assigning variable entity_discretized_marginal_prob_ids");
-                    current_statement_begin__ = 1029;
-                    stan::math::assign(entity_marginal_prob_pos, (entity_marginal_prob_end + 1));
+                    current_statement_begin__ = 1011;
+                    int curr_var_size(0);
+                    (void) curr_var_size;  // dummy to suppress unused var warning
+                    stan::math::fill(curr_var_size, std::numeric_limits<int>::min());
+                    stan::math::assign(curr_var_size,get_base1(num_discretized_bg_variable_type_combo_members, latent_type_index, "num_discretized_bg_variable_type_combo_members", 1));
+                    current_statement_begin__ = 1012;
+                    int latent_type_marginal_members_end(0);
+                    (void) latent_type_marginal_members_end;  // dummy to suppress unused var warning
+                    stan::math::fill(latent_type_marginal_members_end, std::numeric_limits<int>::min());
+                    stan::math::assign(latent_type_marginal_members_end,((latent_type_marginal_members_pos + curr_var_size) - 1));
+                    current_statement_begin__ = 1014;
+                    stan::model::assign(entity_discretized_marginal_prob_csr_row_pos, 
+                                stan::model::cons_list(stan::model::index_uni(entity_marginal_prob_csr_row_pos_pos), stan::model::nil_index_list()), 
+                                (logical_gt(entity_marginal_prob_csr_row_pos_pos, 1) ? (get_base1(entity_discretized_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_discretized_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size) : 1 ), 
+                                "assigning variable entity_discretized_marginal_prob_csr_row_pos");
+                    current_statement_begin__ = 1018;
+                    stan::math::assign(last_entity_marginal_prob_size, (curr_var_size * num_unique_entities));
+                    current_statement_begin__ = 1020;
+                    for (int entity_index = 1; entity_index <= num_unique_entities; ++entity_index) {
+                        {
+                        current_statement_begin__ = 1021;
+                        local_scalar_t__ entity_prop(DUMMY_VAR__);
+                        (void) entity_prop;  // dummy to suppress unused var warning
+                        stan::math::initialize(entity_prop, DUMMY_VAR__);
+                        stan::math::fill(entity_prop, DUMMY_VAR__);
+                        stan::math::assign(entity_prop,(get_base1(num_obs_in_unique_entity, entity_index, "num_obs_in_unique_entity", 1) / std::max(num_obs, 1)));
+                        current_statement_begin__ = 1022;
+                        int entity_marginal_prob_end(0);
+                        (void) entity_marginal_prob_end;  // dummy to suppress unused var warning
+                        stan::math::fill(entity_marginal_prob_end, std::numeric_limits<int>::min());
+                        stan::math::assign(entity_marginal_prob_end,((entity_marginal_prob_pos + curr_var_size) - 1));
+                        current_statement_begin__ = 1024;
+                        stan::model::assign(discretized_marginal_prob_csr_vec, 
+                                    stan::model::cons_list(stan::model::index_min_max(entity_marginal_prob_pos, entity_marginal_prob_end), stan::model::nil_index_list()), 
+                                    rep_vector(entity_prop, curr_var_size), 
+                                    "assigning variable discretized_marginal_prob_csr_vec");
+                        current_statement_begin__ = 1026;
+                        stan::model::assign(entity_discretized_marginal_prob_ids, 
+                                    stan::model::cons_list(stan::model::index_min_max(entity_marginal_prob_pos, entity_marginal_prob_end), stan::model::nil_index_list()), 
+                                    array_add(stan::model::rvalue(discretized_bg_variable_type_combo_members, stan::model::cons_list(stan::model::index_min_max(latent_type_marginal_members_pos, latent_type_marginal_members_end), stan::model::nil_index_list()), "discretized_bg_variable_type_combo_members"), static_cast<std::vector<int> >(stan::math::array_builder<int >().add(((entity_index - 1) * num_r_types)).array()), pstream__), 
+                                    "assigning variable entity_discretized_marginal_prob_ids");
+                        current_statement_begin__ = 1029;
+                        stan::math::assign(entity_marginal_prob_pos, (entity_marginal_prob_end + 1));
+                        }
+                    }
+                    current_statement_begin__ = 1032;
+                    stan::math::assign(latent_type_marginal_members_pos, (latent_type_marginal_members_end + 1));
+                    current_statement_begin__ = 1033;
+                    stan::math::assign(entity_marginal_prob_csr_row_pos_pos, (entity_marginal_prob_csr_row_pos_pos + 1));
                     }
                 }
-                current_statement_begin__ = 1032;
-                stan::math::assign(latent_type_marginal_members_pos, (latent_type_marginal_members_end + 1));
-                current_statement_begin__ = 1033;
-                stan::math::assign(entity_marginal_prob_csr_row_pos_pos, (entity_marginal_prob_csr_row_pos_pos + 1));
+                current_statement_begin__ = 1036;
+                stan::model::assign(entity_discretized_marginal_prob_csr_row_pos, 
+                            stan::model::cons_list(stan::model::index_uni(entity_marginal_prob_csr_row_pos_pos), stan::model::nil_index_list()), 
+                            (get_base1(entity_discretized_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_discretized_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size), 
+                            "assigning variable entity_discretized_marginal_prob_csr_row_pos");
                 }
-            }
-            current_statement_begin__ = 1036;
-            stan::model::assign(entity_discretized_marginal_prob_csr_row_pos, 
-                        stan::model::cons_list(stan::model::index_uni(entity_marginal_prob_csr_row_pos_pos), stan::model::nil_index_list()), 
-                        (get_base1(entity_discretized_marginal_prob_csr_row_pos, (entity_marginal_prob_csr_row_pos_pos - 1), "entity_discretized_marginal_prob_csr_row_pos", 1) + last_entity_marginal_prob_size), 
-                        "assigning variable entity_discretized_marginal_prob_csr_row_pos");
             }
             current_statement_begin__ = 1040;
             if (as_bool(logical_gt(num_estimand_levels, 0))) {
@@ -3990,7 +3993,7 @@ public:
             current_statement_begin__ = 694;
             size_t num_discretized_types_conditional_i_0_max__ = num_discrete_r_types;
             for (size_t i_0__ = 0; i_0__ < num_discretized_types_conditional_i_0_max__; ++i_0__) {
-                check_greater_or_equal(function__, "num_discretized_types_conditional[i_0__]", num_discretized_types_conditional[i_0__], 1);
+                check_greater_or_equal(function__, "num_discretized_types_conditional[i_0__]", num_discretized_types_conditional[i_0__], 0);
                 check_less_or_equal(function__, "num_discretized_types_conditional[i_0__]", num_discretized_types_conditional[i_0__], num_discretized_r_types);
             }
             current_statement_begin__ = 696;
@@ -4176,7 +4179,7 @@ public:
                 check_less_or_equal(function__, "entity_discretized_marginal_prob_ids[i_0__]", entity_discretized_marginal_prob_ids[i_0__], (num_r_types * num_unique_entities));
             }
             current_statement_begin__ = 780;
-            size_t entity_discretized_marginal_prob_csr_row_pos_i_0_max__ = (total_num_discretized_bg_variable_types + 1);
+            size_t entity_discretized_marginal_prob_csr_row_pos_i_0_max__ = (logical_gt(total_num_discretized_bg_variable_types, 0) ? (total_num_discretized_bg_variable_types + 1) : 0 );
             for (size_t i_0__ = 0; i_0__ < entity_discretized_marginal_prob_csr_row_pos_i_0_max__; ++i_0__) {
                 check_greater_or_equal(function__, "entity_discretized_marginal_prob_csr_row_pos[i_0__]", entity_discretized_marginal_prob_csr_row_pos[i_0__], 1);
             }
@@ -5444,19 +5447,24 @@ public:
                 stan::math::fill(single_discrete_marginal_log_p_r, DUMMY_VAR__);
                 stan::math::assign(single_discrete_marginal_log_p_r,csr_log_sum_exp2(total_num_discrete_bg_variable_types, (num_r_types * num_unique_entities), stan::math::log(single_discrete_marginal_prob_csr_vec), entity_single_discrete_marginal_prob_ids, entity_single_discrete_marginal_prob_csr_row_pos, r_log_prob, pstream__));
                 current_statement_begin__ = 1549;
-                validate_non_negative_index("discretized_marginal_log_p_r", "total_num_discretized_bg_variable_types", total_num_discretized_bg_variable_types);
-                Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> discretized_marginal_log_p_r(total_num_discretized_bg_variable_types);
-                stan::math::initialize(discretized_marginal_log_p_r, DUMMY_VAR__);
-                stan::math::fill(discretized_marginal_log_p_r, DUMMY_VAR__);
-                stan::math::assign(discretized_marginal_log_p_r,csr_log_sum_exp2(total_num_discretized_bg_variable_types, (num_r_types * num_unique_entities), stan::math::log(discretized_marginal_prob_csr_vec), entity_discretized_marginal_prob_ids, entity_discretized_marginal_prob_csr_row_pos, r_log_prob, pstream__));
-                current_statement_begin__ = 1557;
-                stan::math::assign(discretized_marginal_log_p_r, subtract(discretized_marginal_log_p_r, to_vector(rep_matrix(discrete_marginal_log_p_r, (num_discretized_bg_variables * num_discretized_r_types)))));
-                current_statement_begin__ = 1559;
                 stan::math::assign(single_discrete_marginal_p_r, stan::math::exp(single_discrete_marginal_log_p_r));
-                current_statement_begin__ = 1560;
-                stan::math::assign(discretized_marginal_p_r, stan::math::exp(discretized_marginal_log_p_r));
-                current_statement_begin__ = 1561;
+                current_statement_begin__ = 1550;
                 stan::math::assign(discrete_marginal_p_r, stan::math::exp(discrete_marginal_log_p_r));
+                current_statement_begin__ = 1552;
+                if (as_bool(logical_gt(total_num_discretized_bg_variable_types, 0))) {
+                    {
+                    current_statement_begin__ = 1553;
+                    validate_non_negative_index("discretized_marginal_log_p_r", "total_num_discretized_bg_variable_types", total_num_discretized_bg_variable_types);
+                    Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> discretized_marginal_log_p_r(total_num_discretized_bg_variable_types);
+                    stan::math::initialize(discretized_marginal_log_p_r, DUMMY_VAR__);
+                    stan::math::fill(discretized_marginal_log_p_r, DUMMY_VAR__);
+                    stan::math::assign(discretized_marginal_log_p_r,csr_log_sum_exp2(total_num_discretized_bg_variable_types, (num_r_types * num_unique_entities), stan::math::log(discretized_marginal_prob_csr_vec), entity_discretized_marginal_prob_ids, entity_discretized_marginal_prob_csr_row_pos, r_log_prob, pstream__));
+                    current_statement_begin__ = 1561;
+                    stan::math::assign(discretized_marginal_log_p_r, subtract(discretized_marginal_log_p_r, to_vector(rep_matrix(discrete_marginal_log_p_r, (num_discretized_bg_variables * num_discretized_r_types)))));
+                    current_statement_begin__ = 1562;
+                    stan::math::assign(discretized_marginal_p_r, stan::math::exp(discretized_marginal_log_p_r));
+                    }
+                }
                 }
             }
             // validate, write generated quantities
