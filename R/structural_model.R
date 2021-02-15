@@ -32,6 +32,12 @@ setClass(
   contains = "StructuralCausalModel"
 )
 
+setGeneric("has_discretized_variables", function(r) standardGeneric("has_discretized_variables"))
+
+setMethod("has_discretized_variables", "StructuralCausalModel", function(r) {
+  return(length(r@discretized_responses) > 0)
+})
+
 setGeneric("get_discretized_pruning_data", function(r) standardGeneric("get_discretized_pruning_data"))
 
 setMethod("get_discretized_pruning_data", "StructuralCausalModel", function(r) {
