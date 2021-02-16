@@ -236,16 +236,17 @@ setGeneric("num_exogenous_comb", function(r) standardGeneric("num_exogenous_comb
 
 setMethod("num_exogenous_comb", "StructuralCausalModel", function(r) nrow(r@exogenous_prob))
 
-setGeneric("create_sampler", function(r,
-                                      estimands = NULL, rep_estimands = NULL,
-                                      model_levels = NA_character_, cv_level = NA_character_, estimand_levels = NULL, between_entity_diff_levels = NULL,
-                                      analysis_data,
-                                      ...,
-                                      tau_level_sigma = 1, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
-                                      calculate_marginal_prob = FALSE,
-                                      use_random_binpoint = FALSE,
-                                      num_sim_unique_entities = 0,
-                                      alternative_model_file = NULL) {
+setGeneric("create_sampler",
+           function(r,
+                    estimands = NULL, rep_estimands = NULL,
+                    model_levels = NA_character_, cv_level = NA_character_, estimand_levels = NULL, between_entity_diff_levels = NULL,
+                    analysis_data,
+                    ...,
+                    tau_level_sigma = 1, discrete_beta_hyper_mean = 0, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
+                    calculate_marginal_prob = FALSE,
+                    use_random_binpoint = FALSE,
+                    num_sim_unique_entities = 0,
+                    alternative_model_file = NULL) {
   standardGeneric("create_sampler")
 })
 
@@ -255,7 +256,7 @@ create_sampler_creator <- function() {
            model_levels = NA_character_, cv_level = NA_character_, estimand_levels = NULL, between_entity_diff_levels = NULL,
            analysis_data,
            ...,
-           tau_level_sigma = 1, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
+           tau_level_sigma = 1, discrete_beta_hyper_mean = 0, discretized_beta_hyper_mean = 0, discrete_beta_hyper_sd = 1, discretized_beta_hyper_sd = 1,
            calculate_marginal_prob = FALSE,
            use_random_binpoint = FALSE,
            num_sim_unique_entities = 0,
@@ -346,21 +347,40 @@ create_sampler_creator <- function() {
     num_discrete_r_types <- num_discrete_types(r)
     num_discretized_r_types <- num_discretized_types(r)
 
+    discrete_type_var <- str_c("r_", discrete_response_names)
+    discretized_type_var <- str_c("r_", discretized_response_names, "_1")
+
+    discrete_beta_hyper_mean %<>% {
+      if (is.numeric(.)) {
+        if (length(.) != num_discrete_r_types) {
+          rep(., num_discrete_r_types)
+        } else .
+      } else if (is_tibble(.)) {
+        default_mean <- 0
+
+        if (length(.) > 1) {
+          type_combos <- r@types_data %>%
+            select(discrete_r_type_id, any_of(c(discrete_type_var))) %>%
+            distinct()
+
+          left_join(type_combos, .) %>%
+            mutate(hyper_mean = coalesce(hyper_mean, default_mean)) %>%
+            pull(hyper_mean)
+        }
+      } else {
+        stop("Discrete beta hyper mean needs to be numeric or a tibble.")
+      }
+    }
+
     discretized_beta_hyper_mean %<>% {
       if (is.numeric(.)) {
-        # if (any(dim(.) != c(num_discretized_r_types, num_discrete_r_types))) {
         if (NROW(.) != num_discretized_r_types || NROW(.) != num_discrete_r_types) {
           matrix(., num_discretized_r_types, num_discrete_r_types)
         } else .
       } else if (is.list(.)) {
-        default_mean <- .$default
-
-        if (is_null(default_mean)) stop("Missing default mean value for discretized prior specification.")
+        default_mean <- .$default %||% 0
 
         if (length(.) > 1) {
-          discrete_type_var <- str_c("r_", discrete_response_names)
-          discretized_type_var <- str_c("r_", discretized_response_names, "_1")
-
           type_combos <-r@types_data %>%
             select(any_of(c(discrete_type_var))) %>%
             distinct()
@@ -374,7 +394,9 @@ create_sampler_creator <- function() {
             mutate(name = factor(name, levels = r@types_data %>% pull(discretized_type_var) %>% levels())) %>%
             complete(name) %>%
             rename(!!str_remove(discretized_type_var, "_1$") := "name") %>%
-            mutate(discrete_types = map_if(discrete_types, is_null, ~ rep(default_mean, nrow(type_combos)), .else = ~ arrange(.x) %>% pull(mean))) %>%
+            mutate(discrete_types = map_if(discrete_types, is_null, ~ {
+              rep(default_mean, nrow(type_combos))
+            }, .else = ~ arrange(.x) %>% pull(mean))) %>%
             pull(discrete_types) %>%
             do.call(rbind, .)
         } else {
@@ -394,9 +416,6 @@ create_sampler_creator <- function() {
         if (is_null(default_sd)) stop("Missing default SD value for discretized prior specification.")
 
         if (length(.) > 1) {
-          discrete_type_var <- str_c("r_", discrete_response_names)
-          discretized_type_var <- str_c("r_", discretized_response_names, "_1")
-
           type_combos <-r@types_data %>%
             select(any_of(c(discrete_type_var))) %>%
             distinct()
@@ -636,6 +655,7 @@ create_sampler_creator <- function() {
 
         # Priors
 
+        discrete_beta_hyper_mean,
         discretized_beta_hyper_mean,
 
         discrete_beta_hyper_sd,

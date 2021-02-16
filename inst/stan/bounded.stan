@@ -243,6 +243,7 @@ data {
 
   // Priors
 
+  vector[num_discrete_r_types] discrete_beta_hyper_mean;
   matrix[num_discretized_r_types, num_discrete_r_types] discretized_beta_hyper_mean;
 
   real<lower = 0> discrete_beta_hyper_sd;
@@ -862,7 +863,7 @@ transformed parameters {
 }
 
 model {
-  toplevel_discrete_beta ~ normal(0, discrete_beta_hyper_sd);
+  toplevel_discrete_beta ~ normal(discrete_beta_hyper_mean, discrete_beta_hyper_sd);
 
   if (num_levels > 0) {
     to_vector(discrete_level_beta_raw) ~ std_normal();
