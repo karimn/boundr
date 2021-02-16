@@ -36,7 +36,7 @@ LinkingTo:
     rstan (>= 2.19.3),
     StanHeaders (>= 2.19.2)
 SystemRequirements: GNU make
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Collate: 
     'base_model.R'
     'boundr-package.R'

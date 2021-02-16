@@ -24,6 +24,17 @@ setClass(
   slots = c(input = "character", finite_states = "list")
 )
 
+#' S4 class for a multinomial orphan response (no input)
+#'
+#' @slot input Variable name.
+#' @slot finite_states list of latent types and their corresponding structural functions.
+#'
+#' @export
+setClass(
+  "MultinomialOrphanResponse",
+  contains = "Response"
+)
+
 #' S4 base class for all discretized variable responses.
 #'
 #' @export
@@ -56,6 +67,17 @@ setMethod("get_responses", "DiscretizedResponseGroup", function(r) {
   map(r@child_responses, get_responses) %>%
     flatten() %>%
     compact()
+})
+
+setGeneric("prepare_variable_in_analysis_data", function(r, analysis_data) {
+  standardGeneric("prepare_variable_in_analysis_data")
+})
+
+setMethod("prepare_variable_in_analysis_data", "BaseResponse", function(r, analysis_data) analysis_data)
+
+setMethod("prepare_variable_in_analysis_data", "MultinomialOrphanResponse", function(r, analysis_data) {
+  analysis_data %>%
+    mutate(across(all_of(r@output), ~ fct_relevel(.x, names(r@finite_states))))
 })
 
 setGeneric("get_cutpoint", function(r) {
@@ -191,6 +213,10 @@ setMethod("set_obs_outcomes", "Response", function (r, curr_r_type, ...) {
     as.integer()
 })
 
+setMethod("set_obs_outcomes", "MultinomialOrphanResponse", function (r, curr_r_type, ...) {
+  return(curr_r_type)
+})
+
 setMethod("get_candidates", "Response", function(r, analysis_data) {
   map(r@finite_states, function(fun) {
     # For each type/class in the current r, produce a response given input values
@@ -233,6 +259,23 @@ define_response <- function(output, input = NA_character_, ...) {
       finite_states = list2(...) %>%
         compact() %>%
         map(~ rlang::new_function(input_arg, rlang::f_rhs(.x))))
+}
+
+#' Define an observable multinomial orphan variable and its response function
+#'
+#' @param output Name of variable
+#' @param ... finite responses to input
+#'
+#' @return A \code{Response} S4 object
+#' @export
+define_multinomial_orphan_response <- function(output, multinom_levels) {
+  new(
+    "MultinomialOrphanResponse",
+    output = output,
+    input = c("r" = NA_character_),
+    finite_states = map(multinom_levels, ~ function(r = NA) factor(.x, levels = multinom_levels)) %>%
+      set_names(multinom_levels)
+  )
 }
 
 define_discretized_response <- function(output, cutpoint, input = NA_character_, ...) {

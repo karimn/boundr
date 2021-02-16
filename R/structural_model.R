@@ -294,7 +294,8 @@ create_sampler_creator <- function() {
 
       analysis_data <- analysis_data %>%
         mutate(!!!discrete_rename_list, !!!discretized_data_list) %>%
-        select(!any_of(c("candidate_group_id", "experiment_assignment_id")))
+        select(!any_of(c("candidate_group_id", "experiment_assignment_id"))) %>%
+        reduce(r@responses, function(analysis_data, response) prepare_variable_in_analysis_data(response, analysis_data), .init = .)
     } else {
       tibble()
     }
