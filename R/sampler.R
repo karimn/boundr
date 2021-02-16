@@ -303,7 +303,8 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
     full_join(filter(r@sampler@endogenous_latent_type_variables, !discretized), ., by = "marginal_latent_type_index") %>%
     mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
-    unnest(estimand_quantiles)
+    unnest(estimand_quantiles) %>%
+    relocate(iter_data, .after = last_col())
 
   discretized_marginal_prob <- if (has_discretized_variables(r@sampler@structural_model)) {
     discrete_type_variables <- r@sampler@endogenous_latent_type_variables %>%
