@@ -91,7 +91,9 @@ setMethod("sampling", "Sampler", function(object, ...,
 #'
 #' @importMethodsFrom rstan vb
 #' @export
-setMethod("vb", "Sampler", function(object, ..., run_type = c("fit", "prior-predict"), save_background_joint_prob = FALSE) {
+setMethod("vb", "Sampler", function(object, ...,
+                                    pars = c("iter_estimand", "iter_level_entity_estimand", "iter_level_entity_estimand_sd", "log_lik", "iter_between_level_entity_diff_estimand"),
+                                    run_type = c("fit", "prior-predict"), save_background_joint_prob = FALSE) {
   run_type <- arg_match(run_type) %>%
     factor(levels = c("prior-predict", "fit"))
 
@@ -101,10 +103,12 @@ setMethod("vb", "Sampler", function(object, ..., run_type = c("fit", "prior-pred
      stop("Sample data cannot be specified. Data is prepared in the sampler constructor.")
   }
 
-  pars <- c("iter_estimand", "iter_level_entity_estimand", "log_lik")
+  if (object@stan_data$calculate_marginal_prob) {
+    pars %<>% c("single_discrete_marginal_p_r", "discretized_marginal_p_r", "discrete_marginal_p_r")
+  }
 
   if (save_background_joint_prob) {
-    pars %<>%  c("r_log_prob")
+    pars %<>% c("r_log_prob")
   }
 
   args <- lst(
@@ -303,7 +307,8 @@ setMethod("get_marginal_latent_type_prob", "SamplingResults", function(r, no_sim
     full_join(filter(r@sampler@endogenous_latent_type_variables, !discretized), ., by = "marginal_latent_type_index") %>%
     mutate(estimand_quantiles = map(iter_data, quantilize_est, iter_p_r, wide = TRUE, quant_probs = quants),
            mean = map_dbl(iter_data, ~ mean(.$iter_p_r))) %>%
-    unnest(estimand_quantiles)
+    unnest(estimand_quantiles) %>%
+    relocate(iter_data, .after = last_col())
 
   discretized_marginal_prob <- if (has_discretized_variables(r@sampler@structural_model)) {
     discrete_type_variables <- r@sampler@endogenous_latent_type_variables %>%

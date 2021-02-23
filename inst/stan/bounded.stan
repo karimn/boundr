@@ -243,6 +243,7 @@ data {
 
   // Priors
 
+  vector[num_discrete_r_types] discrete_beta_hyper_mean;
   matrix[num_discretized_r_types, num_discrete_r_types] discretized_beta_hyper_mean;
 
   real<lower = 0> discrete_beta_hyper_sd;
@@ -769,10 +770,8 @@ parameters {
   matrix[num_discrete_r_types, sum(level_size)] discrete_level_beta_raw;
   matrix<lower = 0>[num_discrete_r_types, num_levels] discrete_level_beta_sigma;
 
-  // matrix[num_discretized_r_types, num_discrete_r_types] toplevel_discretized_beta[num_discretized_variables];
   vector[sum(num_discretized_types_conditional)] toplevel_discretized_beta[num_discretized_variables];
 
-  // matrix[num_discretized_r_types * num_discrete_r_types, sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
   matrix[sum(num_discretized_types_conditional), sum(level_size)] discretized_level_beta_raw[num_discretized_variables];
   matrix<lower = 0>[num_discretized_r_types, num_levels] discretized_level_beta_sigma[num_discretized_variables];
 }
@@ -784,25 +783,9 @@ transformed parameters {
 
   matrix[num_discrete_r_types, num_unique_entities] discrete_beta = rep_matrix(toplevel_discrete_beta, num_unique_entities);
 
-  // matrix[num_discretized_r_types * num_discrete_r_types, num_unique_entities] discretized_beta[num_discretized_variables];
   matrix[sum(num_discretized_types_conditional), num_unique_entities] discretized_beta[num_discretized_variables];
 
   for (discretized_var_index in 1:num_discretized_variables) {
-    // matrix[num_discretized_r_types, num_discrete_r_types] curr_discretized_beta = rep_matrix(0, num_discretized_r_types, num_discrete_r_types);
-    // vector[sum(num_discretized_types_conditional)] curr_discretized_beta = toplevel_discretized_beta[discretized_var_index];
-
-    // int discretized_beta_pos = 1;
-    //
-    // for (discrete_type_index in 1:num_discrete_r_types) {
-    //   int discretized_beta_end = discretized_beta_pos + num_discretized_types_conditional[discrete_type_index] - 1;
-    //
-    //   curr_discretized_beta[discretized_types_conditional[discretized_beta_pos:discretized_beta_end], discrete_type_index] =
-    //     toplevel_discretized_beta[discretized_var_index, discretized_types_conditional[discretized_beta_pos:discretized_beta_end]];
-    //
-    //   discretized_beta_pos = discretized_beta_end + 1;
-    // }
-
-    // discretized_beta[discretized_var_index] = rep_matrix(to_vector(curr_discretized_beta), num_unique_entities);
     discretized_beta[discretized_var_index] = rep_matrix(toplevel_discretized_beta[discretized_var_index], num_unique_entities);
   }
 
@@ -820,11 +803,7 @@ transformed parameters {
       for (discretized_var_index in 1:num_discretized_variables) {
         matrix[sum(num_discretized_types_conditional), level_size[level_index]] curr_discretized_level_beta =
           discretized_level_beta_raw[discretized_var_index, , level_entity_pos:level_entity_end] .*
-          // rep_matrix(to_vector(rep_matrix(discretized_level_beta_sigma[discretized_var_index, , level_index], num_discrete_r_types)), level_size[level_index]);
           rep_matrix(discretized_level_beta_sigma[discretized_var_index, discretized_types_conditional , level_index], level_size[level_index]);
-
-        // print("discretized_beta[discretized_var_index] = ", discretized_beta[discretized_var_index]);
-        // print("curr_discretized_level_beta[, unique_entity_ids[, level_index]] = ", curr_discretized_level_beta[, unique_entity_ids[, level_index]]);
 
         discretized_beta[discretized_var_index] += curr_discretized_level_beta[, unique_entity_ids[, level_index]];
       }
@@ -862,7 +841,7 @@ transformed parameters {
 }
 
 model {
-  toplevel_discrete_beta ~ normal(0, discrete_beta_hyper_sd);
+  toplevel_discrete_beta ~ normal(discrete_beta_hyper_mean, discrete_beta_hyper_sd);
 
   if (num_levels > 0) {
     to_vector(discrete_level_beta_raw) ~ std_normal();
@@ -873,8 +852,6 @@ model {
   }
 
   for (discretized_var_index in 1:num_discretized_variables) {
-    // to_vector(toplevel_discretized_beta[discretized_var_index]) ~ normal(to_vector(discretized_beta_hyper_mean), to_vector(discretized_beta_hyper_sd));
-
     int discretized_beta_pos = 1;
 
     for (discrete_type_index in 1:num_discrete_r_types) {
